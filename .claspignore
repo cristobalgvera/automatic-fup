@@ -1,0 +1,5 @@
+# TypeScript
+src/util/interfaces/**
+
+# Node
+node_modules/**
