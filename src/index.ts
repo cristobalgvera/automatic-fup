@@ -3,6 +3,7 @@ import { consolidateOpenOrders, getTemplateAndCreateFolder } from './services/dr
 import { extractFupDataGroupedByVendorName, getColumnNumbers } from './services/read.service';
 import { writeInSheet } from './services/write.service';
 import { sendSheetToVendor } from './services/mail.service';
+import { userConfirmation } from './services/utility.service';
 
 // Found the GitHub project to pull in https://github.com/cristobalgvera/automatic-fup
 
@@ -35,8 +36,13 @@ function createFileForEachVendor() {
         const vendorSheet = SpreadsheetApp.open(vendorFile)
             .getSheetByName(TEMPLATE.SHEET.PURCHASE);
 
+        let success: boolean;
         writeInSheet(vendorSheet, vendorData, columnNumbers, true);
-        sendSheetToVendor(vendorContact, vendorFile);
+        do {
+            success = sendSheetToVendor(vendorContact, vendorFile);
+            if (!success && !userConfirmation(UI.MODAL.errorSendingEmailTo(vendorContact)))
+                success = true;
+        } while (!success);
     });
 }
 

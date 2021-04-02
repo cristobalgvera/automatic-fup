@@ -1,4 +1,4 @@
-import { COMMON } from '../../config/app.settings';
+import { COMMON, UI } from '../../config/app.settings';
 
 function today() {
     return new Date().toLocaleDateString(COMMON.UTIL.LOCALE);
@@ -15,7 +15,14 @@ function toCamelCase( str: string ) {
     });
 }
 
-function userConfirmation( title, vendorsNames ) {
+function userConfirmation( title: string, vendorsNames?: string[] ) {
+    const ui = SpreadsheetApp.getUi();
+
+    if (!vendorsNames) {
+        const response = ui.alert(UI.MODAL.ERROR, title, ui.ButtonSet.OK_CANCEL);
+        return response === ui.Button.OK;
+    }
+
     const vendorsToSendEmails = vendorsNames
         .reduce(( word, name, i, arr ) =>
                 !!arr[i + 1]
@@ -23,9 +30,7 @@ function userConfirmation( title, vendorsNames ) {
                     : word.concat(`- ${name}`)
             , '');
 
-    const ui = SpreadsheetApp.getUi();
     const response = ui.alert(title, vendorsToSendEmails, ui.ButtonSet.OK_CANCEL);
-
     return response === ui.Button.OK;
 }
 

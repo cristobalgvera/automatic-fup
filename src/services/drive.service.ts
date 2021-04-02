@@ -110,7 +110,7 @@ function createChildFolderFromFolderId( folderId: string, name: string ) {
 
 function _setBaseData( isPurchase: boolean ) {
     return {
-        openOrdersId: isPurchase ? FOLDER_ID.PURCHASE_ORDERS : FOLDER_ID.REPAIR_ORDERS,
+        openOrdersId: isPurchase ? FOLDER_ID.TO_CONSOLIDATE.PURCHASES : FOLDER_ID.TO_CONSOLIDATE.REPAIRS,
         folderName: UI.FOLDER.CONSOLIDATED.getName(isPurchase),
         consolidatedFileName: UI.FILE.CONSOLIDATED.getName(isPurchase),
         numberOfColumns: isPurchase ? 8 : 7,

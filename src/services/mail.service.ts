@@ -7,7 +7,7 @@ import Folder = GoogleAppsScript.Drive.Folder;
 
 function sendSheetToVendor( vendorContact: VendorContact, vendorFile: File ) {
     const vendorExcel = sheetToExcel(vendorFile.getId(), vendorContact.name);
-    _sendExcelTo(vendorContact, [vendorExcel]);
+    return _sendExcelTo(vendorContact, [vendorExcel]);
 }
 
 function _sendExcelTo( { name, email }: VendorContact, attachments: Blob[] ) {
@@ -24,8 +24,11 @@ function _sendExcelTo( { name, email }: VendorContact, attachments: Blob[] ) {
             replyTo: UI.MAIL.REPLY_TO,
             name: UI.MAIL.NAME,
         });
+
+        return true;
     } catch (e) {
         console.error(e);
+        return false;
     }
 }
 

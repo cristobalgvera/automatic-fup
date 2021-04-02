@@ -1,4 +1,5 @@
 import { today, todayNoYear } from '../src/services/utility.service';
+import { VendorContact } from '../src/util/interfaces/vendor-contact';
 
 export const {
     COMMON,
@@ -38,19 +39,22 @@ export const {
             },
         },
         MODAL: {
-            TO_SEARCH_VENDORS: 'Vendors a filtrar',
-            NO_DATA_VENDORS: 'Hay vendors sin POs, ¿continuar?',
+            TO_SEARCH_VENDORS: 'Los siguientes vendors serán filtrados',
+            NO_DATA_VENDORS: 'Hay vendors sin POs, ¿continuar? (no se les notificará)',
             SUFFIX: {
                 NO_LINKED_VENDOR_NAMES: '(sin nombres asociados)',
                 NO_PURCHASE_ORDERS: '(sin purchase orders)',
             },
+            ERROR: 'Ha habido un error',
+            errorSendingEmailTo: ( { name, email }: VendorContact ) =>
+                `No se ha podido enviar correo a ${name} (${email}), ¿reintentar?`,
         },
         FOLDER: {
             REGISTRIES: {
                 getName: () => `[${today()}] REGISTROS`,
             },
             CONSOLIDATED: {
-                getName: ( isPurchase ) => `[${today()}] ${isPurchase ? 'COMPRAS' : 'REPARACIONES'}`,
+                getName: ( isPurchase: boolean ) => `[${today()}] ${isPurchase ? 'COMPRAS' : 'REPARACIONES'}`,
                 VENDORS: {
                     getName: () => `Vendors`,
                 },
@@ -61,7 +65,7 @@ export const {
         },
         FILE: {
             CONSOLIDATED: {
-                getName: ( isPurchase ) => `[${today()}] CONSOLIDADO ${isPurchase ? 'COMPRAS' : 'REPARACIONES'}`,
+                getName: ( isPurchase: boolean ) => `[${today()}] CONSOLIDADO ${isPurchase ? 'COMPRAS' : 'REPARACIONES'}`,
             },
         },
         MAIL: {
@@ -99,13 +103,15 @@ export const {
     },
     FOLDER_ID: {
         MAIN: '1UO_aoVH3aW4lGF1dpZbaF20Uon17WyBv',
-        PURCHASE_ORDERS: '175uiKnAPJcjc_tgUipe4o4d_waU8vUtP',
-        REPAIR_ORDERS: '1Xpb2AF5jkqDDbB0jxy3_lmpHDG8zifDC',
+        REGISTRIES: '1-EglqcFUD9WKzJSKt6Q9S3bPpE_Q04tC',
+        TO_CONSOLIDATE: {
+            PURCHASES: '175uiKnAPJcjc_tgUipe4o4d_waU8vUtP',
+            REPAIRS: '1Xpb2AF5jkqDDbB0jxy3_lmpHDG8zifDC',
+        },
         CONSOLIDATED: {
             PURCHASES: '1zlCjgU_CrhAXKFRoNnOBIh38WAEGVMzR',
             REPAIRS: '1y4hPi7v_NQ2F2pM-qZ6_1P6EvICTVDiK',
         },
-        REGISTRIES: '1-EglqcFUD9WKzJSKt6Q9S3bPpE_Q04tC',
     },
     TEMPLATE: {
         ID: '1fUxA_8WbypaQxifwepWa3cr_3CsxQw5a6tko4ZHLpns',
