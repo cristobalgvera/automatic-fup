@@ -7,7 +7,6 @@ function onOpen() {
       .addItem(UI.MENU.SUBMENU_2.ITEM.A, 'consolidatePurchases')
       .addItem(UI.MENU.SUBMENU_2.ITEM.B, 'consolidateRepairs'))
     .addToUi();
-    // TEST
 }
 
 function createFileForEachVendor() {

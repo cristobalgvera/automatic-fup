@@ -5,7 +5,7 @@ function sendSheetToVendor(vendorContact, vendorFile) {
 
 function _sendExcelTo({ name, email }, attachments) {
   try {
-    const html = HtmlService.createTemplateFromFile('Mail');
+    const html = HtmlService.createTemplateFromFile('src/assets/mail');
     html.data = name;
     const htmlBody = html.evaluate().getContent();
 
