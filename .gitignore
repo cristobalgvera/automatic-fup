@@ -1,0 +1,10 @@
+# Misc
+**/.nvimlog
+**/.idea
+
+# Node
+node_modules/
+package-lock.json
+
+# Apps Script
+.clasp.json
