@@ -1,9 +1,9 @@
 import { COMMON, FOLDER_ID, TEMPLATE, UI } from '../../config';
 import { removeExtension } from './utility.service';
-import { GroupedVendors } from '../util/interfaces/grouped-vendors';
-import { ColumnNumbers } from '../util/interfaces/column-numbers';
+import { GroupedVendors } from '../util/interface/grouped-vendors.interface';
+import { ColumnNumbers } from '../util/interface/column-numbers.interface';
 import { sendEmail } from './mail.service';
-import { VendorContact } from '../util/interfaces/vendor-contact';
+import { VendorContact } from '../util/interface/vendor-contact.interface';
 import Folder = GoogleAppsScript.Drive.Folder;
 import File = GoogleAppsScript.Drive.File;
 import Blob = GoogleAppsScript.Base.Blob;

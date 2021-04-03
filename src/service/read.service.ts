@@ -1,8 +1,8 @@
 import { COMMON, DATA, DB, TEMPLATE, UI } from '../../config';
-import { HeaderNumber } from '../util/interfaces/header-number';
-import { VendorContact, VendorsContact } from '../util/interfaces/vendor-contact';
-import { GroupedVendors } from '../util/interfaces/grouped-vendors';
-import { ColumnNumbers } from '../util/interfaces/column-numbers';
+import { HeaderNumber } from '../util/interface/header-number.interface';
+import { VendorContact, VendorsContact } from '../util/interface/vendor-contact.interface';
+import { GroupedVendors } from '../util/interface/grouped-vendors.interface';
+import { ColumnNumbers } from '../util/interface/column-numbers.interface';
 import { toCamelCase, userConfirmation } from './utility.service';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 

@@ -1,5 +1,5 @@
-import { VendorContact } from '../src/util/interfaces/vendor-contact';
-import { today, todayNoYear } from '../src/services/utility.service';
+import { VendorContact } from '../src/util/interface/vendor-contact.interface';
+import { today, todayNoYear } from '../src/service/utility.service';
 
 const UI = {
     MENU: {

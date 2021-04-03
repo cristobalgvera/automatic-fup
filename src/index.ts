@@ -1,5 +1,5 @@
-import { consolidateOpenOrders, createSheetFiles, getTemplateAndCreateFolder } from './services/drive.service';
-import { extractFupDataGroupedByVendorName, getColumnNumbers } from './services/read.service';
+import { consolidateOpenOrders, createSheetFiles, getTemplateAndCreateFolder } from './service/drive.service';
+import { extractFupDataGroupedByVendorName, getColumnNumbers } from './service/read.service';
 import { UI } from '../config';
 
 // Found the GitHub project to pull in https://github.com/cristobalgvera/automatic-fup
