@@ -1,20 +1,36 @@
-import { FOLDER_ID, UI, TEMPLATE, COMMON } from '../../config/app.settings';
+import { COMMON, FOLDER_ID, TEMPLATE, UI } from '../../config';
+import { removeExtension } from './utility.service';
+import { GroupedVendors } from '../util/interfaces/grouped-vendors';
+import { ColumnNumbers } from '../util/interfaces/column-numbers';
+import { sendEmail } from './mail.service';
+import { VendorContact } from '../util/interfaces/vendor-contact';
 import Folder = GoogleAppsScript.Drive.Folder;
 import File = GoogleAppsScript.Drive.File;
-import MimeType = GoogleAppsScript.Base.MimeType;
-import { removeExtension } from './utility.service';
 import Blob = GoogleAppsScript.Base.Blob;
+import SchemaFile = GoogleAppsScript.Drive.Schema.File;
+import MimeType = GoogleAppsScript.Base.MimeType;
+import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
 function getTemplateAndCreateFolder() {
+    // Parent folder to store registries
     const folder = DriveApp.getFolderById(FOLDER_ID.REGISTRIES);
+    const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE.ID);
 
-    const registriesFolderName = UI.FOLDER.REGISTRIES.getName();
+    // Folder to store new registries located in parent folder
+    const registriesFolder = folder.createFolder(UI.FOLDER.REGISTRIES.getName());
 
-    const templateFile = DriveApp.getFileById(TEMPLATE.ID);
-    const registriesFolder = folder.createFolder(registriesFolderName);
-
-    return { templateFile, registriesFolder };
+    return { templateSpreadsheet: templateSpreadsheet, registriesFolder };
 }
+
+const _setBaseData = ( isPurchase: boolean ) => ({
+    openOrdersId: isPurchase ? FOLDER_ID.TO_CONSOLIDATE.PURCHASES : FOLDER_ID.TO_CONSOLIDATE.REPAIRS,
+    folderName: UI.FOLDER.CONSOLIDATED.getName(isPurchase),
+    consolidatedFileName: UI.FILE.CONSOLIDATED.getName(isPurchase),
+    numberOfColumns: isPurchase ? 8 : 7,
+    vendorsFolderName: UI.FOLDER.CONSOLIDATED.VENDORS.getName(),
+    purchaseOrderColumnName: TEMPLATE.COLUMN.PURCHASE_ORDER,
+    consolidatedFolderId: isPurchase ? FOLDER_ID.CONSOLIDATED.PURCHASES : FOLDER_ID.CONSOLIDATED.REPAIRS,
+});
 
 function consolidateOpenOrders( isPurchase: boolean = true ) {
     const {
@@ -33,7 +49,7 @@ function consolidateOpenOrders( isPurchase: boolean = true ) {
     // Folder where data is searched
     const purchasesOpenOrdersFolder = DriveApp.getFolderById(openOrdersId);
 
-    // Template file to write vedors data
+    // Template file to write vendors data
     const templateFile = DriveApp.getFileById(TEMPLATE.ID)
         .makeCopy()
         .setName(consolidatedFileName);
@@ -56,7 +72,7 @@ function consolidateOpenOrders( isPurchase: boolean = true ) {
     const files = purchasesOpenOrdersFolder.getFiles();
 
     while (files.hasNext()) {
-        // In case of failure, something can happen... not implemented
+        // In case of failure, something can happen... not implemented yet
         try {
             // Point to Excel file to convert
             const excelFile = files.next();
@@ -97,7 +113,7 @@ function consolidateOpenOrders( isPurchase: boolean = true ) {
 
     try {
         // Delete all unused rows (may fail if template file is dirty)
-        consolidated.deleteRows(consolidated.getLastRow(), TEMPLATE.UTIL.INITIAL_ROWS - 1);
+        consolidated.deleteRows(consolidated.getLastRow() + 1, TEMPLATE.UTIL.INITIAL_ROWS - 2);
     } catch (e) {
         console.error(e);
     }
@@ -108,51 +124,65 @@ function createChildFolderFromFolderId( folderId: string, name: string ) {
     return DriveApp.getFolderById(folderId).createFolder(name);
 }
 
-function _setBaseData( isPurchase: boolean ) {
-    return {
-        openOrdersId: isPurchase ? FOLDER_ID.TO_CONSOLIDATE.PURCHASES : FOLDER_ID.TO_CONSOLIDATE.REPAIRS,
-        folderName: UI.FOLDER.CONSOLIDATED.getName(isPurchase),
-        consolidatedFileName: UI.FILE.CONSOLIDATED.getName(isPurchase),
-        numberOfColumns: isPurchase ? 8 : 7,
-        vendorsFolderName: UI.FOLDER.CONSOLIDATED.VENDORS.getName(),
-        purchaseOrderColumnName: TEMPLATE.COLUMN.PURCHASE_ORDER,
-        consolidatedFolderId: isPurchase ? FOLDER_ID.CONSOLIDATED.PURCHASES : FOLDER_ID.CONSOLIDATED.REPAIRS,
-    };
-}
-
 function excelToSheet( excelFile: File | Blob, folder: Folder ) {
+    const blob = excelFile.getBlob();
+    const fileName = removeExtension(excelFile.getName(), COMMON.UTIL.FILE_EXTENSION.XLSX);
+
+    // Define a Sheet file to convert Excel file into
+    const resource: SchemaFile = {
+        title: fileName,
+        // @ts-ignore because mimeType doesn't recognize his own MimeType enum
+        mimeType: MimeType.GOOGLE_SHEETS,
+        parents: [{ id: folder.getId() }],
+    };
 
     try {
-        const blob = excelFile.getBlob();
-        const fileName = removeExtension(excelFile.getName(), COMMON.UTIL.FILE_EXTENSION.XLSX);
-        const resource: GoogleAppsScript.Drive.Schema.File = {
-            title: fileName,
-            // @ts-ignore
-            mimeType: MimeType.GOOGLE_SHEETS,
-            parents: [{ id: folder.getId() }],
-        };
-
         const file = Drive.Files.insert(resource, blob);
+
+        // Variable file should return his id of creation (this may fail)
         return SpreadsheetApp.openById(file.id);
     } catch (f) {
         console.error(f.toString());
     }
 }
 
-function sheetToExcel( fileId: string, name: string ) {
-    try {
-        const url = `https://docs.google.com/feeds/download/spreadsheets/Export?key=${fileId}&exportFormat=${COMMON.UTIL.FILE_EXTENSION.XLSX}`;
-        const params = {
-            headers: {
-                'Authorization': `Bearer ${ScriptApp.getOAuthToken()}`,
-            },
-            muteHttpExceptions: true,
-        };
+function sheetToExcel( vendorSpreadsheet: Spreadsheet, name: string ) {
+    // Google's URL to convert sheet file to Excel one
+    const url = `https://docs.google.com/feeds/download/spreadsheets/Export?key=${vendorSpreadsheet.getId()}&exportFormat=${COMMON.UTIL.FILE_EXTENSION.XLSX}`;
+    const params = {
+        headers: { Authorization: `Bearer ${ScriptApp.getOAuthToken()}` },
+        muteHttpExceptions: true,
+    };
 
-        return UrlFetchApp.fetch(url, params).getBlob().setName(name + `.${COMMON.UTIL.FILE_EXTENSION.XLSX}`);
+    try {
+        return UrlFetchApp.fetch(url, params)
+            .getBlob()
+            .setName(name + `.${COMMON.UTIL.FILE_EXTENSION.XLSX}`);
     } catch (e) {
         console.error(e.toString());
     }
+}
+
+function createSheetFiles(
+    vendors: GroupedVendors,
+    vendorsContact: VendorContact[],
+    templateSpreadsheet: Spreadsheet,
+    registriesFolder: Folder,
+    columnNumbers: ColumnNumbers,
+) {
+    return Object.entries(vendors).map(vendor => {
+        const [vendorId, vendorData] = vendor;
+        const vendorContact = vendorsContact.find(contact => contact.id === vendorId);
+
+        const vendorSpreadsheet = templateSpreadsheet.copy(vendorContact.name);
+        registriesFolder.addFile(DriveApp.getFileById(vendorSpreadsheet.getId()));
+
+        // Point to created spreadsheet sheet
+        const vendorSheet = vendorSpreadsheet.getSheetByName(TEMPLATE.SHEET.PURCHASE);
+
+        // For each vendor create a send email to him action to return
+        return () => sendEmail(vendorSheet, vendorData, columnNumbers, vendorContact, vendorSpreadsheet);
+    });
 }
 
 export {
@@ -161,4 +191,5 @@ export {
     getTemplateAndCreateFolder,
     sheetToExcel,
     excelToSheet,
+    createSheetFiles,
 };

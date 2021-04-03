@@ -1,9 +1,6 @@
-import { UI, TEMPLATE } from '../config/app.settings';
-import { consolidateOpenOrders, getTemplateAndCreateFolder } from './services/drive.service';
+import { consolidateOpenOrders, createSheetFiles, getTemplateAndCreateFolder } from './services/drive.service';
 import { extractFupDataGroupedByVendorName, getColumnNumbers } from './services/read.service';
-import { writeInSheet } from './services/write.service';
-import { sendSheetToVendor } from './services/mail.service';
-import { userConfirmation } from './services/utility.service';
+import { UI } from '../config';
 
 // Found the GitHub project to pull in https://github.com/cristobalgvera/automatic-fup
 
@@ -21,29 +18,15 @@ function onOpen() {
 function createFileForEachVendor() {
     const { vendors, headers, vendorsContact } = extractFupDataGroupedByVendorName();
 
+    // User cancel operation
     if (!vendorsContact) return;
 
-    const { templateFile, registriesFolder } = getTemplateAndCreateFolder();
-    const columnNumbers = getColumnNumbers(templateFile, headers);
+    const { templateSpreadsheet, registriesFolder } = getTemplateAndCreateFolder();
+    const columnNumbers = getColumnNumbers(templateSpreadsheet, headers);
 
-    Object.entries(vendors).forEach(vendor => {
-        const [vendorId, vendorData] = vendor;
-        const vendorContact = vendorsContact.find(contact => contact.id === vendorId);
-
-        const vendorFile = templateFile.makeCopy()
-            .setName(vendorContact.name);
-        registriesFolder.addFile(vendorFile);
-        const vendorSheet = SpreadsheetApp.open(vendorFile)
-            .getSheetByName(TEMPLATE.SHEET.PURCHASE);
-
-        let success: boolean;
-        writeInSheet(vendorSheet, vendorData, columnNumbers, true);
-        do {
-            success = sendSheetToVendor(vendorContact, vendorFile);
-            if (!success && !userConfirmation(UI.MODAL.errorSendingEmailTo(vendorContact)))
-                success = true;
-        } while (!success);
-    });
+    // Create sheet files and return a send email to vendor action for each one
+    const sendEmails = createSheetFiles(vendors, vendorsContact, templateSpreadsheet, registriesFolder, columnNumbers);
+    sendEmails.forEach(sendEmail => sendEmail());
 }
 
 function consolidatePurchases() {

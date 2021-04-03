@@ -1,25 +1,29 @@
-import { COMMON, DATA, DB, TEMPLATE, UI } from '../../config/app.settings';
+import { COMMON, DATA, DB, TEMPLATE, UI } from '../../config';
 import { HeaderNumber } from '../util/interfaces/header-number';
-import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import { VendorContact, VendorsContact } from '../util/interfaces/vendor-contact';
 import { GroupedVendors } from '../util/interfaces/grouped-vendors';
-import File = GoogleAppsScript.Drive.File;
 import { ColumnNumbers } from '../util/interfaces/column-numbers';
 import { toCamelCase, userConfirmation } from './utility.service';
+import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
-function extractFupDataGroupedByVendorName( filterText: string = COMMON.DEFAULT.FILTER_TEXT ) {
+function extractFupDataGroupedByVendorName( filters: string[] = COMMON.DEFAULT.FILTERS ) {
     const { expectedSheet, filterColumnNumber, sortColumnNumber, headerNumber: headers } = _getInitialData();
     const { groupedVendors, vendorsContact } = _getVendorsNames();
 
+    // Filter vendors checked as 'to send email', get his
+    // contact data and set useful format to work with them
     const toContactVendors = _getToContactVendors(vendorsContact);
     const toFilterVendors = Object.values(toContactVendors).map(vendor => vendor);
 
+    // Create a list-like string to show in a pop-up
     const toFilterVendorNames = toFilterVendors.reduce(( acc: string[], { id, name } ) =>
             !!groupedVendors[id]
                 ? acc.concat(name)
+                // Alert for each vendor that has not linked vendor names in DB
                 : acc.concat(`${name} ${UI.MODAL.SUFFIX.NO_LINKED_VENDOR_NAMES}`)
         , []);
 
+    // Confirm vendors to filter with user
     if (!userConfirmation(UI.MODAL.TO_SEARCH_VENDORS, toFilterVendorNames))
         return {};
 
@@ -28,31 +32,32 @@ function extractFupDataGroupedByVendorName( filterText: string = COMMON.DEFAULT.
         groupedVendors,
         filterColumnNumber,
         sortColumnNumber,
-        filterText,
+        filters,
     );
 
+    // Filter all vendors to get just the ones that are needed
     const vendors: GroupedVendors = expectedSheet.getDataRange()
         .getValues()
         .filter(byHitoRadar)
         .filter(bySendEmail)
         .reduce(byVendorId, {});
 
+    // Put in an array all vendors that has no data
     const noDataVendorNames = toFilterVendors.reduce(( acc: string[], { id, name } ) =>
             !!vendors[id]
                 ? acc
                 : acc.concat(`${name} ${UI.MODAL.SUFFIX.NO_PURCHASE_ORDERS}`)
         , []);
 
+    // If some vendor has no data, ask user for confirmation, else continue
     return noDataVendorNames.length && !userConfirmation(UI.MODAL.NO_DATA_VENDORS, noDataVendorNames)
         ? {}
         : { vendors, headers, vendorsContact: toFilterVendors };
 }
 
-function getColumnNumbers( templateFile: File, headers: HeaderNumber ): ColumnNumbers {
-    const templateSheet = SpreadsheetApp.open(templateFile)
-        .getSheetByName(TEMPLATE.SHEET.PURCHASE);
-    const templateHeaders = templateSheet
-        .getRange(2, 1, 1, templateSheet.getLastColumn())
+function getColumnNumbers( templateSpreadsheet: Spreadsheet, headers: HeaderNumber ): ColumnNumbers {
+    const sheet = templateSpreadsheet.getSheetByName(TEMPLATE.SHEET.PURCHASE);
+    const templateHeaders = sheet.getRange(2, 1, 1, sheet.getLastColumn())
         .getValues()[0];
 
     return {
@@ -70,7 +75,7 @@ function _utilitiesToExtractFupData(
     groupedVendors: GroupedVendors,
     filterColumnNumber: number,
     sortColumnNumber: number,
-    filterText: string,
+    filters: string[],
 ) {
     const toFilterGroupedVendors = Object.entries(toFilterVendors.reduce(( acc: GroupedVendors, { id } ) => ({
         ...acc,
@@ -83,7 +88,7 @@ function _utilitiesToExtractFupData(
     const getVendorId = ( vendorName: string ) => toFilterGroupedVendors
         .find(vendor => vendor[1]?.some(name => name === vendorName) ?? false)[0];
 
-    const byHitoRadar = ( row: string[] ) => row[filterColumnNumber] === filterText;
+    const byHitoRadar = ( row: string[] ) => filters.includes(row[filterColumnNumber]);
     const bySendEmail = ( row: string[] ) => toFilterVendors.length
         ? shouldSendEmailToVendor(row[sortColumnNumber])
         : false;
@@ -172,7 +177,7 @@ function _getInitialData() {
         [header]: index,
     }), {});
 
-    const filterColumnNumber = headerNumber[DATA.UTIL.FILTER_COLUMN];
+    const filterColumnNumber = headerNumber[DATA.UTIL.FILTER_COLUMNS];
     const sortColumnNumber = headerNumber[DATA.UTIL.SORT_COLUMN];
 
     return { expectedSheet, filterColumnNumber, sortColumnNumber, headerNumber };

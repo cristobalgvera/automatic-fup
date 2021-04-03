@@ -1,21 +1,53 @@
-import File = GoogleAppsScript.Drive.File;
+import Blob = GoogleAppsScript.Base.Blob;
+import Folder = GoogleAppsScript.Drive.Folder;
+import Sheet = GoogleAppsScript.Spreadsheet.Sheet;
+import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import { VendorContact } from '../util/interfaces/vendor-contact';
 import { createChildFolderFromFolderId, excelToSheet, sheetToExcel } from './drive.service';
-import Blob = GoogleAppsScript.Base.Blob;
-import { FOLDER_ID, UI } from '../../config/app.settings';
-import Folder = GoogleAppsScript.Drive.Folder;
+import { ColumnNumbers } from '../util/interfaces/column-numbers';
+import { writeInSheet } from './write.service';
+import { userConfirmation } from './utility.service';
+import { FOLDER_ID, UI } from '../../config';
 
-function sendSheetToVendor( vendorContact: VendorContact, vendorFile: File ) {
-    const vendorExcel = sheetToExcel(vendorFile.getId(), vendorContact.name);
+function sendSheetToVendor( vendorContact: VendorContact, vendorSpreadsheet: Spreadsheet ) {
+    const vendorExcel = sheetToExcel(vendorSpreadsheet, vendorContact.name);
+
+    // Return true or false based on success of email send
     return _sendExcelTo(vendorContact, [vendorExcel]);
 }
 
-function _sendExcelTo( { name, email }: VendorContact, attachments: Blob[] ) {
-    try {
-        const html = HtmlService.createTemplateFromFile('src/assets/mail');
-        html.data = name;
-        const htmlBody = html.evaluate().getContent();
+function sendEmail(
+    vendorSheet: Sheet,
+    vendorData: string[],
+    columnNumbers: ColumnNumbers,
+    vendorContact: VendorContact,
+    vendorSpreadsheet: Spreadsheet,
+) {
+    // Put collected data in an empty vendor file
+    writeInSheet(vendorSheet, vendorData, columnNumbers, true);
 
+    let success: boolean;
+    do {
+        // Convert spreadsheet into Excel file and send it to vendor
+        success = sendSheetToVendor(vendorContact, vendorSpreadsheet);
+
+        // In case of email sending fail, user can retry
+        if (!success && !userConfirmation(UI.MODAL.errorSendingEmailTo(vendorContact)))
+            success = true;
+    } while (!success);
+}
+
+function _sendExcelTo( { name, email }: VendorContact, attachments: Blob[] ) {
+    // Use template html file to write mail
+    const html = HtmlService.createTemplateFromFile('src/assets/mail');
+
+    // Edit data variable of template html
+    html.data = name;
+
+    // Create real html from template one (whit all variable data)
+    const htmlBody = html.evaluate().getContent();
+
+    try {
         MailApp.sendEmail({
             to: email,
             htmlBody,
@@ -32,6 +64,7 @@ function _sendExcelTo( { name, email }: VendorContact, attachments: Blob[] ) {
     }
 }
 
+// Function to use inside of template html files to modularize responsibilities
 function include( filename ) {
     return HtmlService.createHtmlOutputFromFile(filename)
         .getContent();
@@ -58,4 +91,7 @@ function getOpenOrders( email: string, after: string, folder: Folder ) {
     });
 }
 
-export { sendSheetToVendor };
+export {
+    sendSheetToVendor,
+    sendEmail,
+};

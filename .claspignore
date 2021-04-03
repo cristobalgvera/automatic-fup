@@ -1,5 +1,6 @@
 # TypeScript
 src/util/interfaces/**
+config/index.ts
 
 # Node
 node_modules/**
