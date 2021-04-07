@@ -1,11 +1,4 @@
-import {
-  COMMON,
-  PURCHASES_DATA,
-  DB,
-  TEMPLATE,
-  UI,
-  FOLDER_ID,
-} from '../../config';
+import { COMMON, PURCHASES_DATA, DB, TEMPLATE, UI } from '../../config';
 import { HeaderNumber } from '../util/interface/header-number.interface';
 import {
   VendorContact,
@@ -13,7 +6,12 @@ import {
 } from '../util/interface/vendor-contact.interface';
 import { GroupedVendors } from '../util/interface/grouped-vendors.interface';
 import { ColumnNumbers } from '../util/interface/column-numbers.interface';
-import { toCamelCase, userConfirmation } from './utility.service';
+import {
+  addSuffix,
+  toCamelCase,
+  userConfirmation,
+  validateEmail,
+} from './utility.service';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import { REPAIRS_DATA } from '../../config/repairs-data.config';
 
@@ -39,9 +37,10 @@ function extractFupDataGroupedByVendorName(
   const toFilterVendorNames = toFilterVendors.reduce(
     (acc: string[], { id, name }) =>
       !!groupedVendors[id]
-        ? acc.concat(name)
-        : // Alert for each vendor that has not linked vendor names in DB
-          acc.concat(`${name} ${UI.MODAL.SUFFIX.NO_LINKED_VENDOR_NAMES}`),
+        ? validateEmail(toContactVendors[id].email)
+          ? acc.concat(name)
+          : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL))
+        : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_LINKED_VENDOR_NAMES)),
     [],
   );
 
@@ -49,7 +48,12 @@ function extractFupDataGroupedByVendorName(
   if (!userConfirmation(UI.MODAL.TO_SEARCH_VENDORS, toFilterVendorNames))
     return {};
 
-  const { byHitoRadar, bySendEmail, byVendorId } = _utilitiesToExtractFupData(
+  const {
+    byHitoRadar,
+    bySendEmail,
+    byVendorId,
+    byValidEmail,
+  } = _utilitiesToExtractFupData(
     toFilterVendors,
     groupedVendors,
     filterColumnNumber,
@@ -62,21 +66,24 @@ function extractFupDataGroupedByVendorName(
     .getDataRange()
     .getValues()
     .filter(byHitoRadar)
+    .filter(byValidEmail)
     .filter(bySendEmail)
     .reduce(byVendorId, {});
 
   // Put in an array all vendors that has no data
-  const noDataVendorNames = toFilterVendors.reduce(
+  const withProblemsVendorNames = toFilterVendors.reduce(
     (acc: string[], { id, name }) =>
       !!vendors[id]
         ? acc
-        : acc.concat(`${name} ${UI.MODAL.SUFFIX.NO_PURCHASE_ORDERS}`),
+        : !!validateEmail(toContactVendors[id].email)
+        ? acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_PURCHASE_ORDERS))
+        : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL)),
     [],
   );
 
   // If some vendor has no data, ask user for confirmation, else continue
-  return noDataVendorNames.length &&
-    !userConfirmation(UI.MODAL.NO_DATA_VENDORS, noDataVendorNames)
+  return withProblemsVendorNames.length &&
+    !userConfirmation(UI.MODAL.NO_DATA_VENDORS, withProblemsVendorNames)
     ? {}
     : { vendors, headers, vendorsContact: toFilterVendors };
 }
@@ -126,6 +133,15 @@ function _utilitiesToExtractFupData(
         false,
     );
 
+  const isValidEmail = (searchedName: string) => {
+    const email = toFilterVendors.find(
+      (vendor) =>
+        !!groupedVendors[vendor.id]?.find((name) => name === searchedName),
+    )?.email;
+
+    return !!email ? validateEmail(email) : false;
+  };
+
   const getVendorId = (vendorName: string) =>
     toFilterGroupedVendors.find(
       (vendor) => vendor[1]?.some((name) => name === vendorName) ?? false,
@@ -133,6 +149,8 @@ function _utilitiesToExtractFupData(
 
   const byHitoRadar = (row: string[]) =>
     filters.includes(row[filterColumnNumber]);
+  const byValidEmail = (row: string[]) =>
+    toFilterVendors.length ? isValidEmail(row[sortColumnNumber]) : false;
   const bySendEmail = (row: string[]) =>
     toFilterVendors.length
       ? shouldSendEmailToVendor(row[sortColumnNumber])
@@ -145,7 +163,7 @@ function _utilitiesToExtractFupData(
     return acc;
   };
 
-  return { byHitoRadar, bySendEmail, byVendorId };
+  return { byHitoRadar, bySendEmail, byVendorId, byValidEmail };
 }
 
 function _getToContactVendors(vendorsContact: VendorsContact) {
@@ -180,8 +198,7 @@ function _getGroupedVendors(db: Spreadsheet) {
     const vendorId = vendor[vendorIdColumn];
     const vendorName = vendor[vendorNameColumn];
 
-    if (!acc[vendorId]) acc[vendorId] = [];
-
+    acc[vendorId] ??= [];
     acc[vendorId].push(vendorName);
     return acc;
   }, {});
@@ -262,4 +279,8 @@ function getRepairsInitialData() {
   };
 }
 
-export { extractFupDataGroupedByVendorName, getColumnNumbers, getRepairsInitialData };
+export {
+  extractFupDataGroupedByVendorName,
+  getColumnNumbers,
+  getRepairsInitialData,
+};

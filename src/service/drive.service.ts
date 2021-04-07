@@ -258,7 +258,7 @@ function groupVendors() {
 export {
   consolidateOpenOrders,
   createChildFolderFromFolderId,
-  getTemplateAndCreateFolderForRegistries as getTemplateAndCreateFolder,
+  getTemplateAndCreateFolderForRegistries,
   sheetToExcel,
   excelToSheet,
   createSheetFiles,
