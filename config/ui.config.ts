@@ -36,7 +36,7 @@ const UI = {
   FILE: {
     CONSOLIDATED: {
       getName: (isPurchase: boolean) =>
-        `[${today()}] CONSOLIDADO ${isPurchase ? 'COMPRAS' : 'REPARACIONES'}`,
+        `${today()} - CONSOLIDADO ${isPurchase ? 'COMPRAS' : 'REPARACIONES'}`,
     },
   },
   MODAL: {
