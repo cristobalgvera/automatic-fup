@@ -1,4 +1,4 @@
-import { COMMON, UI } from '../../config';
+import {COMMON, UI} from '../config';
 
 const today = () => new Date().toLocaleDateString(COMMON.UTIL.LOCALE);
 const todayNoYear = () => Utilities.formatDate(new Date(), 'GMT-3', 'dd-MMM');
@@ -24,8 +24,8 @@ function userConfirmation(title: string, vendorsNames?: string[]) {
   // Create a list-like string to display in alert modal
   const vendorsToSendEmails = vendorsNames.reduce(
     (word, name, i, arr) =>
-      !!arr[i + 1] ? word.concat(`- ${name}\n`) : word.concat(`- ${name}`),
-    '',
+      arr[i + 1] ? word.concat(`- ${name}\n`) : word.concat(`- ${name}`),
+    ''
   );
 
   const response = ui.alert(title, vendorsToSendEmails, ui.ButtonSet.OK_CANCEL);
@@ -39,7 +39,7 @@ function removeExtension(fileName: string, extension: string) {
   return fileName.replace(`.${extension}`, '');
 }
 
-function addSuffix(name: string, suffix: string, addSpace: boolean = true) {
+function addSuffix(name: string, suffix: string, addSpace = true) {
   return `${name}${addSpace ? ' ' : ''}${suffix}`;
 }
 

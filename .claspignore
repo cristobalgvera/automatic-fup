@@ -1,6 +1,12 @@
-# TypeScript
-src/util/interfaces/**
-config/index.ts
+# ignore all files…
+**/**
 
-# Node
+# except the extensions…
+!appsscript.json
+!**/*.ts
+!**/*.html
+
+# ignore even valid files if in…
+src/util/interface/**
+.git/**
 node_modules/**

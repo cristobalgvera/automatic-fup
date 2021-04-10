@@ -17,4 +17,4 @@ const REPAIRS_DATA = {
   },
 };
 
-export { REPAIRS_DATA };
+export {REPAIRS_DATA};

@@ -1,5 +1,5 @@
-import { VendorContact } from '../src/util/interface/vendor-contact.interface';
-import { today, todayNoYear } from '../src/service/utility.service';
+import {VendorContact} from '../util/interface/vendor-contact.interface';
+import {today, todayNoYear} from '../service/utility.service';
 
 const UI = {
   MENU: {
@@ -26,11 +26,11 @@ const UI = {
       getName: (isPurchase: boolean) =>
         `[${today()}] ${isPurchase ? 'COMPRAS' : 'REPARACIONES'}`,
       VENDORS: {
-        getName: () => `Vendors`,
+        getName: () => 'Vendors',
       },
     },
     RESPONSES: {
-      getName: () => ``,
+      getName: () => '',
     },
   },
   FILE: {
@@ -49,7 +49,7 @@ const UI = {
       NO_EMAIL: '(correo de contacto inválido)',
     },
     ERROR: 'Ha habido un error',
-    errorSendingEmailTo: ({ name, email }: VendorContact) =>
+    errorSendingEmailTo: ({name, email}: VendorContact) =>
       `No se ha podido enviar correo a ${name} (${email}), ¿reintentar?`,
   },
   MAIL: {
@@ -59,4 +59,4 @@ const UI = {
   },
 };
 
-export { UI };
+export {UI};

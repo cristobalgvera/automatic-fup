@@ -7,7 +7,7 @@ import {
   extractFupDataGroupedByVendorName,
   getColumnNumbers,
 } from './service/read.service';
-import { UI } from '../config';
+import {UI} from './config';
 
 // Found the GitHub project to pull in https://github.com/cristobalgvera/automatic-fup
 
@@ -17,13 +17,13 @@ function onOpen() {
     .addSubMenu(
       ui
         .createMenu(UI.MENU.SUBMENU_1.TITLE)
-        .addItem(UI.MENU.SUBMENU_1.ITEM.A, 'createFileForEachVendor'),
+        .addItem(UI.MENU.SUBMENU_1.ITEM.A, 'createFileForEachVendor')
     )
     .addSubMenu(
       ui
         .createMenu(UI.MENU.SUBMENU_2.TITLE)
         .addItem(UI.MENU.SUBMENU_2.ITEM.A, 'consolidatePurchases')
-        .addItem(UI.MENU.SUBMENU_2.ITEM.B, 'consolidateRepairs'),
+        .addItem(UI.MENU.SUBMENU_2.ITEM.B, 'consolidateRepairs')
     )
     .addToUi();
 }
@@ -50,9 +50,9 @@ function createFileForEachVendor() {
     vendorsContact,
     templateSpreadsheet,
     registriesFolder,
-    columnNumbers,
+    columnNumbers
   );
-  sendEmails.forEach((sendEmail) => sendEmail());
+  sendEmails.forEach(sendEmail => sendEmail());
 }
 
 function consolidatePurchases() {

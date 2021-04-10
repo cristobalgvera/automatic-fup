@@ -1,3 +1,3 @@
 export interface GroupedVendors {
-    [name: string]: string[]
+  [name: string]: string[];
 }

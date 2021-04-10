@@ -1,22 +1,22 @@
-import { COMMON, PURCHASES_DATA, DB, TEMPLATE, UI } from '../../config';
-import { HeaderNumber } from '../util/interface/header-number.interface';
+import {COMMON, PURCHASES_DATA, DB, TEMPLATE, UI} from '../config';
+import {HeaderNumber} from '../util/interface/header-number.interface';
 import {
   VendorContact,
   VendorsContact,
 } from '../util/interface/vendor-contact.interface';
-import { GroupedVendors } from '../util/interface/grouped-vendors.interface';
-import { ColumnNumbers } from '../util/interface/column-numbers.interface';
+import {GroupedVendors} from '../util/interface/grouped-vendors.interface';
+import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {
   addSuffix,
   toCamelCase,
   userConfirmation,
   validateEmail,
 } from './utility.service';
+import {REPAIRS_DATA} from '../config/repairs-data.config';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
-import { REPAIRS_DATA } from '../../config/repairs-data.config';
 
 function extractFupDataGroupedByVendorName(
-  filters: string[] = COMMON.DEFAULT.FILTERS,
+  filters: string[] = COMMON.DEFAULT.FILTERS
 ) {
   const {
     expectedSheet,
@@ -24,24 +24,22 @@ function extractFupDataGroupedByVendorName(
     sortColumnNumber,
     headerNumber: headers,
   } = _getPurchasesInitialData();
-  const { groupedVendors, vendorsContact } = _getVendorsNames();
+  const {groupedVendors, vendorsContact} = _getVendorsNames();
 
   // Filter vendors checked as 'to send email', get his
   // contact data and set useful format to work with them
   const toContactVendors = _getToContactVendors(vendorsContact);
-  const toFilterVendors = Object.values(toContactVendors).map(
-    (vendor) => vendor,
-  );
+  const toFilterVendors = Object.values(toContactVendors).map(vendor => vendor);
 
   // Create a list-like string to show in a pop-up
   const toFilterVendorNames = toFilterVendors.reduce(
-    (acc: string[], { id, name }) =>
-      !!groupedVendors[id]
+    (acc: string[], {id, name}) =>
+      groupedVendors[id]
         ? validateEmail(toContactVendors[id].email)
           ? acc.concat(name)
           : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL))
         : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_LINKED_VENDOR_NAMES)),
-    [],
+    []
   );
 
   // Confirm vendors to filter with user
@@ -58,7 +56,7 @@ function extractFupDataGroupedByVendorName(
     groupedVendors,
     filterColumnNumber,
     sortColumnNumber,
-    filters,
+    filters
   );
 
   // Filter all vendors to get just the ones that are needed
@@ -72,25 +70,25 @@ function extractFupDataGroupedByVendorName(
 
   // Put in an array all vendors that has no data
   const withProblemsVendorNames = toFilterVendors.reduce(
-    (acc: string[], { id, name }) =>
-      !!vendors[id]
+    (acc: string[], {id, name}) =>
+      vendors[id]
         ? acc
-        : !!validateEmail(toContactVendors[id].email)
+        : validateEmail(toContactVendors[id].email)
         ? acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_PURCHASE_ORDERS))
         : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL)),
-    [],
+    []
   );
 
   // If some vendor has no data, ask user for confirmation, else continue
   return withProblemsVendorNames.length &&
     !userConfirmation(UI.MODAL.NO_DATA_VENDORS, withProblemsVendorNames)
     ? {}
-    : { vendors, headers, vendorsContact: toFilterVendors };
+    : {vendors, headers, vendorsContact: toFilterVendors};
 }
 
 function getColumnNumbers(
   templateSpreadsheet: Spreadsheet,
-  headers: HeaderNumber,
+  headers: HeaderNumber
 ): ColumnNumbers {
   const sheet = templateSpreadsheet.getSheetByName(TEMPLATE.SHEET.PURCHASE);
   const templateHeaders = sheet
@@ -114,37 +112,35 @@ function _utilitiesToExtractFupData(
   groupedVendors: GroupedVendors,
   filterColumnNumber: number,
   sortColumnNumber: number,
-  filters: string[],
+  filters: string[]
 ) {
   const toFilterGroupedVendors = Object.entries(
     toFilterVendors.reduce(
-      (acc: GroupedVendors, { id }) => ({
+      (acc: GroupedVendors, {id}) => ({
         ...acc,
         [id]: groupedVendors[id],
       }),
-      {},
-    ),
+      {}
+    )
   );
 
   const shouldSendEmailToVendor = (searchedName: string) =>
     !!toFilterVendors.find(
-      (vendor) =>
-        groupedVendors[vendor.id]?.find((name) => name === searchedName) ??
-        false,
+      vendor =>
+        groupedVendors[vendor.id]?.find(name => name === searchedName) ?? false
     );
 
   const isValidEmail = (searchedName: string) => {
     const email = toFilterVendors.find(
-      (vendor) =>
-        !!groupedVendors[vendor.id]?.find((name) => name === searchedName),
+      vendor => !!groupedVendors[vendor.id]?.find(name => name === searchedName)
     )?.email;
 
-    return !!email ? validateEmail(email) : false;
+    return email ? validateEmail(email) : false;
   };
 
   const getVendorId = (vendorName: string) =>
     toFilterGroupedVendors.find(
-      (vendor) => vendor[1]?.some((name) => name === vendorName) ?? false,
+      vendor => vendor[1]?.some(name => name === vendorName) ?? false
     )[0];
 
   const byHitoRadar = (row: string[]) =>
@@ -163,7 +159,12 @@ function _utilitiesToExtractFupData(
     return acc;
   };
 
-  return { byHitoRadar, bySendEmail, byVendorId, byValidEmail };
+  return {
+    byHitoRadar,
+    bySendEmail,
+    byVendorId,
+    byValidEmail,
+  };
 }
 
 function _getToContactVendors(vendorsContact: VendorsContact) {
@@ -181,7 +182,7 @@ function _getVendorsNames() {
   const groupedVendors = _getGroupedVendors(db);
   const vendorsContact = _getVendorsContact(db);
 
-  return { groupedVendors, vendorsContact };
+  return {groupedVendors, vendorsContact};
 }
 
 function _getGroupedVendors(db: Spreadsheet) {
@@ -214,11 +215,12 @@ function _getVendorsContact(db: Spreadsheet) {
 
   return vendorsDataDataRange.reduce((acc, vendor) => {
     const vendorId = vendor[idColumn];
-    if (!acc[vendorId])
+    if (!acc[vendorId]) {
       acc[vendorId] = headers.reduce((obj, header, index) => {
         obj[header] = vendor[index];
         return obj;
       }, {} as VendorContact);
+    }
 
     return acc;
   }, {} as VendorsContact);
@@ -238,20 +240,25 @@ function _getPurchasesInitialData() {
       ...acc,
       [header]: index,
     }),
-    {},
+    {}
   );
 
   const filterColumnNumber = headerNumber[PURCHASES_DATA.UTIL.FILTER_COLUMN];
   const sortColumnNumber = headerNumber[PURCHASES_DATA.UTIL.SORT_COLUMN];
 
-  return { expectedSheet, filterColumnNumber, sortColumnNumber, headerNumber };
+  return {
+    expectedSheet,
+    filterColumnNumber,
+    sortColumnNumber,
+    headerNumber,
+  };
 }
 
 function getRepairsInitialData() {
   const spreadsheet = SpreadsheetApp.openById(REPAIRS_DATA.ID);
   // To set dictionary
   const expectedSheet = spreadsheet.getSheetByName(
-    REPAIRS_DATA.SHEET.DICTIONARY,
+    REPAIRS_DATA.SHEET.DICTIONARY
   );
 
   const totalColumns = expectedSheet.getLastColumn();
@@ -264,7 +271,7 @@ function getRepairsInitialData() {
       ...acc,
       [header]: index,
     }),
-    {},
+    {}
   );
 
   const vendorNameColumnNumber = headerNumber[REPAIRS_DATA.COLUMN.VENDOR_NAME];

@@ -1,3 +1,3 @@
 export interface HeaderNumber {
-    [header: string]: number;
+  [header: string]: number;
 }
