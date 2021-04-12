@@ -7,7 +7,6 @@ import {VendorContact} from '../util/interface/vendor-contact.interface';
 import {getRepairsInitialData} from './read.service';
 import Folder = GoogleAppsScript.Drive.Folder;
 import File = GoogleAppsScript.Drive.File;
-import Blob = GoogleAppsScript.Base.Blob;
 import SchemaFile = GoogleAppsScript.Drive.Schema.File;
 import MimeType = GoogleAppsScript.Base.MimeType;
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -137,7 +136,7 @@ function consolidateOpenOrders(isPurchase = true) {
       TEMPLATE.UTIL.INITIAL_ROWS - 2
     );
   } catch (e) {
-    console.error(e);
+    console.error('ConsolidateOpenOrders:', e);
   }
 }
 
@@ -145,7 +144,7 @@ function createChildFolderFromFolderId(folderId: string, name: string) {
   return DriveApp.getFolderById(folderId).createFolder(name);
 }
 
-function excelToSheet(excelFile: File | Blob, folder: Folder) {
+function excelToSheet(excelFile: File, folder: Folder) {
   const blob = excelFile.getBlob();
   const fileName = removeExtension(
     excelFile.getName(),
@@ -166,6 +165,7 @@ function excelToSheet(excelFile: File | Blob, folder: Folder) {
     return SpreadsheetApp.openById(file.id);
   } catch (f) {
     console.error(f.toString());
+    return null;
   }
 }
 
@@ -185,6 +185,7 @@ function sheetToExcel(vendorSpreadsheet: Spreadsheet, name: string) {
       .setName(`${name}.${COMMON.UTIL.FILE_EXTENSION.XLSX}`);
   } catch (e) {
     console.error(e.toString());
+    return null;
   }
 }
 

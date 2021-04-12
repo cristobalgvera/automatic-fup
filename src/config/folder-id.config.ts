@@ -9,6 +9,7 @@ const FOLDER_ID = {
     PURCHASES: '1zlCjgU_CrhAXKFRoNnOBIh38WAEGVMzR',
     REPAIRS: '1y4hPi7v_NQ2F2pM-qZ6_1P6EvICTVDiK',
   },
+  EMAIL_AUTOMATED_READS: '1EJaQO67s0pV2Qr_OMjq8dtvscUw9b6p5',
 };
 
 export {FOLDER_ID};

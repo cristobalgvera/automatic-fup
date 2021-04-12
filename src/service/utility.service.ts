@@ -48,6 +48,12 @@ function validateEmail(email: string) {
   return re.test(email.toLowerCase());
 }
 
+function obtainEmail(sender: string) {
+  const start = sender.lastIndexOf('<') + 1;
+  const end = sender.lastIndexOf('>');
+  return sender.substring(start, end);
+}
+
 export {
   removeExtension,
   toCamelCase,
@@ -56,4 +62,5 @@ export {
   userConfirmation,
   addSuffix,
   validateEmail,
+  obtainEmail,
 };

@@ -14,7 +14,8 @@
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
-    "fix": "gts fix"
+    "fix": "gts fix",
+    "watch": "clasp push --watch"
   },
   "author": "Cristóbal Gajardo Vera",
   "license": "ISC"

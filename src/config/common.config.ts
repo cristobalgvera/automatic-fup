@@ -9,6 +9,9 @@ const COMMON = {
       XLSX: 'xlsx',
     },
   },
+  EMAIL: {
+    LATAM_SENDER: 'EMAIL_FROM_LATAM_SENDER@latam.com',
+  },
 };
 
 export {COMMON};

@@ -8,6 +8,7 @@ const DB = {
     VENDOR_ID: 'VendorId',
     VENDOR_NAME: 'Name',
     ID: 'Id',
+    VENDOR_EMAIL: 'Email',
   },
 };
 

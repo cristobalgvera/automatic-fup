@@ -7,7 +7,8 @@ import {
   extractFupDataGroupedByVendorName,
   getColumnNumbers,
 } from './service/read.service';
-import {UI} from './config';
+import {COMMON, UI} from './config';
+import {getOpenOrdersFromVendors} from './service/mail.service';
 
 // Found the GitHub project to pull in https://github.com/cristobalgvera/automatic-fup
 
@@ -61,4 +62,8 @@ function consolidatePurchases() {
 
 function consolidateRepairs() {
   consolidateOpenOrders(false);
+}
+
+function getOpenOrders() {
+  getOpenOrdersFromVendors(COMMON.EMAIL.LATAM_SENDER, '2021/4/4');
 }

@@ -20,9 +20,7 @@ function extractFupDataGroupedByVendorName(
 ) {
   const {
     expectedSheet,
-    filterColumnNumber,
-    sortColumnNumber,
-    headerNumber: headers,
+    utils: {filterColumnNumber, sortColumnNumber, headerNumber: headers},
   } = _getPurchasesInitialData();
   const {groupedVendors, vendorsContact} = _getVendorsNames();
 
@@ -47,10 +45,8 @@ function extractFupDataGroupedByVendorName(
     return {};
 
   const {
-    byHitoRadar,
-    bySendEmail,
-    byVendorId,
-    byValidEmail,
+    filters: {byHitoRadar, bySendEmail, byValidEmail},
+    reducers: {onVendorId},
   } = _utilitiesToExtractFupData(
     toFilterVendors,
     groupedVendors,
@@ -66,7 +62,7 @@ function extractFupDataGroupedByVendorName(
     .filter(byHitoRadar)
     .filter(byValidEmail)
     .filter(bySendEmail)
-    .reduce(byVendorId, {});
+    .reduce(onVendorId, {});
 
   // Put in an array all vendors that has no data
   const withProblemsVendorNames = toFilterVendors.reduce(
@@ -151,7 +147,7 @@ function _utilitiesToExtractFupData(
     toFilterVendors.length
       ? shouldSendEmailToVendor(row[sortColumnNumber])
       : false;
-  const byVendorId = (acc, row: string[]) => {
+  const onVendorId = (acc, row: string[]) => {
     const vendorId = getVendorId(row[sortColumnNumber]);
 
     acc[vendorId] ??= [];
@@ -160,10 +156,14 @@ function _utilitiesToExtractFupData(
   };
 
   return {
-    byHitoRadar,
-    bySendEmail,
-    byVendorId,
-    byValidEmail,
+    filters: {
+      byHitoRadar,
+      bySendEmail,
+      byValidEmail,
+    },
+    reducers: {
+      onVendorId,
+    },
   };
 }
 
@@ -180,7 +180,7 @@ function _getVendorsNames() {
   const db = SpreadsheetApp.openById(DB.ID);
 
   const groupedVendors = _getGroupedVendors(db);
-  const vendorsContact = _getVendorsContact(db);
+  const vendorsContact = getVendorsContact(db);
 
   return {groupedVendors, vendorsContact};
 }
@@ -205,7 +205,7 @@ function _getGroupedVendors(db: Spreadsheet) {
   }, {});
 }
 
-function _getVendorsContact(db: Spreadsheet) {
+function getVendorsContact(db: Spreadsheet) {
   const vendorsDataDataRange: string[][] = db
     .getSheetByName(DB.SHEET.VENDOR)
     .getDataRange()
@@ -248,9 +248,7 @@ function _getPurchasesInitialData() {
 
   return {
     expectedSheet,
-    filterColumnNumber,
-    sortColumnNumber,
-    headerNumber,
+    utils: {filterColumnNumber, sortColumnNumber, headerNumber},
   };
 }
 
@@ -290,4 +288,5 @@ export {
   extractFupDataGroupedByVendorName,
   getColumnNumbers,
   getRepairsInitialData,
+  getVendorsContact,
 };

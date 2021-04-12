@@ -29,8 +29,14 @@ const UI = {
         getName: () => 'Vendors',
       },
     },
-    RESPONSES: {
-      getName: () => '',
+    EMAIL_AUTOMATED_READS: {
+      getName: () => `[${today()}] LECTURA AUTOMÁTICA`,
+      INVALID_FORMAT: {
+        getName: () => 'SIN FORMATO',
+      },
+    },
+    TEMPORAL: {
+      getName: () => `[${today()}] temp`,
     },
   },
   FILE: {
