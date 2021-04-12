@@ -2,7 +2,7 @@
   "name": "automatic-fup",
   "version": "1.0.0",
   "description": "FUP GoogleSheet automate for LATAM",
-  "main": "Index.js",
+  "main": "index.ts",
   "dependencies": {},
   "devDependencies": {
     "@types/google-apps-script": "^1.0.30",
