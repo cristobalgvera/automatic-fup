@@ -10,6 +10,7 @@
 # ignore even valid files if in…
 src/util/interface/**
 src/lib/@types/**
+**/*.enum.ts
 .prettierrc.js
 .git/**
 node_modules/**
