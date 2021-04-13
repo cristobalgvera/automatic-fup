@@ -9,6 +9,9 @@ export interface PurchaseOrder {
   shippedDate?: Date | string;
   qtyShipped?: number;
   awb?: string;
+  comentareis?: string;
+  creationDate?: Date;
+  updateDate?: Date;
 }
 
 export enum PO_STATUS {

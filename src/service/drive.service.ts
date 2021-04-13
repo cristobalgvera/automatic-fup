@@ -28,7 +28,9 @@ const _setBaseData = (isPurchase: boolean) => ({
     : FOLDER_ID.TO_CONSOLIDATE.REPAIRS,
   folderName: UI.FOLDER.CONSOLIDATED.getName(isPurchase),
   consolidatedFileName: UI.FILE.CONSOLIDATED.getName(isPurchase),
-  numberOfColumns: isPurchase ? 8 : 7,
+  numberOfColumns: isPurchase
+    ? TEMPLATE.UTIL.TOTAL_COLUMNS_PURCHASES
+    : TEMPLATE.UTIL.TOTAL_COLUMNS_REPAIRS,
   vendorsFolderName: UI.FOLDER.CONSOLIDATED.VENDORS.getName(),
   purchaseOrderColumnName: TEMPLATE.COLUMN.PURCHASE_ORDER,
   consolidatedFolderId: isPurchase

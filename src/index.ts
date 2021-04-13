@@ -10,7 +10,10 @@ import {
 import {COMMON, UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 
-// Found the GitHub project to pull in https://github.com/cristobalgvera/automatic-fup
+/****************************************************************
+ * Automatic FUP
+ * https://github.com/cristobalgvera/automatic-fup
+ *****************************************************************/
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();

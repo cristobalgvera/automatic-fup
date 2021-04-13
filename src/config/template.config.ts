@@ -9,8 +9,10 @@ const TEMPLATE = {
     LINE: 'Line',
   },
   UTIL: {
-    LEFT_MOST_COLUMN: 'AWB',
+    LEFT_MOST_COLUMN: 'Comments',
     INITIAL_ROWS: 1000,
+    TOTAL_COLUMNS_PURCHASES: 9,
+    TOTAL_COLUMNS_REPAIRS: 8,
   },
 };
 
