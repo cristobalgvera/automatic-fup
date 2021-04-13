@@ -1,5 +1,5 @@
 import {_purchaseOrderRepository} from '../db/purchase-order.repository';
-import {PurchaseOrder} from '../util/interface/db/purchase-order.interface';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
 function saveOne(purchaseOrder: PurchaseOrder) {
   return _purchaseOrderRepository.saveOne(purchaseOrder);

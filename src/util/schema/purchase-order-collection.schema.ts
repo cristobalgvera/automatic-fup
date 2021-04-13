@@ -1,4 +1,4 @@
-import {PurchaseOrder} from './purchase-order.interface';
+import {PurchaseOrder} from './purchase-order.schema';
 
 export interface PurchaseOrderCollection {
   [id: string]: PurchaseOrder;

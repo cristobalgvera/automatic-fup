@@ -1,8 +1,8 @@
 import {database} from '.';
 import {FIREBASE} from '../config/firebase.config';
 import {generatePurchaseOrderId} from '../service/utility.service';
-import {PurchaseOrderCollection} from '../util/interface/db/purchase-order-collection.interface';
-import {PurchaseOrder} from '../util/interface/db/purchase-order.interface';
+import {PurchaseOrderCollection} from '../util/schema/purchase-order-collection.schema';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
 const alreadyExistMessage = (id: string) => `ID: ${id} already exists`;
 const doNotExistMessage = (id: string) => `ID: ${id} don't exists`;
