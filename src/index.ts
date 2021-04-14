@@ -53,7 +53,10 @@ function test2() {
 }
 
 function test3() {
-  const data = purchaseOrderService.getOne('PO298432-1');
+  const data = purchaseOrderService.getAll({
+    orderBy: 'vendorName',
+    equalTo: 'COLLINS',
+  });
   console.log(data);
 }
 

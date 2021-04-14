@@ -8,8 +8,9 @@
 !**/*.html
 
 # ignore even valid files if in…
-src/util/interface/**
-src/lib/@types/**
+**/*.interface.ts
+**/*.schema.ts
+**/*.d.ts
 **/*.enum.ts
 .prettierrc.js
 .git/**

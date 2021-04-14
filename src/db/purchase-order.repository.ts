@@ -1,5 +1,5 @@
 import {database} from '.';
-import {FIREBASE} from '../config/firebase.config';
+import {FIREBASE} from '../config';
 import {generatePurchaseOrderId} from '../service/utility.service';
 import {PurchaseOrderCollection} from '../util/schema/purchase-order-collection.schema';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
@@ -17,7 +17,8 @@ function getOne(id: string): PurchaseOrder {
 
 function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-  purchaseOrder.creationDate = new Date();
+  purchaseOrder.audit.creationDate = new Date();
+  purchaseOrder.audit.createdBy = Session.getActiveUser().getEmail();
   const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${purchaseOrder.id}`;
   const exists = !!database.getData<PurchaseOrder>(url, {shallow: true})?.id;
   if (!exists) return database.setData(url, purchaseOrder);
@@ -31,7 +32,8 @@ function saveAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
 
   const data = purchaseOrders.reduce((acc, purchaseOrder) => {
     purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-    purchaseOrder.creationDate = new Date();
+    purchaseOrder.audit.creationDate = new Date();
+    purchaseOrder.audit.createdBy = Session.getActiveUser().getEmail();
     return {...acc, [purchaseOrder.id]: {...purchaseOrder}};
   }, {} as PurchaseOrderCollection);
 
@@ -40,7 +42,8 @@ function saveAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
 
 function updateOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-  purchaseOrder.updateDate = new Date();
+  purchaseOrder.audit.updateDate = new Date();
+  purchaseOrder.audit.updatedBy = Session.getActiveUser().getEmail();
   const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${purchaseOrder.id}`;
   const exists = !!database.getData<PurchaseOrder>(url, {shallow: true})?.id;
 
@@ -55,7 +58,8 @@ function updateAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
 
   const data = purchaseOrders.reduce((acc, purchaseOrder) => {
     purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-    purchaseOrder.updateDate = new Date();
+    purchaseOrder.audit.updateDate = new Date();
+    purchaseOrder.audit.updatedBy = Session.getActiveUser().getEmail();
     return {...acc, [purchaseOrder.id]: {...purchaseOrder}};
   }, {} as PurchaseOrderCollection);
 

@@ -34,6 +34,8 @@ const UI = {
       INVALID_FORMAT: {
         getName: () => 'SIN FORMATO',
       },
+      PURCHASES_FOLDER: 'COMPRAS',
+      REPAIRS_FOLDER: 'REPARACIONES',
     },
     TEMPORAL: {
       getName: () => `[${today()}] temp`,

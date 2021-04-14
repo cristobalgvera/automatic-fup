@@ -1,4 +1,4 @@
-import {FIREBASE} from '../config/firebase.config';
+import {FIREBASE} from '../config';
 
 // This variable can be secured to certain emails
 const database = FirebaseApp.getDatabaseByUrl(

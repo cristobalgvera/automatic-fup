@@ -14,6 +14,8 @@ import {
 } from './utility.service';
 import {REPAIRS_DATA} from '../config/repairs-data.config';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
+import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
 function extractFupDataGroupedByVendorName(
   filters: string[] = COMMON.DEFAULT.FILTERS
@@ -205,7 +207,7 @@ function _getGroupedVendors(db: Spreadsheet) {
   }, {});
 }
 
-function getVendorsContact(db: Spreadsheet) {
+function getVendorsContact(db: Spreadsheet): VendorsContact {
   const vendorsDataDataRange: string[][] = db
     .getSheetByName(DB.SHEET.VENDOR)
     .getDataRange()
@@ -250,6 +252,43 @@ function _getPurchasesInitialData() {
     expectedSheet,
     utils: {filterColumnNumber, sortColumnNumber, headerNumber},
   };
+}
+
+function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
+  const db = SpreadsheetApp.openById(DB.ID);
+  const data = Object.entries(byEmailSpreadsheets);
+  const vendorsContact = getVendorsContact(db);
+  const contacts = Object.entries(vendorsContact);
+
+  const purchaseOrders: PurchaseOrder[] = data.map(
+    ([vendorEmail, spreadsheets]) => {
+      const contact =
+        contacts.find(([, {email}]) => email === vendorEmail) ?? [];
+      const vendorName = contact[1]?.name;
+
+      const purchases = spreadsheets.map(spreadsheet => {
+        // This should never fail if previous method validation was right
+        const sheet = spreadsheet
+          .getSheets()
+          .find(inSheet =>
+            inSheet
+              .getRange(2, 1, 1, inSheet.getLastColumn())
+              .getValues()[0]
+              .includes(TEMPLATE.COLUMN.PURCHASE_ORDER)
+          );
+
+        // Find PO column number if sheet columns was modified
+        const poNumberColumnNumber =
+          sheet
+            .getRange(2, 1, 1, sheet.getLastColumn())
+            .getValues()[0]
+            .indexOf(TEMPLATE.COLUMN.PURCHASE_ORDER) + 1;
+
+        // Minus header rows
+        const numberOfRows = sheet.getLastRow() - 2;
+      });
+    }
+  );
 }
 
 function getRepairsInitialData() {

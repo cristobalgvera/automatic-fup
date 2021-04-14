@@ -124,10 +124,24 @@ function getOpenOrdersFromVendors(email: string, after: string) {
   // This data will be sended to a consolidator method
   const spreadsheetsByVendor = Object.entries(attachmentsByVendor).reduce(
     (acc, [vendorEmail, files]) => {
-      // const vendorFolder = folder.createFolder(vendorEmail);
       const vendorFiles = files.map(file => {
-        folder.addFile(DriveApp.getFileById(file.getId()));
-        return SpreadsheetApp.openById(file.getId());
+        const {purchasesFolder, repairsFolder} = _getPurchasesAndRepairsFolders(
+          folder
+        );
+        const spreadsheet = SpreadsheetApp.openById(file.getId());
+        const isPurchase = spreadsheet
+          .getSheets()
+          .some(sheet =>
+            sheet
+              .getRange(2, 1, 1, sheet.getLastColumn())
+              .getValues()[0]
+              .includes(TEMPLATE.COLUMN.LINE)
+          );
+
+        if (isPurchase)
+          purchasesFolder.addFile(DriveApp.getFileById(file.getId()));
+        else repairsFolder.addFile(DriveApp.getFileById(file.getId()));
+        return spreadsheet;
       });
 
       acc[vendorEmail] ??= [];
@@ -230,7 +244,6 @@ function _createAndFilterSpreadsheet(
 
   if (!spreadsheet) {
     invalidStructureFolder.createFile(file);
-    // Drive.Files?.remove(file.getId());
     file.setTrashed(true);
     return {email, isValid: false, spreadsheet: null};
   }
@@ -240,12 +253,39 @@ function _createAndFilterSpreadsheet(
 
   if (!isValid) {
     invalidStructureFolder.createFile(file);
-    // Drive.Files?.remove(spreadsheet.getId());
     DriveApp.getFileById(spreadsheet.getId()).setTrashed(true);
-    // Drive.Files?.remove(file.getId());
     file.setTrashed(true);
   }
+
   return {email, isValid, spreadsheet};
+}
+
+function _getPurchasesAndRepairsFolders(parentFolder: Folder) {
+  const folders = parentFolder.getFolders();
+  let purchasesFolder: Folder, repairsFolder: Folder;
+
+  while (folders.hasNext()) {
+    const folder = folders.next();
+
+    if (folder.getName() === UI.FOLDER.EMAIL_AUTOMATED_READS.PURCHASES_FOLDER)
+      purchasesFolder = folder;
+    else if (
+      folder.getName() === UI.FOLDER.EMAIL_AUTOMATED_READS.REPAIRS_FOLDER
+    )
+      repairsFolder = folder;
+
+    if (!!purchasesFolder && !!repairsFolder) break;
+  }
+
+  purchasesFolder ??= parentFolder.createFolder(
+    UI.FOLDER.EMAIL_AUTOMATED_READS.PURCHASES_FOLDER
+  );
+
+  repairsFolder ??= parentFolder.createFolder(
+    UI.FOLDER.EMAIL_AUTOMATED_READS.REPAIRS_FOLDER
+  );
+
+  return {purchasesFolder, repairsFolder};
 }
 
 function _hasRequiredStructure(spreadsheet: Spreadsheet) {
