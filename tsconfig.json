@@ -5,5 +5,5 @@
     "outDir": "build",
     "strict": false,
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "lib/firebase-app.lib.jsib.js"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "lib/firebase-app.lib.jsib.js", "lib/oauth2.service.ts"]
 }

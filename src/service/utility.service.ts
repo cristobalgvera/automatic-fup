@@ -2,6 +2,7 @@ import {COMMON, UI} from '../config';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
 const today = () => new Date().toLocaleDateString(COMMON.UTIL.LOCALE);
+
 const todayNoYear = () => Utilities.formatDate(new Date(), 'GMT-3', 'dd-MMM');
 
 const generatePurchaseOrderId = ({purchaseOrder, line}: PurchaseOrder) =>

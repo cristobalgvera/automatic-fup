@@ -51,23 +51,23 @@ declare namespace FirebaseApp_ {
       privateKey: string,
       ...args: any[]
     ) => any;
-    getData?: (path: string, optQueryParameters?: OptQueryParameters) => any;
+    getData?: <T>(path: string, optQueryParameters?: OptQueryParameters) => T;
     getAllData?: (requests: (string | FirebaseApp_.request)[]) => any;
-    pushData?: (
+    pushData?: <T>(
       path: string,
-      data: any,
+      data: T,
       optQueryParameters?: OptQueryParameters
     ) => string;
-    setData?: (
+    setData?: <T>(
       path: string,
-      data: any,
+      data: T,
       optQueryParameters?: OptQueryParameters
-    ) => any;
-    updateData?: (
+    ) => T;
+    updateData?: <T>(
       path: string,
-      data: any,
+      data: T,
       optQueryParameters?: OptQueryParameters
-    ) => any;
+    ) => T;
     removeData?: (
       path: string,
       optQueryParameters?: OptQueryParameters
@@ -148,7 +148,7 @@ declare namespace FirebaseApp_ {
     error?: Error;
   };
 }
-declare let baseClass_: any;
+declare const baseClass_: any;
 declare namespace FirebaseApp {
   export {getDatabaseByUrl};
   export {encodeAsFirebaseKey};
@@ -176,6 +176,22 @@ type OptQueryParameters = {
    * - Formats the data returned in the response from the server.
    */
   print?: string;
+  /**
+   * - Attribute to point searched parameters
+   */
+  orderBy?: string;
+  /**
+   * - Define first string to accept when filter data
+   */
+  startAt?: string;
+  /**
+   * - Define last string to accept when filter data
+   */
+  endAt?: string;
+  /**
+   * - Define exact match to find
+   */
+  equalTo?: string;
   limitToFirst?: string;
   limitToLast?: string;
 };

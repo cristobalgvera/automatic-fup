@@ -1,6 +1,14 @@
 import {_purchaseOrderRepository} from '../db/purchase-order.repository';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
+function getOne(id: string) {
+  return _purchaseOrderRepository.getOne(id);
+}
+
+function getAll(query?: OptQueryParameters) {
+  return _purchaseOrderRepository.getAll(query);
+}
+
 function saveOne(purchaseOrder: PurchaseOrder) {
   return _purchaseOrderRepository.saveOne(purchaseOrder);
 }
@@ -15,14 +23,6 @@ function updateOne(purchaseOrder: PurchaseOrder) {
 
 function updateAll(purchaseOrders: PurchaseOrder[]) {
   return _purchaseOrderRepository.updateAll(purchaseOrders);
-}
-
-function getOne(id: string) {
-  return _purchaseOrderRepository.getOne(id);
-}
-
-function getAll(query?: OptQueryParameters) {
-  return _purchaseOrderRepository.getAll(query);
 }
 
 function removeOne(id: string) {

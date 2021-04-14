@@ -9,7 +9,7 @@ export interface PurchaseOrder {
   shippedDate?: Date | string;
   qtyShipped?: number;
   awb?: string;
-  comentareis?: string;
+  comments?: string;
   creationDate?: Date;
   updateDate?: Date;
 }
