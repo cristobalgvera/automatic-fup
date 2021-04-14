@@ -13,6 +13,17 @@ const TEMPLATE = {
     INITIAL_ROWS: 1000,
     TOTAL_COLUMNS_PURCHASES: 9,
     TOTAL_COLUMNS_REPAIRS: 8,
+    COLUMN_NAMES: {
+      purchaseOrder: 'Purchase Order',
+      partNumber: 'Part Number',
+      line: 'Line',
+      status: 'P0 Status',
+      esd: 'ESD',
+      shippedDate: 'Shipped Date',
+      qtyShipped: 'Qty Shipped',
+      awb: 'AWB',
+      comments: 'Comments',
+    },
   },
 };
 

@@ -16,6 +16,7 @@ import {REPAIRS_DATA} from '../config/repairs-data.config';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
+import {purchaseOrderService} from './purchase-order.service';
 
 function extractFupDataGroupedByVendorName(
   filters: string[] = COMMON.DEFAULT.FILTERS
@@ -259,14 +260,15 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
   const data = Object.entries(byEmailSpreadsheets);
   const vendorsContact = getVendorsContact(db);
   const contacts = Object.entries(vendorsContact);
+  const templateHeaders = Object.entries(TEMPLATE.UTIL.COLUMN_NAMES);
 
-  const purchaseOrders: PurchaseOrder[] = data.map(
-    ([vendorEmail, spreadsheets]) => {
+  const purchaseOrders = data.reduce(
+    (acc: PurchaseOrder[], [vendorEmail, spreadsheets]) => {
       const contact =
         contacts.find(([, {email}]) => email === vendorEmail) ?? [];
       const vendorName = contact[1]?.name;
 
-      const purchases = spreadsheets.map(spreadsheet => {
+      const purchasesArr: PurchaseOrder[][] = spreadsheets.map(spreadsheet => {
         // This should never fail if previous method validation was right
         const sheet = spreadsheet
           .getSheets()
@@ -277,18 +279,65 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
               .includes(TEMPLATE.COLUMN.PURCHASE_ORDER)
           );
 
+        let headers: string[] = sheet
+          .getRange(2, 1, 1, sheet.getLastColumn())
+          .getValues()[0];
+
         // Find PO column number if sheet columns was modified
         const poNumberColumnNumber =
-          sheet
-            .getRange(2, 1, 1, sheet.getLastColumn())
-            .getValues()[0]
-            .indexOf(TEMPLATE.COLUMN.PURCHASE_ORDER) + 1;
+          headers.indexOf(TEMPLATE.COLUMN.PURCHASE_ORDER) + 1;
+
+        headers = headers.slice(
+          poNumberColumnNumber - 1,
+          poNumberColumnNumber + 9
+        );
+
+        const headerNumbers = headers.reduce((acc, header, i) => {
+          const templateHeader = templateHeaders.find(
+            ([, name]) => name === header
+          );
+          return templateHeader ? {...acc, [templateHeader[0]]: i} : acc;
+        }, {} as Partial<typeof TEMPLATE.UTIL.COLUMN_NAMES>);
 
         // Minus header rows
         const numberOfRows = sheet.getLastRow() - 2;
+
+        const values: string[][] = sheet
+          .getRange(3, poNumberColumnNumber, numberOfRows, 9)
+          .getValues();
+
+        return values.reduce(
+          (curr: PurchaseOrder[], row) =>
+            curr.concat({
+              vendorName: vendorName || null,
+              purchaseOrder: row[headerNumbers.purchaseOrder] || null,
+              line: row[headerNumbers.line] || null,
+              partNumber: row[headerNumbers.partNumber] || null,
+              status: row[headerNumbers.status] || null,
+              esd: row[headerNumbers.esd] || null,
+              shippedDate: row[headerNumbers.shippedDate] || null,
+              qtyShipped: row[headerNumbers.qtyShipped] || null,
+              awb: row[headerNumbers.awb] || null,
+              comments: row[headerNumbers.comments] || null,
+              audit: {
+                vendorEmail: vendorEmail || null,
+              },
+            }),
+          []
+        );
       });
-    }
+
+      const flatten = purchasesArr.reduce(
+        (acc, purchases) => acc.concat(purchases.map(purchase => purchase)),
+        []
+      );
+
+      return acc.concat(flatten);
+    },
+    []
   );
+
+  purchaseOrderService.saveAll(purchaseOrders);
 }
 
 function getRepairsInitialData() {
@@ -328,4 +377,5 @@ export {
   getColumnNumbers,
   getRepairsInitialData,
   getVendorsContact,
+  evaluateByEmailSpreadsheets,
 };

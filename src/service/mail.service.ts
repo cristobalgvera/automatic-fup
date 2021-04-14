@@ -8,7 +8,7 @@ import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {writeInSheet} from './write.service';
 import {obtainEmail, userConfirmation} from './utility.service';
 import {COMMON, DB, FOLDER_ID, TEMPLATE, UI} from '../config';
-import {getVendorsContact} from './read.service';
+import {evaluateByEmailSpreadsheets, getVendorsContact} from './read.service';
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
 import Blob = GoogleAppsScript.Base.Blob;
 import Folder = GoogleAppsScript.Drive.Folder;
@@ -154,6 +154,8 @@ function getOpenOrdersFromVendors(email: string, after: string) {
   // Folder used to store temporal mails attachments
   // data will be sended to trash from Drive
   tempFolder.setTrashed(true);
+
+  evaluateByEmailSpreadsheets(spreadsheetsByVendor);
 }
 
 function _getUtilitiesToFilterEmails(folder: Folder) {
