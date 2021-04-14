@@ -10,6 +10,7 @@ import File = GoogleAppsScript.Drive.File;
 import SchemaFile = GoogleAppsScript.Drive.Schema.File;
 import MimeType = GoogleAppsScript.Base.MimeType;
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
+import {_setBaseData} from '../util/service/drive.utility';
 
 function getTemplateAndCreateFolderForRegistries() {
   // Parent folder to store registries
@@ -21,22 +22,6 @@ function getTemplateAndCreateFolderForRegistries() {
 
   return {templateSpreadsheet, registriesFolder};
 }
-
-const _setBaseData = (isPurchase: boolean) => ({
-  openOrdersId: isPurchase
-    ? FOLDER_ID.TO_CONSOLIDATE.PURCHASES
-    : FOLDER_ID.TO_CONSOLIDATE.REPAIRS,
-  folderName: UI.FOLDER.CONSOLIDATED.getName(isPurchase),
-  consolidatedFileName: UI.FILE.CONSOLIDATED.getName(isPurchase),
-  numberOfColumns: isPurchase
-    ? TEMPLATE.UTIL.TOTAL_COLUMNS_PURCHASES
-    : TEMPLATE.UTIL.TOTAL_COLUMNS_REPAIRS,
-  vendorsFolderName: UI.FOLDER.CONSOLIDATED.VENDORS.getName(),
-  purchaseOrderColumnName: TEMPLATE.COLUMN.PURCHASE_ORDER,
-  consolidatedFolderId: isPurchase
-    ? FOLDER_ID.CONSOLIDATED.PURCHASES
-    : FOLDER_ID.CONSOLIDATED.REPAIRS,
-});
 
 function consolidateOpenOrders(isPurchase = true) {
   const {
@@ -156,7 +141,7 @@ function excelToSheet(excelFile: File, folder: Folder) {
   // Define a Sheet file to convert Excel file into
   const resource: SchemaFile = {
     title: fileName,
-    mimeType: MimeType.GOOGLE_SHEETS,
+    mimeType: MimeType.GOOGLE_SHEETS.toString(),
     parents: [{id: folder.getId()}],
   };
 

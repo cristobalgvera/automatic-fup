@@ -7,15 +7,17 @@ import {
   extractFupDataGroupedByVendorName,
   getColumnNumbers,
 } from './service/read.service';
-import {COMMON, UI} from './config';
+import {UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 import {PurchaseOrder} from './util/schema/purchase-order.schema';
 import {purchaseOrderService} from './service/purchase-order.service';
 
 /****************************************************************
+ *
  * Automatic FUP
  * Designed by Cristóbal Gajardo Vera
  * https://github.com/cristobalgvera/automatic-fup
+ *
  *****************************************************************/
 
 function test() {
@@ -113,5 +115,5 @@ function consolidateRepairs() {
 }
 
 function getOpenOrders() {
-  getOpenOrdersFromVendors(COMMON.EMAIL.LATAM_SENDER, '2021/4/4');
+  getOpenOrdersFromVendors('2021/4/13');
 }

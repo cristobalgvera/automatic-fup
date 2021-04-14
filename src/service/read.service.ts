@@ -15,8 +15,14 @@ import {
 import {REPAIRS_DATA} from '../config/repairs-data.config';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
-import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 import {purchaseOrderService} from './purchase-order.service';
+import {
+  _getPurchasesInitialData,
+  _getVendorsNames,
+  _getToContactVendors,
+  _utilitiesToExtractFupData,
+  _getUtilitiesToEvaluateEmails,
+} from '../util/service/read.utility';
 
 function extractFupDataGroupedByVendorName(
   filters: string[] = COMMON.DEFAULT.FILTERS
@@ -106,108 +112,6 @@ function getColumnNumbers(
   };
 }
 
-function _utilitiesToExtractFupData(
-  toFilterVendors: VendorContact[],
-  groupedVendors: GroupedVendors,
-  filterColumnNumber: number,
-  sortColumnNumber: number,
-  filters: string[]
-) {
-  const toFilterGroupedVendors = Object.entries(
-    toFilterVendors.reduce(
-      (acc: GroupedVendors, {id}) => ({
-        ...acc,
-        [id]: groupedVendors[id],
-      }),
-      {}
-    )
-  );
-
-  const shouldSendEmailToVendor = (searchedName: string) =>
-    !!toFilterVendors.find(
-      vendor =>
-        groupedVendors[vendor.id]?.find(name => name === searchedName) ?? false
-    );
-
-  const isValidEmail = (searchedName: string) => {
-    const email = toFilterVendors.find(
-      vendor => !!groupedVendors[vendor.id]?.find(name => name === searchedName)
-    )?.email;
-
-    return email ? validateEmail(email) : false;
-  };
-
-  const getVendorId = (vendorName: string) =>
-    toFilterGroupedVendors.find(
-      vendor => vendor[1]?.some(name => name === vendorName) ?? false
-    )[0];
-
-  const byHitoRadar = (row: string[]) =>
-    filters.includes(row[filterColumnNumber]);
-  const byValidEmail = (row: string[]) =>
-    toFilterVendors.length ? isValidEmail(row[sortColumnNumber]) : false;
-  const bySendEmail = (row: string[]) =>
-    toFilterVendors.length
-      ? shouldSendEmailToVendor(row[sortColumnNumber])
-      : false;
-  const onVendorId = (acc, row: string[]) => {
-    const vendorId = getVendorId(row[sortColumnNumber]);
-
-    acc[vendorId] ??= [];
-    acc[vendorId].push(row);
-    return acc;
-  };
-
-  return {
-    filters: {
-      byHitoRadar,
-      bySendEmail,
-      byValidEmail,
-    },
-    reducers: {
-      onVendorId,
-    },
-  };
-}
-
-function _getToContactVendors(vendorsContact: VendorsContact) {
-  return Object.entries(vendorsContact).reduce((acc, vendorContact) => {
-    const [vendorId, contact] = vendorContact;
-    if (contact.sendEmail) acc[vendorId] = contact;
-
-    return acc;
-  }, {} as VendorsContact);
-}
-
-function _getVendorsNames() {
-  const db = SpreadsheetApp.openById(DB.ID);
-
-  const groupedVendors = _getGroupedVendors(db);
-  const vendorsContact = getVendorsContact(db);
-
-  return {groupedVendors, vendorsContact};
-}
-
-function _getGroupedVendors(db: Spreadsheet) {
-  const groupedVendorsDataRange: string[][] = db
-    .getSheetByName(DB.SHEET.LINKED_VENDOR_NAME)
-    .getDataRange()
-    .getValues();
-  const headers = groupedVendorsDataRange.splice(0, 1)[0];
-
-  const vendorIdColumn = headers.indexOf(DB.COLUMN.VENDOR_ID);
-  const vendorNameColumn = headers.indexOf(DB.COLUMN.VENDOR_NAME);
-
-  return groupedVendorsDataRange.reduce((acc: GroupedVendors, vendor) => {
-    const vendorId = vendor[vendorIdColumn];
-    const vendorName = vendor[vendorNameColumn];
-
-    acc[vendorId] ??= [];
-    acc[vendorId].push(vendorName);
-    return acc;
-  }, {});
-}
-
 function getVendorsContact(db: Spreadsheet): VendorsContact {
   const vendorsDataDataRange: string[][] = db
     .getSheetByName(DB.SHEET.VENDOR)
@@ -229,32 +133,6 @@ function getVendorsContact(db: Spreadsheet): VendorsContact {
   }, {} as VendorsContact);
 }
 
-function _getPurchasesInitialData() {
-  const spreadsheet = SpreadsheetApp.openById(PURCHASES_DATA.ID);
-  const expectedSheet = spreadsheet.getSheetByName(PURCHASES_DATA.SHEET.ACTUAL);
-
-  const totalColumns = expectedSheet.getLastColumn();
-
-  const headers: string[] = expectedSheet
-    .getRange(1, 1, 1, totalColumns)
-    .getValues()[0];
-  const headerNumber: HeaderNumber = headers.reduce(
-    (acc, header, index) => ({
-      ...acc,
-      [header]: index,
-    }),
-    {}
-  );
-
-  const filterColumnNumber = headerNumber[PURCHASES_DATA.UTIL.FILTER_COLUMN];
-  const sortColumnNumber = headerNumber[PURCHASES_DATA.UTIL.SORT_COLUMN];
-
-  return {
-    expectedSheet,
-    utils: {filterColumnNumber, sortColumnNumber, headerNumber},
-  };
-}
-
 function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
   const db = SpreadsheetApp.openById(DB.ID);
   const data = Object.entries(byEmailSpreadsheets);
@@ -262,78 +140,10 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
   const contacts = Object.entries(vendorsContact);
   const templateHeaders = Object.entries(TEMPLATE.UTIL.COLUMN_NAMES);
 
+  const {toPurchaseOrders} = _getUtilitiesToEvaluateEmails();
+
   const purchaseOrders = data.reduce(
-    (acc: PurchaseOrder[], [vendorEmail, spreadsheets]) => {
-      const contact =
-        contacts.find(([, {email}]) => email === vendorEmail) ?? [];
-      const vendorName = contact[1]?.name;
-
-      const purchasesArr: PurchaseOrder[][] = spreadsheets.map(spreadsheet => {
-        // This should never fail if previous method validation was right
-        const sheet = spreadsheet
-          .getSheets()
-          .find(inSheet =>
-            inSheet
-              .getRange(2, 1, 1, inSheet.getLastColumn())
-              .getValues()[0]
-              .includes(TEMPLATE.COLUMN.PURCHASE_ORDER)
-          );
-
-        let headers: string[] = sheet
-          .getRange(2, 1, 1, sheet.getLastColumn())
-          .getValues()[0];
-
-        // Find PO column number if sheet columns was modified
-        const poNumberColumnNumber =
-          headers.indexOf(TEMPLATE.COLUMN.PURCHASE_ORDER) + 1;
-
-        headers = headers.slice(
-          poNumberColumnNumber - 1,
-          poNumberColumnNumber + 9
-        );
-
-        const headerNumbers = headers.reduce((acc, header, i) => {
-          const templateHeader = templateHeaders.find(
-            ([, name]) => name === header
-          );
-          return templateHeader ? {...acc, [templateHeader[0]]: i} : acc;
-        }, {} as Partial<typeof TEMPLATE.UTIL.COLUMN_NAMES>);
-
-        // Minus header rows
-        const numberOfRows = sheet.getLastRow() - 2;
-
-        const values: string[][] = sheet
-          .getRange(3, poNumberColumnNumber, numberOfRows, 9)
-          .getValues();
-
-        return values.reduce(
-          (curr: PurchaseOrder[], row) =>
-            curr.concat({
-              vendorName: vendorName || null,
-              purchaseOrder: row[headerNumbers.purchaseOrder] || null,
-              line: row[headerNumbers.line] || null,
-              partNumber: row[headerNumbers.partNumber] || null,
-              status: row[headerNumbers.status] || null,
-              esd: row[headerNumbers.esd] || null,
-              shippedDate: row[headerNumbers.shippedDate] || null,
-              qtyShipped: row[headerNumbers.qtyShipped] || null,
-              awb: row[headerNumbers.awb] || null,
-              comments: row[headerNumbers.comments] || null,
-              audit: {
-                vendorEmail: vendorEmail || null,
-              },
-            }),
-          []
-        );
-      });
-
-      const flatten = purchasesArr.reduce(
-        (acc, purchases) => acc.concat(purchases.map(purchase => purchase)),
-        []
-      );
-
-      return acc.concat(flatten);
-    },
+    toPurchaseOrders(contacts, templateHeaders),
     []
   );
 
