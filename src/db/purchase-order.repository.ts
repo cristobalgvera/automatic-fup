@@ -19,7 +19,7 @@ function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
   purchaseOrder.creationDate = new Date();
   const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${purchaseOrder.id}`;
-  const exists = !!database.getData(url, {shallow: 'true'});
+  const exists = !!database.getData<PurchaseOrder>(url, {shallow: true})?.id;
   if (!exists) return database.setData(url, purchaseOrder);
 
   console.error(alreadyExistMessage(purchaseOrder.id));
@@ -42,7 +42,7 @@ function updateOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
   purchaseOrder.updateDate = new Date();
   const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${purchaseOrder.id}`;
-  const exists = !!database.getData(url, {shallow: 'true'});
+  const exists = !!database.getData<PurchaseOrder>(url, {shallow: true})?.id;
 
   if (exists) return database.updateData(url, purchaseOrder);
 
@@ -64,7 +64,7 @@ function updateAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
 
 function removeOne(id: string): boolean {
   const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${id}`;
-  const exists = !!database.getData(url, {shallow: 'true'});
+  const exists = !!database.getData<PurchaseOrder>(url, {shallow: true})?.id;
   if (exists) {
     database.removeData(url);
     return true;

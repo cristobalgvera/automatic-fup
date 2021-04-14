@@ -51,7 +51,10 @@ declare namespace FirebaseApp_ {
       privateKey: string,
       ...args: any[]
     ) => any;
-    getData?: <T>(path: string, optQueryParameters?: OptQueryParameters) => T;
+    getData?: <T>(
+      path: string,
+      optQueryParameters?: OptQueryParameters
+    ) => T | undefined;
     getAllData?: (requests: (string | FirebaseApp_.request)[]) => any;
     pushData?: <T>(
       path: string,
@@ -171,11 +174,11 @@ type OptQueryParameters = {
   /**
    * - Set this to true to limit the depth of the data returned at a location.
    */
-  shallow?: string;
+  shallow?: boolean;
   /**
    * - Formats the data returned in the response from the server.
    */
-  print?: string;
+  print?: PRINT;
   /**
    * - Attribute to point searched parameters
    */
@@ -195,3 +198,8 @@ type OptQueryParameters = {
   limitToFirst?: string;
   limitToLast?: string;
 };
+
+declare enum PRINT {
+  PRETTY = 'pretty',
+  SILENT = 'silent',
+}
