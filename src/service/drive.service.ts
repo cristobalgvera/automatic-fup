@@ -18,7 +18,14 @@ function getTemplateAndCreateFolderForRegistries() {
   const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE.ID);
 
   // Folder to store new registries located in parent folder
-  const registriesFolder = folder.createFolder(UI.FOLDER.REGISTRIES.getName());
+  let registriesFolder: Folder;
+  const registriesFolderName = UI.FOLDER.REGISTRIES.getName();
+
+  // If folder exists, use it
+  const folders = folder.getFoldersByName(registriesFolderName);
+
+  if (folders.hasNext()) registriesFolder = folders.next();
+  else registriesFolder = folder.createFolder(registriesFolderName);
 
   return {templateSpreadsheet, registriesFolder};
 }

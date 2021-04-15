@@ -1,12 +1,17 @@
 import {COMMON, UI} from '../config';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
-const today = () => new Date().toLocaleDateString(COMMON.UTIL.LOCALE);
+function today() {
+  return new Date().toLocaleDateString(COMMON.UTIL.LOCALE);
+}
 
-const todayNoYear = () => Utilities.formatDate(new Date(), 'GMT-3', 'dd-MMM');
+function todayNoYear() {
+  return Utilities.formatDate(new Date(), 'GMT-3', 'dd-MMM');
+}
 
-const generatePurchaseOrderId = ({purchaseOrder, line}: PurchaseOrder) =>
-  `${purchaseOrder}-${line ?? 1}`;
+function generatePurchaseOrderId({purchaseOrder, line}: PurchaseOrder) {
+  return `${purchaseOrder}-${line ?? 1}`;
+}
 
 // Utility method extracted from StackOverflow
 function toCamelCase(str: string) {

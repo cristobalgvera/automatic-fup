@@ -25,6 +25,7 @@ import {
 } from '../util/service/read.utility';
 
 function extractFupDataGroupedByVendorName(
+  automatic = false,
   filters: string[] = COMMON.DEFAULT.FILTERS
 ) {
   const {
@@ -50,8 +51,9 @@ function extractFupDataGroupedByVendorName(
   );
 
   // Confirm vendors to filter with user
-  if (!userConfirmation(UI.MODAL.TO_SEARCH_VENDORS, toFilterVendorNames))
-    return {};
+  if (!automatic)
+    if (!userConfirmation(UI.MODAL.TO_SEARCH_VENDORS, toFilterVendorNames))
+      return {};
 
   const {
     filters: {byHitoRadar, bySendEmail, byValidEmail},
@@ -85,10 +87,11 @@ function extractFupDataGroupedByVendorName(
   );
 
   // If some vendor has no data, ask user for confirmation, else continue
-  return withProblemsVendorNames.length &&
-    !userConfirmation(UI.MODAL.NO_DATA_VENDORS, withProblemsVendorNames)
-    ? {}
-    : {vendors, headers, vendorsContact: toFilterVendors};
+  if (!automatic && withProblemsVendorNames.length)
+    if (!userConfirmation(UI.MODAL.NO_DATA_VENDORS, withProblemsVendorNames))
+      return {};
+
+  return {vendors, headers, vendorsContact: toFilterVendors};
 }
 
 function getColumnNumbers(

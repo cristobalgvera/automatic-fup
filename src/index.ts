@@ -20,48 +20,6 @@ import {purchaseOrderService} from './service/purchase-order.service';
  *
  *****************************************************************/
 
-function test() {
-  const dataGenerator = (howMany: number) => {
-    const generatedData: PurchaseOrder[] = [];
-    for (let i = 0; i < howMany; i++) {
-      generatedData.push({
-        vendorName: 'COLLINS',
-        partNumber: `${Math.floor(Math.random() * 899999) + 100000}`,
-        purchaseOrder: `PO${Math.floor(Math.random() * 899999) + 100000}`,
-        comments: 'TEST!',
-      });
-    }
-    return generatedData;
-  };
-
-  const data = dataGenerator(5);
-
-  const returnedData = purchaseOrderService.saveAll(data);
-  console.log(returnedData);
-}
-
-function test2() {
-  // const data = purchaseOrderService.getAll({
-  //   orderBy: 'vendorName',
-  //   equalTo: 'BOEING',
-  // });
-
-  const data = purchaseOrderService.getAll({
-    orderBy: '$key',
-    limitToFirst: '3',
-  });
-
-  console.log(data);
-}
-
-function test3() {
-  const data = purchaseOrderService.getAll({
-    orderBy: 'vendorName',
-    equalTo: 'COLLINS',
-  });
-  console.log(data);
-}
-
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu(UI.MENU.TITLE)

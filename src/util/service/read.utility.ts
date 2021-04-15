@@ -90,11 +90,11 @@ function _utilitiesToExtractFupData(
     toFilterVendors.length
       ? shouldSendEmailToVendor(row[sortColumnNumber])
       : false;
-  const onVendorId = (acc: GroupedVendors, row: string[]) => {
+  const onVendorId = (acc, row: string[]) => {
     const vendorId = getVendorId(row[sortColumnNumber]);
 
     acc[vendorId] ??= [];
-    acc[vendorId].push(...row);
+    acc[vendorId].push(row);
     return acc;
   };
 
