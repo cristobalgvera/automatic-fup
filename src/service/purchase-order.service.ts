@@ -1,6 +1,10 @@
 import {_purchaseOrderRepository} from '../db/purchase-order.repository';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
+function exists(id: string) {
+  return _purchaseOrderRepository.exists(id);
+}
+
 function getOne(id: string) {
   return _purchaseOrderRepository.getOne(id);
 }
@@ -33,6 +37,24 @@ function removeAll(ids: string[]) {
   return _purchaseOrderRepository.removeAll(ids);
 }
 
+function validateStatus(id: string) {
+  const purchaseOrder = getOne(id);
+  if (!purchaseOrder?.status) return false;
+
+  switch (purchaseOrder.status) {
+    case '1. Not shipped yet':
+      return purchaseOrder.esd
+        ? new Date(purchaseOrder.esd) >= new Date()
+        : false;
+    case '2. Shipped':
+      return true;
+    case '3. Not received':
+      return true;
+    default:
+      return false;
+  }
+}
+
 const purchaseOrderService = {
   saveAll,
   saveOne,
@@ -42,6 +64,8 @@ const purchaseOrderService = {
   getAll,
   removeAll,
   removeOne,
+  exists,
+  validateStatus,
 };
 
 export {purchaseOrderService};

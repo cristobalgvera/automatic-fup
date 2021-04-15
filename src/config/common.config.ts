@@ -1,6 +1,7 @@
 const COMMON = {
-  DEFAULT: {
-    FILTERS: ['Vendor', 'Vendor Sin Quote'],
+  DATA_ORIGIN: {
+    PURCHASE: 'COMPRAS',
+    REPAIR: 'REPARACIONES',
   },
   UTIL: {
     TIME_ZONE: 'America/Santiago',

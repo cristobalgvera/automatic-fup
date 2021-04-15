@@ -4,7 +4,6 @@ import {GroupedVendors} from '../util/interface/grouped-vendors.interface';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {sendEmail} from './mail.service';
 import {VendorContact} from '../util/interface/vendor-contact.interface';
-import {getRepairsInitialData} from './read.service';
 import Folder = GoogleAppsScript.Drive.Folder;
 import File = GoogleAppsScript.Drive.File;
 import SchemaFile = GoogleAppsScript.Drive.Schema.File;
@@ -12,14 +11,14 @@ import MimeType = GoogleAppsScript.Base.MimeType;
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import {_setBaseData} from '../util/service/drive.utility';
 
-function getTemplateAndCreateFolderForRegistries() {
+function getTemplateAndCreateFolderForRegistries(dataOrigin: string) {
   // Parent folder to store registries
   const folder = DriveApp.getFolderById(FOLDER_ID.REGISTRIES);
   const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE.ID);
 
   // Folder to store new registries located in parent folder
   let registriesFolder: Folder;
-  const registriesFolderName = UI.FOLDER.REGISTRIES.getName();
+  const registriesFolderName = UI.FOLDER.REGISTRIES.getName(dataOrigin);
 
   // If folder exists, use it
   const folders = folder.getFoldersByName(registriesFolderName);
@@ -214,39 +213,6 @@ function createSheetFiles(
         vendorSpreadsheet
       );
   });
-}
-
-// To get vendors dictionary
-function groupVendors() {
-  const mainFolder = DriveApp.getFolderById(FOLDER_ID.MAIN);
-  const {expectedSheet, vendorNameColumnNumber} = getRepairsInitialData();
-
-  const vendorDictionary = expectedSheet
-    .getRange(2, vendorNameColumnNumber + 1, expectedSheet.getLastRow() - 1, 2)
-    .getValues()
-    .map(([name, responsible]) => [
-      responsible.toLocaleUpperCase().trim(),
-      name.toLocaleUpperCase(),
-    ]) as string[][];
-
-  const vendors = vendorDictionary.reduce((acc, [name, responsible]) => {
-    acc[responsible] ??= [];
-    acc[responsible].push(name);
-    return acc;
-  }, {});
-
-  const vendorsArray = Object.keys(vendors).map(vendor => [vendor]);
-
-  const spreadsheet = SpreadsheetApp.create('Dictionary');
-  mainFolder.addFile(DriveApp.getFileById(spreadsheet.getId()));
-
-  const contactsSheet = spreadsheet.insertSheet('Contacts');
-  const dictionarySheet = spreadsheet.insertSheet('Dictionary');
-
-  contactsSheet.getRange(1, 1, vendorsArray.length, 1).setValues(vendorsArray);
-  dictionarySheet
-    .getRange(1, 1, vendorDictionary.length, 2)
-    .setValues(vendorDictionary);
 }
 
 export {

@@ -4,10 +4,10 @@ import {
   getTemplateAndCreateFolderForRegistries,
 } from './service/drive.service';
 import {
-  extractFupDataGroupedByVendorName,
+  extractRepairDataByVendorName,
   getColumnNumbers,
 } from './service/read.service';
-import {UI} from './config';
+import {COMMON, UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 import {PurchaseOrder} from './util/schema/purchase-order.schema';
 import {purchaseOrderService} from './service/purchase-order.service';
@@ -20,13 +20,17 @@ import {purchaseOrderService} from './service/purchase-order.service';
  *
  *****************************************************************/
 
+function test() {
+  console.log(null < new Date());
+}
+
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu(UI.MENU.TITLE)
     .addSubMenu(
       ui
         .createMenu(UI.MENU.SUBMENU_1.TITLE)
-        .addItem(UI.MENU.SUBMENU_1.ITEM.A, 'createFileForEachVendor')
+        .addItem(UI.MENU.SUBMENU_1.ITEM.A, 'createFileForEachRepairVendor')
     )
     .addSubMenu(
       ui
@@ -37,12 +41,10 @@ function onOpen() {
     .addToUi();
 }
 
-function createFileForEachVendor() {
-  const {
-    vendors,
-    headers,
-    vendorsContact,
-  } = extractFupDataGroupedByVendorName();
+function createFileForEachRepairVendor() {
+  const {vendors, headers, vendorsContact} = extractRepairDataByVendorName(
+    true
+  );
 
   // User cancel operation
   if (!vendorsContact) return;
@@ -50,8 +52,8 @@ function createFileForEachVendor() {
   const {
     templateSpreadsheet,
     registriesFolder,
-  } = getTemplateAndCreateFolderForRegistries();
-  const columnNumbers = getColumnNumbers(templateSpreadsheet, headers);
+  } = getTemplateAndCreateFolderForRegistries(COMMON.DATA_ORIGIN.REPAIR);
+  const columnNumbers = getColumnNumbers(templateSpreadsheet, headers, false);
 
   // Create sheet files and return a send email to vendor action for each one
   const sendEmails = createSheetFiles(

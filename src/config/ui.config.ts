@@ -20,7 +20,7 @@ const UI = {
   },
   FOLDER: {
     REGISTRIES: {
-      getName: () => `[${today()}] REGISTROS`,
+      getName: (dataOrigin: string) => `[${today()}] REGISTROS ${dataOrigin}`,
     },
     CONSOLIDATED: {
       getName: (isPurchase: boolean) =>

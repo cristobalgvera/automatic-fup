@@ -13,6 +13,7 @@ import {
 } from '../util/service/mail.utility';
 import Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
+import Folder = GoogleAppsScript.Drive.Folder;
 
 function sendSheetToVendor(
   vendorContact: VendorContact,
@@ -49,10 +50,18 @@ function sendEmail(
 }
 
 function getOpenOrdersFromVendors(after: string) {
-  const folder = createChildFolderFromFolderId(
-    FOLDER_ID.EMAIL_AUTOMATED_READS,
-    UI.FOLDER.EMAIL_AUTOMATED_READS.getName()
-  );
+  const folders = DriveApp.getFolderById(
+    FOLDER_ID.EMAIL_AUTOMATED_READS
+  ).getFoldersByName(UI.FOLDER.EMAIL_AUTOMATED_READS.getName());
+
+  let folder: Folder;
+
+  if (folders.hasNext()) folder = folders.next();
+  else
+    folder = createChildFolderFromFolderId(
+      FOLDER_ID.EMAIL_AUTOMATED_READS,
+      UI.FOLDER.EMAIL_AUTOMATED_READS.getName()
+    );
 
   // Date param must be formatted as YYYY/MM/DD, and day
   // number should be one day before of requested information

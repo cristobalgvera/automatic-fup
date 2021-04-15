@@ -1,12 +1,13 @@
 import {VendorContact} from '../interface/vendor-contact.interface';
 import {VendorsContact} from '../interface/vendor-contact.interface';
-import {DB, PURCHASES_DATA, TEMPLATE} from '../../config';
+import {DB, PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../../config';
 import {GroupedVendors} from '../interface/grouped-vendors.interface';
 import {HeaderNumber} from '../interface/header-number.interface';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
 import {validateEmail} from '../../service/utility.service';
 import {getVendorsContact} from '../../service/read.service';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
+import {purchaseOrderService} from '../../service/purchase-order.service';
 
 function _getToContactVendors(vendorsContact: VendorsContact) {
   return Object.entries(vendorsContact).reduce((acc, vendorContact) => {
@@ -51,7 +52,9 @@ function _utilitiesToExtractFupData(
   groupedVendors: GroupedVendors,
   filterColumnNumber: number,
   sortColumnNumber: number,
-  filters: string[]
+  filters: string[],
+  headers: HeaderNumber,
+  isPurchase = true
 ) {
   const toFilterGroupedVendors = Object.entries(
     toFilterVendors.reduce(
@@ -69,6 +72,17 @@ function _utilitiesToExtractFupData(
         groupedVendors[vendor.id]?.find(name => name === searchedName) ?? false
     );
 
+  const shouldSendPurchaseOrderToVendor = (row: string[]) => {
+    const purchaseOrder = isPurchase
+      ? row[headers[PURCHASE_DATA.COLUMN.RO_NUMBER]]
+      : row[headers[REPAIR_DATA.COLUMN.RO_NUMBER]];
+
+    const line = row[headers[PURCHASE_DATA.COLUMN.LINE]];
+    const id = `${purchaseOrder}-${line ?? 1}`;
+
+    return !purchaseOrderService.validateStatus(id);
+  };
+
   const isValidEmail = (searchedName: string) => {
     const email = toFilterVendors.find(
       vendor => !!groupedVendors[vendor.id]?.find(name => name === searchedName)
@@ -84,17 +98,22 @@ function _utilitiesToExtractFupData(
 
   const byHitoRadar = (row: string[]) =>
     filters.includes(row[filterColumnNumber]);
+
   const byValidEmail = (row: string[]) =>
     toFilterVendors.length ? isValidEmail(row[sortColumnNumber]) : false;
+
   const bySendEmail = (row: string[]) =>
     toFilterVendors.length
       ? shouldSendEmailToVendor(row[sortColumnNumber])
       : false;
+
   const onVendorId = (acc, row: string[]) => {
     const vendorId = getVendorId(row[sortColumnNumber]);
 
     acc[vendorId] ??= [];
-    acc[vendorId].push(row);
+
+    if (shouldSendPurchaseOrderToVendor(row)) acc[vendorId].push(row);
+
     return acc;
   };
 
@@ -223,9 +242,9 @@ function _getUtilitiesToEvaluateEmails() {
   return {toPurchaseOrders};
 }
 
-function _getPurchasesInitialData() {
-  const spreadsheet = SpreadsheetApp.openById(PURCHASES_DATA.ID);
-  const expectedSheet = spreadsheet.getSheetByName(PURCHASES_DATA.SHEET.ACTUAL);
+function _getRepairsInitialData() {
+  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
+  const expectedSheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
 
   const totalColumns = expectedSheet.getLastColumn();
 
@@ -240,8 +259,10 @@ function _getPurchasesInitialData() {
     {}
   );
 
-  const filterColumnNumber = headerNumber[PURCHASES_DATA.UTIL.FILTER_COLUMN];
-  const sortColumnNumber = headerNumber[PURCHASES_DATA.UTIL.SORT_COLUMN];
+  const filterColumnNumber =
+    headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR];
+  const sortColumnNumber =
+    headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
 
   return {
     expectedSheet,
@@ -250,7 +271,7 @@ function _getPurchasesInitialData() {
 }
 
 export {
-  _getPurchasesInitialData,
+  _getRepairsInitialData,
   _getVendorsNames,
   _getToContactVendors,
   _utilitiesToExtractFupData,

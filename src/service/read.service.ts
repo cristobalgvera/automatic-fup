@@ -1,4 +1,4 @@
-import {COMMON, PURCHASES_DATA, DB, TEMPLATE, UI} from '../config';
+import {REPAIR_DATA, DB, TEMPLATE, UI, PURCHASE_DATA} from '../config';
 import {HeaderNumber} from '../util/interface/header-number.interface';
 import {
   VendorContact,
@@ -12,26 +12,25 @@ import {
   userConfirmation,
   validateEmail,
 } from './utility.service';
-import {REPAIRS_DATA} from '../config/repairs-data.config';
 import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
 import {purchaseOrderService} from './purchase-order.service';
 import {
-  _getPurchasesInitialData,
+  _getRepairsInitialData,
   _getVendorsNames,
   _getToContactVendors,
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
 } from '../util/service/read.utility';
 
-function extractFupDataGroupedByVendorName(
+function extractRepairDataByVendorName(
   automatic = false,
-  filters: string[] = COMMON.DEFAULT.FILTERS
+  filters: string[] = REPAIR_DATA.UTIL.FILTERS.HITO_RADAR
 ) {
   const {
     expectedSheet,
     utils: {filterColumnNumber, sortColumnNumber, headerNumber: headers},
-  } = _getPurchasesInitialData();
+  } = _getRepairsInitialData();
   const {groupedVendors, vendorsContact} = _getVendorsNames();
 
   // Filter vendors checked as 'to send email', get his
@@ -63,7 +62,9 @@ function extractFupDataGroupedByVendorName(
     groupedVendors,
     filterColumnNumber,
     sortColumnNumber,
-    filters
+    filters,
+    headers,
+    false
   );
 
   // Filter all vendors to get just the ones that are needed
@@ -96,7 +97,8 @@ function extractFupDataGroupedByVendorName(
 
 function getColumnNumbers(
   templateSpreadsheet: Spreadsheet,
-  headers: HeaderNumber
+  headers: HeaderNumber,
+  isPurchase = true
 ): ColumnNumbers {
   const sheet = templateSpreadsheet.getSheetByName(TEMPLATE.SHEET.PURCHASE);
   const templateHeaders = sheet
@@ -109,9 +111,15 @@ function getColumnNumbers(
     templatePartNumberColumn:
       templateHeaders.indexOf(TEMPLATE.COLUMN.PART_NUMBER) + 1,
     templateLineColumn: templateHeaders.indexOf(TEMPLATE.COLUMN.LINE) + 1,
-    roNumberColumn: headers[PURCHASES_DATA.COLUMN.RO_NUMBER],
-    partNumberColumn: headers[PURCHASES_DATA.COLUMN.PART_NUMBER],
-    lineColumn: headers[PURCHASES_DATA.COLUMN.LINE],
+    roNumberColumn: isPurchase
+      ? headers[PURCHASE_DATA.COLUMN.RO_NUMBER]
+      : headers[REPAIR_DATA.COLUMN.RO_NUMBER],
+    partNumberColumn: isPurchase
+      ? headers[PURCHASE_DATA.COLUMN.PART_NUMBER]
+      : headers[REPAIR_DATA.COLUMN.PART_NUMBER],
+    lineColumn: isPurchase
+      ? headers[PURCHASE_DATA.COLUMN.LINE]
+      : headers[REPAIR_DATA.COLUMN.LINE],
   };
 }
 
@@ -153,42 +161,9 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
   purchaseOrderService.saveAll(purchaseOrders);
 }
 
-function getRepairsInitialData() {
-  const spreadsheet = SpreadsheetApp.openById(REPAIRS_DATA.ID);
-  // To set dictionary
-  const expectedSheet = spreadsheet.getSheetByName(
-    REPAIRS_DATA.SHEET.DICTIONARY
-  );
-
-  const totalColumns = expectedSheet.getLastColumn();
-
-  const headers: string[] = expectedSheet
-    .getRange(1, 1, 1, totalColumns)
-    .getValues()[0];
-  const headerNumber: HeaderNumber = headers.reduce(
-    (acc, header, index) => ({
-      ...acc,
-      [header]: index,
-    }),
-    {}
-  );
-
-  const vendorNameColumnNumber = headerNumber[REPAIRS_DATA.COLUMN.VENDOR_NAME];
-  const vendorResponsibleColumnNumber =
-    headerNumber[REPAIRS_DATA.COLUMN.VENDOR_RESPONSIBLE];
-
-  return {
-    expectedSheet,
-    vendorNameColumnNumber,
-    vendorResponsibleColumnNumber,
-    headerNumber,
-  };
-}
-
 export {
-  extractFupDataGroupedByVendorName,
+  extractRepairDataByVendorName,
   getColumnNumbers,
-  getRepairsInitialData,
   getVendorsContact,
   evaluateByEmailSpreadsheets,
 };

@@ -4,9 +4,9 @@ export interface PurchaseOrder {
   purchaseOrder: string;
   line?: number;
   partNumber: string;
-  status?: PO_STATUS | string;
-  esd?: Date | string;
-  shippedDate?: Date | string;
+  status?: PO_STATUS;
+  esd?: Date;
+  shippedDate?: Date;
   qtyShipped?: number;
   awb?: string;
   comments?: string;
@@ -20,7 +20,7 @@ export interface PurchaseOrder {
 }
 
 export enum PO_STATUS {
-  NOT_SHIPPED_YET,
-  SHIPPED,
-  NOT_RECEIVED,
+  NOT_SHIPPED_YET = '1. Not shipped yet',
+  SHIPPED = '2. Shipped',
+  NOT_RECEIVED = '3. Not received',
 }
