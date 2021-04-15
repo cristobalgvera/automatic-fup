@@ -9,8 +9,6 @@ import {
 } from './service/read.service';
 import {COMMON, UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
-import {PurchaseOrder} from './util/schema/purchase-order.schema';
-import {purchaseOrderService} from './service/purchase-order.service';
 
 /****************************************************************
  *
@@ -19,10 +17,6 @@ import {purchaseOrderService} from './service/purchase-order.service';
  * https://github.com/cristobalgvera/automatic-fup
  *
  *****************************************************************/
-
-function test() {
-  console.log(null < new Date());
-}
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();

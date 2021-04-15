@@ -4,15 +4,16 @@ import {VendorContact} from '../interface/vendor-contact.interface';
 import {excelToSheet} from '../../service/drive.service';
 import {getVendorsContact} from '../../service/read.service';
 import {obtainEmail} from '../../service/utility.service';
-import Blob = GoogleAppsScript.Base.Blob;
-import Folder = GoogleAppsScript.Drive.Folder;
-import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
-import GmailMessage = GoogleAppsScript.Gmail.GmailMessage;
-import GmailAttachment = GoogleAppsScript.Gmail.GmailAttachment;
+type Blob = GoogleAppsScript.Base.Blob;
+type Folder = GoogleAppsScript.Drive.Folder;
+type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
+type GmailMessage = GoogleAppsScript.Gmail.GmailMessage;
+type GmailAttachment = GoogleAppsScript.Gmail.GmailAttachment;
 
 // Function to use inside of template html files to modularize responsibilities
 function include(filename: string) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+  if (filename)
+    return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
 function _sendExcelTo({name, email}: VendorContact, attachments: Blob[]) {
@@ -44,6 +45,7 @@ function _sendExcelTo({name, email}: VendorContact, attachments: Blob[]) {
 
 function _getUtilitiesToFilterEmails(folder: Folder) {
   const vendorEmails = _getVendorEmails();
+  include('');
 
   const byXlsxFiles = (attached: GmailAttachment) =>
     attached.getName().endsWith(COMMON.UTIL.FILE_EXTENSION.XLSX);

@@ -1,6 +1,6 @@
 import {TEMPLATE} from '../config';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
-import Sheet = GoogleAppsScript.Spreadsheet.Sheet;
+type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function writeInSheet(
   vendorSheet: Sheet,

@@ -12,7 +12,6 @@ import {
   userConfirmation,
   validateEmail,
 } from './utility.service';
-import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
 import {purchaseOrderService} from './purchase-order.service';
 import {
@@ -22,6 +21,8 @@ import {
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
 } from '../util/service/read.utility';
+
+type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
 function extractRepairDataByVendorName(
   automatic = false,

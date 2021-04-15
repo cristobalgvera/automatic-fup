@@ -6,8 +6,8 @@ import {HeaderNumber} from '../interface/header-number.interface';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
 import {validateEmail} from '../../service/utility.service';
 import {getVendorsContact} from '../../service/read.service';
-import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import {purchaseOrderService} from '../../service/purchase-order.service';
+type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
 function _getToContactVendors(vendorsContact: VendorsContact) {
   return Object.entries(vendorsContact).reduce((acc, vendorContact) => {

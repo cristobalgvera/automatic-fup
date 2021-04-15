@@ -11,9 +11,9 @@ import {
   _getUtilitiesToFilterEmails,
   _sendExcelTo,
 } from '../util/service/mail.utility';
-import Sheet = GoogleAppsScript.Spreadsheet.Sheet;
-import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
-import Folder = GoogleAppsScript.Drive.Folder;
+type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
+type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
+type Folder = GoogleAppsScript.Drive.Folder;
 
 function sendSheetToVendor(
   vendorContact: VendorContact,

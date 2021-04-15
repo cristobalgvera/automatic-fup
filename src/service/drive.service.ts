@@ -4,12 +4,11 @@ import {GroupedVendors} from '../util/interface/grouped-vendors.interface';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {sendEmail} from './mail.service';
 import {VendorContact} from '../util/interface/vendor-contact.interface';
-import Folder = GoogleAppsScript.Drive.Folder;
-import File = GoogleAppsScript.Drive.File;
-import SchemaFile = GoogleAppsScript.Drive.Schema.File;
-import MimeType = GoogleAppsScript.Base.MimeType;
-import Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 import {_setBaseData} from '../util/service/drive.utility';
+type Folder = GoogleAppsScript.Drive.Folder;
+type File = GoogleAppsScript.Drive.File;
+type SchemaFile = GoogleAppsScript.Drive.Schema.File;
+type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
 function getTemplateAndCreateFolderForRegistries(dataOrigin: string) {
   // Parent folder to store registries
@@ -147,7 +146,7 @@ function excelToSheet(excelFile: File, folder: Folder) {
   // Define a Sheet file to convert Excel file into
   const resource: SchemaFile = {
     title: fileName,
-    mimeType: MimeType.GOOGLE_SHEETS.toString(),
+    mimeType: MimeType.GOOGLE_SHEETS,
     parents: [{id: folder.getId()}],
   };
 

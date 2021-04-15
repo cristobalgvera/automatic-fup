@@ -3,15 +3,10 @@
 
 # except the extensions…
 !appsscript.json
-!**/*.js
-!**/*.ts
-!**/*.html
+!build/**/*.js
+#!lib/*.js
+!src/assets/*.html
 
 # ignore even valid files if in…
-**/*.interface.ts
-**/*.schema.ts
-**/*.d.ts
-**/*.enum.ts
-.prettierrc.js
 .git/**
 node_modules/**

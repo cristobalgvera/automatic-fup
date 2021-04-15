@@ -2,21 +2,34 @@
   "name": "automatic-fup",
   "version": "1.0.0",
   "description": "FUP GoogleSheet automate for LATAM",
-  "main": "index",
-  "dependencies": {},
-  "devDependencies": {
-    "@types/google-apps-script": "^1.0.30",
-    "@types/node": "^14.11.2",
-    "gts": "^3.1.0",
-    "typescript": "^4.2.3"
-  },
-  "scripts": {
-    "lint": "gts lint",
-    "clean": "gts clean",
-    "compile": "tsc",
-    "fix": "gts fix",
-    "watch": "clasp push --watch"
-  },
   "author": "Cristóbal Gajardo Vera",
-  "license": "ISC"
+  "license": "ISC",
+  "requires": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup --config",
+    "build-dev": "rollup --config --watch",
+    "lint": "gts lint",
+    "fix": "gts fix",
+    "deploy": "yarn fix & yarn build & clasp push",
+    "dev": "clasp push --watch"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/preset-typescript": "^7.12.7",
+    "@google/clasp": "^2.3.0",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-node-resolve": "^11.0.1",
+    "@types/google-apps-script": "^1.0.20",
+    "@types/node": "^12.19.9",
+    "gts": "^3.1.0",
+    "rollup": "^2.35.1",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "moment": "^2.29.1"
+  }
 }
