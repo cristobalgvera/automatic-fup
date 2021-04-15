@@ -133,7 +133,7 @@ function _getUtilitiesToEvaluateEmails() {
   const purchaseOrdersGenerator = (
     vendorName: string,
     vendorEmail: string,
-    headerNumbers: Partial<typeof TEMPLATE.UTIL.COLUMN_NAMES>
+    headerNumbers: Partial<typeof TEMPLATE.UTIL.COLUMN_NAME>
   ) => (curr: PurchaseOrder[], row: string[]) =>
     curr.concat({
       vendorName: vendorName || null,
@@ -183,7 +183,7 @@ function _getUtilitiesToEvaluateEmails() {
         ([, name]) => name === header
       );
       return templateHeader ? {...acc, [templateHeader[0]]: i} : acc;
-    }, {} as Partial<typeof TEMPLATE.UTIL.COLUMN_NAMES>);
+    }, {} as Partial<typeof TEMPLATE.UTIL.COLUMN_NAME>);
 
     const spreadsheetValues: string[][] = sheet
       .getRange(3, poNumberColumnNumber, numberOfRows, 9)

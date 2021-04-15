@@ -150,7 +150,7 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
   const data = Object.entries(byEmailSpreadsheets);
   const vendorsContact = getVendorsContact(db);
   const contacts = Object.entries(vendorsContact);
-  const templateHeaders = Object.entries(TEMPLATE.UTIL.COLUMN_NAMES);
+  const templateHeaders = Object.entries(TEMPLATE.UTIL.COLUMN_NAME);
 
   const {toPurchaseOrders} = _getUtilitiesToEvaluateEmails();
 

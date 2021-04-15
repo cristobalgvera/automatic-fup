@@ -1,5 +1,5 @@
 import {_purchaseOrderRepository} from '../db/purchase-order.repository';
-import {PurchaseOrder} from '../util/schema/purchase-order.schema';
+import {PO_STATUS, PurchaseOrder} from '../util/schema/purchase-order.schema';
 
 function exists(id: string) {
   return _purchaseOrderRepository.exists(id);
@@ -42,14 +42,14 @@ function validateStatus(id: string) {
   if (!purchaseOrder?.status) return false;
 
   switch (purchaseOrder.status) {
-    case '1. Not shipped yet':
+    case PO_STATUS.NOT_SHIPPED_YET:
       return purchaseOrder.esd
         ? new Date(purchaseOrder.esd) >= new Date()
         : false;
-    case '2. Shipped':
+    case PO_STATUS.SHIPPED:
       return true;
-    case '3. Not received':
-      return true;
+    case PO_STATUS.NOT_RECEIVED:
+      return false;
     default:
       return false;
   }
