@@ -12,7 +12,7 @@ type ColumnName = Required<
 const TEMPLATE = {
   ID: '1fUxA_8WbypaQxifwepWa3cr_3CsxQw5a6tko4ZHLpns',
   SHEET: {
-    PURCHASE: 'Compras',
+    OPEN_ORDERS: 'Open Orders',
   },
   COLUMN: {
     PURCHASE_ORDER: 'Purchase Order',

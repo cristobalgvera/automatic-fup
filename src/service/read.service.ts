@@ -147,7 +147,7 @@ function getColumnNumbers(
   headers: HeaderNumber,
   isPurchase = true
 ): ColumnNumbers {
-  const sheet = templateSpreadsheet.getSheetByName(TEMPLATE.SHEET.PURCHASE);
+  const sheet = templateSpreadsheet.getSheetByName(TEMPLATE.SHEET.OPEN_ORDERS);
   const templateHeaders = sheet
     .getRange(2, 1, 1, sheet.getLastColumn())
     .getValues()[0];

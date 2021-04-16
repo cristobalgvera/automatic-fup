@@ -43,16 +43,25 @@ function validateStatus(id: string) {
 
   switch (purchaseOrder.status) {
     case PO_STATUS.NOT_SHIPPED_YET:
-      return purchaseOrder.esd
-        ? new Date(purchaseOrder.esd) >= new Date()
-        : false;
+    case PO_STATUS.TO_BE_QUOTED:
+    case PO_STATUS.UNDER_REPAIR_PROCESS:
+      return evaluateEsd(purchaseOrder);
+    case PO_STATUS.AWAITING_CIA_PAYMENT:
+    case PO_STATUS.AWAITING_ISSUED_BUYER:
+    case PO_STATUS.AWAITING_QUOTE_APPROVAL:
+    case PO_STATUS.CANCELLED:
+    case PO_STATUS.CORE_RETURN:
+    case PO_STATUS.SCRAPPED:
     case PO_STATUS.SHIPPED:
       return true;
     case PO_STATUS.NOT_RECEIVED:
-      return false;
     default:
       return false;
   }
+}
+
+function evaluateEsd(purchaseOrder: PurchaseOrder) {
+  return purchaseOrder.esd ? new Date(purchaseOrder.esd) >= new Date() : false;
 }
 
 const purchaseOrderService = {

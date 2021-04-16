@@ -20,7 +20,15 @@ export interface PurchaseOrder {
 }
 
 export enum PO_STATUS {
-  NOT_SHIPPED_YET = '1. Not shipped yet',
-  SHIPPED = '2. Shipped',
-  NOT_RECEIVED = '3. Not received',
+  NOT_RECEIVED = 'Not received',
+  CORE_RETURN = 'Core return',
+  TO_BE_QUOTED = 'To be quoted',
+  AWAITING_QUOTE_APPROVAL = 'Awaiting quote approval',
+  AWAITING_CIA_PAYMENT = 'Awaiting CIA payment',
+  UNDER_REPAIR_PROCESS = 'Under repair process',
+  SHIPPED = 'Shipped',
+  SCRAPPED = 'Scrapped',
+  CANCELLED = 'Cancelled',
+  NOT_SHIPPED_YET = 'Not shipped yet',
+  AWAITING_ISSUED_BUYER = 'Awaiting issued buyer',
 }

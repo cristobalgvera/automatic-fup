@@ -202,7 +202,7 @@ function createSheetFiles(
 
     // Point to created spreadsheet sheet
     const vendorSheet = vendorSpreadsheet.getSheetByName(
-      TEMPLATE.SHEET.PURCHASE
+      TEMPLATE.SHEET.OPEN_ORDERS
     );
 
     // For each vendor create a send email to him action to return
