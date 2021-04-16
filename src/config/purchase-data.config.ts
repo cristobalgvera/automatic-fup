@@ -5,7 +5,7 @@ const PURCHASE_DATA = {
   },
   COLUMN: {
     RO_NUMBER: 'ORDEN',
-    PART_NUMBER: '',
+    PART_NUMBER: 'OEM_PART_NUMBER',
     LINE: 'ORDEN_LINE',
     VENDOR_NAME: 'VENDOR_NAME',
   },

@@ -7,7 +7,8 @@ const UI = {
     SUBMENU_1: {
       TITLE: 'Enviar correos',
       ITEM: {
-        A: 'Proveedores',
+        A: 'Compras',
+        B: 'Reparaciones',
       },
     },
     SUBMENU_2: {

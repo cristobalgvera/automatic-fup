@@ -186,13 +186,16 @@ function createSheetFiles(
   vendorsContact: VendorContact[],
   templateSpreadsheet: Spreadsheet,
   registriesFolder: Folder,
-  columnNumbers: ColumnNumbers
+  columnNumbers: ColumnNumbers,
+  automatic?: boolean
 ) {
   return Object.entries(vendors).map(vendor => {
     const [vendorId, vendorData] = vendor;
     const vendorContact = vendorsContact.find(
       contact => contact.id === vendorId
     );
+
+    console.log(`Creating '${vendorId}' spreadsheet`);
 
     const vendorSpreadsheet = templateSpreadsheet.copy(vendorContact.name);
     registriesFolder.addFile(DriveApp.getFileById(vendorSpreadsheet.getId()));
@@ -203,13 +206,15 @@ function createSheetFiles(
     );
 
     // For each vendor create a send email to him action to return
-    return () =>
+    return (isPurchase = true) =>
       sendEmail(
         vendorSheet,
         vendorData,
         columnNumbers,
         vendorContact,
-        vendorSpreadsheet
+        vendorSpreadsheet,
+        automatic,
+        isPurchase
       );
   });
 }

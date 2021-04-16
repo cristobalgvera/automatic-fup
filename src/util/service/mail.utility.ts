@@ -21,10 +21,12 @@ function _sendExcelTo({name, email}: VendorContact, attachments: Blob[]) {
   const html = HtmlService.createTemplateFromFile('build/app/assets/mail');
 
   // Edit data variable of template html
-  html.data = name;
+  html.teamName = name;
 
   // Create real html from template one (whit all variable data)
   const htmlBody = html.evaluate().getContent();
+
+  console.log(`Sending email to ${name}`);
 
   try {
     MailApp.sendEmail({

@@ -15,53 +15,45 @@ import {
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
 import {purchaseOrderService} from './purchase-order.service';
 import {
-  _getRepairsInitialData,
+  _getFupInitialData,
   _getVendorsNames,
   _getToContactVendors,
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
+  _alertVendorsToFilter,
+  _alertVendorWithProblems,
 } from '../util/service/read.utility';
 
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
 function extractRepairDataByVendorName(
-  automatic = false,
+  automatic?: boolean,
   filters: string[] = REPAIR_DATA.UTIL.FILTERS.HITO_RADAR
 ) {
   const {
     expectedSheet,
-    utils: {filterColumnNumber, sortColumnNumber, headerNumber: headers},
-  } = _getRepairsInitialData();
+    utils: {filterColumnNumbers, sortColumnNumber, headerNumber: headers},
+  } = _getFupInitialData('REPAIR');
   const {groupedVendors, vendorsContact} = _getVendorsNames();
 
   // Filter vendors checked as 'to send email', get his
   // contact data and set useful format to work with them
   const toContactVendors = _getToContactVendors(vendorsContact);
-  const toFilterVendors = Object.values(toContactVendors).map(vendor => vendor);
+  const toFilterVendors = Object.values(toContactVendors);
 
-  // Create a list-like string to show in a pop-up
-  const toFilterVendorNames = toFilterVendors.reduce(
-    (acc: string[], {id, name}) =>
-      groupedVendors[id]
-        ? validateEmail(toContactVendors[id].email)
-          ? acc.concat(name)
-          : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL))
-        : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_LINKED_VENDOR_NAMES)),
-    []
-  );
-
-  // Confirm vendors to filter with user
-  if (!automatic)
-    if (!userConfirmation(UI.MODAL.TO_SEARCH_VENDORS, toFilterVendorNames))
-      return {};
+  if (
+    !automatic &&
+    _alertVendorsToFilter(groupedVendors, toContactVendors, toFilterVendors)
+  )
+    return {};
 
   const {
     filters: {byHitoRadar, bySendEmail, byValidEmail},
-    reducers: {onVendorId},
+    reducers: {onVendorId, onHasDataVendors},
   } = _utilitiesToExtractFupData(
     toFilterVendors,
     groupedVendors,
-    filterColumnNumber,
+    filterColumnNumbers,
     sortColumnNumber,
     filters,
     headers,
@@ -78,26 +70,74 @@ function extractRepairDataByVendorName(
     .reduce(onVendorId, {});
 
   const vendors: GroupedVendors = Object.keys(rawVendors).reduce(
-    (acc, name) =>
-      rawVendors[name].length ? {...acc, [name]: rawVendors[name]} : acc,
+    onHasDataVendors(rawVendors),
     {}
   );
 
-  // Put in an array all vendors that has no data
-  const withProblemsVendorNames = toFilterVendors.reduce(
-    (acc: string[], {id, name}) =>
-      vendors[id]
-        ? acc
-        : validateEmail(toContactVendors[id].email)
-        ? acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_PURCHASE_ORDERS))
-        : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL)),
-    []
+  console.log(`TOTAL: ${Object.keys(vendors).length} vendors`);
+
+  if (
+    !automatic &&
+    _alertVendorWithProblems(vendors, toContactVendors, toFilterVendors)
+  )
+    return {};
+
+  return {vendors, headers, vendorsContact: toFilterVendors};
+}
+
+function extractPurchaseDataByVendorName(
+  automatic?: boolean,
+  filters = PURCHASE_DATA.UTIL.FILTERS
+) {
+  const {
+    expectedSheet,
+    utils: {filterColumnNumbers, sortColumnNumber, headerNumber: headers},
+  } = _getFupInitialData('PURCHASE');
+  const {groupedVendors, vendorsContact} = _getVendorsNames();
+
+  const toContactVendors = _getToContactVendors(vendorsContact);
+  const toFilterVendors = Object.values(toContactVendors);
+
+  if (
+    !automatic &&
+    _alertVendorsToFilter(groupedVendors, toContactVendors, toFilterVendors)
+  )
+    return {};
+
+  const {
+    filters: {byAck, byFupStatusActual, bySendEmail, byValidEmail},
+    reducers: {onVendorId, onHasDataVendors},
+  } = _utilitiesToExtractFupData(
+    toFilterVendors,
+    groupedVendors,
+    filterColumnNumbers,
+    sortColumnNumber,
+    filters,
+    headers,
+    false
   );
 
-  // If some vendor has no data, ask user for confirmation, else continue
-  if (!automatic && withProblemsVendorNames.length)
-    if (!userConfirmation(UI.MODAL.NO_DATA_VENDORS, withProblemsVendorNames))
-      return {};
+  const rawVendors: GroupedVendors = expectedSheet
+    .getDataRange()
+    .getValues()
+    .filter(byAck)
+    .filter(byFupStatusActual)
+    .filter(byValidEmail)
+    .filter(bySendEmail)
+    .reduce(onVendorId, {});
+
+  const vendors: GroupedVendors = Object.keys(rawVendors).reduce(
+    onHasDataVendors(rawVendors),
+    {}
+  );
+
+  console.log(`TOTAL: ${Object.keys(vendors).length} vendors`);
+
+  if (
+    !automatic &&
+    _alertVendorWithProblems(vendors, toContactVendors, toFilterVendors)
+  )
+    return {};
 
   return {vendors, headers, vendorsContact: toFilterVendors};
 }
@@ -170,6 +210,7 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
 
 export {
   extractRepairDataByVendorName,
+  extractPurchaseDataByVendorName,
   getColumnNumbers,
   getVendorsContact,
   evaluateByEmailSpreadsheets,

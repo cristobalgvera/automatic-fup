@@ -1,13 +1,25 @@
 import {VendorContact} from '../interface/vendor-contact.interface';
 import {VendorsContact} from '../interface/vendor-contact.interface';
-import {DB, PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../../config';
+import {
+  COMMON,
+  DB,
+  PURCHASE_DATA,
+  REPAIR_DATA,
+  TEMPLATE,
+  UI,
+} from '../../config';
 import {GroupedVendors} from '../interface/grouped-vendors.interface';
 import {HeaderNumber} from '../interface/header-number.interface';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
-import {validateEmail} from '../../service/utility.service';
+import {
+  addSuffix,
+  userConfirmation,
+  validateEmail,
+} from '../../service/utility.service';
 import {getVendorsContact} from '../../service/read.service';
 import {purchaseOrderService} from '../../service/purchase-order.service';
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
+type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function _getToContactVendors(vendorsContact: VendorsContact) {
   return Object.entries(vendorsContact).reduce((acc, vendorContact) => {
@@ -47,12 +59,14 @@ function _getGroupedVendors(db: Spreadsheet) {
   }, {});
 }
 
+type PurchaseFilters = typeof PURCHASE_DATA.UTIL.FILTERS;
+
 function _utilitiesToExtractFupData(
   toFilterVendors: VendorContact[],
   groupedVendors: GroupedVendors,
-  filterColumnNumber: number,
+  filterColumnNumbers: FilterColumns,
   sortColumnNumber: number,
-  filters: string[],
+  filters: string[] | PurchaseFilters,
   headers: HeaderNumber,
   isPurchase = true
 ) {
@@ -96,8 +110,31 @@ function _utilitiesToExtractFupData(
       vendor => vendor[1]?.some(name => name === vendorName) ?? false
     )[0];
 
-  const byHitoRadar = (row: string[]) =>
-    filters.includes(row[filterColumnNumber]);
+  const byHitoRadar = (row: string[]) => {
+    if ('length' in filters)
+      return filters.includes(
+        row[filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR]]
+      );
+  };
+
+  const byAck = (row: string[]) => {
+    if ('ACK' in filters)
+      return filters.ACK.includes(
+        row[filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK]]
+      );
+  };
+
+  const byFupStatusActual = (row: string[]) => {
+    if ('FUP_STATUS_ACTUAL' in filters) {
+      return filters.FUP_STATUS_ACTUAL.includes(
+        row[
+          filterColumnNumbers[
+            PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
+          ]
+        ]
+      );
+    }
+  };
 
   const byValidEmail = (row: string[]) =>
     toFilterVendors.length ? isValidEmail(row[sortColumnNumber]) : false;
@@ -110,6 +147,9 @@ function _utilitiesToExtractFupData(
   const onVendorId = (acc, row: string[]) => {
     const vendorId = getVendorId(row[sortColumnNumber]);
 
+    if (!acc[vendorId])
+      console.log(`Retrieving '${vendorId}' info from FUP data`);
+
     acc[vendorId] ??= [];
 
     if (shouldSendPurchaseOrderToVendor(row)) acc[vendorId].push(row);
@@ -117,14 +157,23 @@ function _utilitiesToExtractFupData(
     return acc;
   };
 
+  const onHasDataVendors = (rawVendors: GroupedVendors) => (acc, name) => {
+    const dataAmount = rawVendors[name].length;
+    if (!dataAmount) console.log(`Deleting '${name}' entry, has no data`);
+    return dataAmount ? {...acc, [name]: rawVendors[name]} : acc;
+  };
+
   return {
     filters: {
       byHitoRadar,
+      byAck,
+      byFupStatusActual,
       bySendEmail,
       byValidEmail,
     },
     reducers: {
       onVendorId,
+      onHasDataVendors,
     },
   };
 }
@@ -134,9 +183,9 @@ function _getUtilitiesToEvaluateEmails() {
     vendorName: string,
     vendorEmail: string,
     headerNumbers: Partial<typeof TEMPLATE.UTIL.COLUMN_NAME>
-  ) => (curr: PurchaseOrder[], row: string[]) =>
+  ) => (curr: Partial<PurchaseOrder>[], row: string[]) =>
     curr.concat({
-      vendorName: vendorName || null,
+      vendorName: vendorName ?? undefined,
       purchaseOrder: row[headerNumbers.purchaseOrder] || null,
       line: row[headerNumbers.line] || null,
       partNumber: row[headerNumbers.partNumber] || null,
@@ -242,9 +291,22 @@ function _getUtilitiesToEvaluateEmails() {
   return {toPurchaseOrders};
 }
 
-function _getRepairsInitialData() {
-  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
-  const expectedSheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
+type DATA_ORIGIN = keyof typeof COMMON.DATA_ORIGIN;
+type FilterColumns = {[x: string]: number};
+
+function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
+  let spreadsheet: Spreadsheet, expectedSheet: Sheet;
+
+  switch (dataOrigin) {
+    case 'REPAIR':
+      spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
+      expectedSheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
+      break;
+    case 'PURCHASE':
+      spreadsheet = SpreadsheetApp.openById(PURCHASE_DATA.ID);
+      expectedSheet = spreadsheet.getSheetByName(PURCHASE_DATA.SHEET.ACTUAL);
+      break;
+  }
 
   const totalColumns = expectedSheet.getLastColumn();
 
@@ -259,21 +321,82 @@ function _getRepairsInitialData() {
     {}
   );
 
-  const filterColumnNumber =
-    headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR];
-  const sortColumnNumber =
-    headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+  const filterColumnNumbers: FilterColumns = {};
+  let sortColumnNumber: number;
+
+  switch (dataOrigin) {
+    case 'REPAIR':
+      filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR] ??=
+        headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR];
+      sortColumnNumber =
+        headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+      break;
+    case 'PURCHASE':
+      filterColumnNumbers[
+        PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
+      ] ??= headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL];
+      filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK] ??=
+        headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK];
+      sortColumnNumber =
+        headerNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+      break;
+  }
 
   return {
     expectedSheet,
-    utils: {filterColumnNumber, sortColumnNumber, headerNumber},
+    utils: {filterColumnNumbers, sortColumnNumber, headerNumber},
   };
 }
 
+function _alertVendorsToFilter(
+  groupedVendors: GroupedVendors,
+  toContactVendors: VendorsContact,
+  toFilterVendors: VendorContact[]
+) {
+  // Create a list-like string to show in a pop-up
+  const toFilterVendorNames = toFilterVendors.reduce(
+    (acc: string[], {id, name}) =>
+      groupedVendors[id]
+        ? validateEmail(toContactVendors[id].email)
+          ? acc.concat(name)
+          : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL))
+        : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_LINKED_VENDOR_NAMES)),
+    []
+  );
+
+  // Confirm vendors to filter with user
+  return !userConfirmation(UI.MODAL.TO_SEARCH_VENDORS, toFilterVendorNames);
+}
+
+function _alertVendorWithProblems(
+  vendors: GroupedVendors,
+  toContactVendors: VendorsContact,
+  toFilterVendors: VendorContact[]
+) {
+  // Put in an array all vendors that has no data
+  const withProblemsVendorNames = toFilterVendors.reduce(
+    (acc: string[], {id, name}) =>
+      vendors[id]
+        ? acc
+        : validateEmail(toContactVendors[id].email)
+        ? acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_PURCHASE_ORDERS))
+        : acc.concat(addSuffix(name, UI.MODAL.SUFFIX.NO_EMAIL)),
+    []
+  );
+
+  // If some vendor has no data, ask user for confirmation, else continue
+  if (withProblemsVendorNames.length)
+    return !userConfirmation(UI.MODAL.NO_DATA_VENDORS, withProblemsVendorNames);
+
+  return false;
+}
+
 export {
-  _getRepairsInitialData,
+  _getFupInitialData,
   _getVendorsNames,
   _getToContactVendors,
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
+  _alertVendorsToFilter,
+  _alertVendorWithProblems,
 };

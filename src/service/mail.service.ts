@@ -30,23 +30,30 @@ function sendEmail(
   vendorData: string[],
   columnNumbers: ColumnNumbers,
   vendorContact: VendorContact,
-  vendorSpreadsheet: Spreadsheet
+  vendorSpreadsheet: Spreadsheet,
+  automatic?: boolean,
+  isPurchase = true
 ) {
   // Put collected data in an empty vendor file
-  writeInSheet(vendorSheet, vendorData, columnNumbers, true);
+  writeInSheet(vendorSheet, vendorData, columnNumbers, isPurchase);
 
   let success: boolean;
+  let tries = 1;
   do {
     // Convert spreadsheet into Excel file and send it to vendor
     success = sendSheetToVendor(vendorContact, vendorSpreadsheet);
 
+    if (success) break;
+
     // In case of email sending fail, user can retry
-    if (
-      !success &&
-      !userConfirmation(UI.MODAL.errorSendingEmailTo(vendorContact))
-    )
-      success = true;
-  } while (!success);
+    if (!automatic) {
+      if (!userConfirmation(UI.MODAL.errorSendingEmailTo(vendorContact)))
+        success = true;
+    } else if (tries < 3) {
+      console.error(`Error sending email to ${vendorContact.id}, retrying...`);
+      tries++;
+    }
+  } while (!success || tries === 3);
 }
 
 function getOpenOrdersFromVendors(after: string) {

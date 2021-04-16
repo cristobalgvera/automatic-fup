@@ -6,7 +6,7 @@ function writeInSheet(
   vendorSheet: Sheet,
   vendorData: string[],
   columnNumbers: ColumnNumbers,
-  noLineColumn = false
+  isPurchase = true
 ) {
   const {
     templatePurchaseOrderColumn,
@@ -31,7 +31,7 @@ function writeInSheet(
     .setValues(vendorPartNumbers);
 
   // Purchases have no line numbers
-  if (noLineColumn) vendorSheet.deleteColumns(templateLineColumn, 1);
+  if (!isPurchase) vendorSheet.deleteColumns(templateLineColumn, 1);
   else {
     // Set data in the same way of PO or part numbers
     const vendorLines = vendorData.map(data => [data[lineColumn]]);

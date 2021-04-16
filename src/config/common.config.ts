@@ -11,7 +11,7 @@ const COMMON = {
     },
   },
   EMAIL: {
-    LATAM_SENDER: 'EMAIL_FROM_LATAM_SENDER@latam.com',
+    LATAM_SENDER: 'EMPTY@latam.com',
   },
 };
 
