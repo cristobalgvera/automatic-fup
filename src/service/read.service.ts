@@ -69,13 +69,19 @@ function extractRepairDataByVendorName(
   );
 
   // Filter all vendors to get just the ones that are needed
-  const vendors: GroupedVendors = expectedSheet
+  const rawVendors: GroupedVendors = expectedSheet
     .getDataRange()
     .getValues()
     .filter(byHitoRadar)
     .filter(byValidEmail)
     .filter(bySendEmail)
     .reduce(onVendorId, {});
+
+  const vendors: GroupedVendors = Object.keys(rawVendors).reduce(
+    (acc, name) =>
+      rawVendors[name].length ? {...acc, [name]: rawVendors[name]} : acc,
+    {}
+  );
 
   // Put in an array all vendors that has no data
   const withProblemsVendorNames = toFilterVendors.reduce(

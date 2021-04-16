@@ -35,9 +35,13 @@ function onOpen() {
     .addToUi();
 }
 
-function createFileForEachRepairVendor() {
+function createFileForEachRepairVendorAutomatic() {
+  createFileForEachRepairVendor(true);
+}
+
+function createFileForEachRepairVendor(automatic = false) {
   const {vendors, headers, vendorsContact} = extractRepairDataByVendorName(
-    true
+    automatic
   );
 
   // User cancel operation

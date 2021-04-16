@@ -18,7 +18,7 @@ function include(filename: string) {
 
 function _sendExcelTo({name, email}: VendorContact, attachments: Blob[]) {
   // Use template html file to write mail
-  const html = HtmlService.createTemplateFromFile('src/assets/mail');
+  const html = HtmlService.createTemplateFromFile('build/app/assets/mail');
 
   // Edit data variable of template html
   html.data = name;
@@ -108,9 +108,16 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
   const tempFolder = DriveApp.createFolder(UI.FOLDER.TEMPORAL.getName());
 
   // Folder to persist data of unreadable content of xlsx files obtained from mail
-  const invalidStructureFolder = folder.createFolder(
+  let invalidStructureFolder: Folder;
+  const folders = folder.getFoldersByName(
     UI.FOLDER.EMAIL_AUTOMATED_READS.INVALID_FORMAT.getName()
   );
+
+  if (folders.hasNext()) invalidStructureFolder = folders.next();
+  else
+    invalidStructureFolder = folder.createFolder(
+      UI.FOLDER.EMAIL_AUTOMATED_READS.INVALID_FORMAT.getName()
+    );
 
   return {
     filters: {byIncludeAttachments, byIsVendorData},

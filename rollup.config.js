@@ -17,7 +17,7 @@ const preventThreeShakingPlugin = () => {
 };
 
 export default {
-  input: './src/z-index.ts',
+  input: './src/index.ts',
   output: {
     dir: 'build',
     format: 'cjs',
