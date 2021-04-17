@@ -3,11 +3,6 @@ const FIREBASE = {
   PATH: {
     PURCHASE_ORDER: 'purchase-order',
   },
-  PROPERTIES: {
-    KEY: 'private_key',
-    EMAIL: 'client_email',
-    PROJECT_ID: 'project_id',
-  },
 };
 
 export {FIREBASE};

@@ -64,6 +64,13 @@ function obtainEmail(sender: string) {
   return sender.substring(start, end);
 }
 
+function keysToCamelCase(obj: {}) {
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => ({...acc, [toCamelCase(key)]: value}),
+    {}
+  );
+}
+
 export {
   removeExtension,
   toCamelCase,
@@ -74,4 +81,5 @@ export {
   validateEmail,
   obtainEmail,
   generatePurchaseOrderId,
+  keysToCamelCase,
 };
