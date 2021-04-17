@@ -14,37 +14,33 @@ function Selector(table, criteria) {
   this.queryItems = new GridArray();
 }
 
-
 /**
  * Method to get the query items in a Selector object.
  */
-Selector.prototype.getQueryItems = function() {
+Selector.prototype.getQueryItems = function () {
   return this.queryItems;
-}
-
+};
 
 /**
  * Method to evaluate a criteria within a Table object.
  */
-Selector.prototype.evaluate = function() {
+Selector.prototype.evaluate = function () {
   if (Array.isArray(this.criteria)) {
     var andsArray = this.criteria;
-  }
-  else if (isObject(this.criteria)) {
+  } else if (isObject(this.criteria)) {
     var andsArray = [this.criteria];
   } else {
-    throw 'Oops! Criteria should be an Array or an Object. Fix it and try again.'
+    throw 'Oops! Criteria should be an Array or an Object. Fix it and try again.';
   }
-  
+
   for (var i = 0; i < this.table.items.length; i++) {
     var item = this.table.items[i];
     if (isMatching(item, andsArray)) {
       this.queryItems.push(item);
     }
   }
-  return this
-}
-
+  return this;
+};
 
 /**
  * Function to evaluate a criteria within an Item object.
@@ -52,13 +48,14 @@ Selector.prototype.evaluate = function() {
  * @param {Array} criteria: an array used as filter as an AND of ORs (see CNF).
  @return {Boolean}
  */
-function isMatching(item, andsArray) {  
-  for (var i=0; i < andsArray.length; i++) {
+function isMatching(item, andsArray) {
+  for (var i = 0; i < andsArray.length; i++) {
     var clause = andsArray[i];
-    if (isObject(clause) && someUnmatch(item, clause)) { //AND logic
+    if (isObject(clause) && someUnmatch(item, clause)) {
+      //AND logic
       return false;
-    }
-    else if (Array.isArray(clause) && noneMatches(item, clause)) { //OR logic
+    } else if (Array.isArray(clause) && noneMatches(item, clause)) {
+      //OR logic
       return false;
     }
   }
@@ -81,10 +78,10 @@ function someUnmatch(item, object) {
  * Function
  */
 function noneMatches(item, orsArray) {
-  for (var i=0; i < orsArray.length; i++) {
+  for (var i = 0; i < orsArray.length; i++) {
     var object = orsArray[i];
     if (!isObject(object)) {
-      throw 'Oops! The ORs array must be an array of Objects. Fix it and try again.'
+      throw 'Oops! The ORs array must be an array of Objects. Fix it and try again.';
     }
     for (var field in object) {
       if (valuesMatch(object[field], item.getFieldValue(field))) {
@@ -94,17 +91,20 @@ function noneMatches(item, orsArray) {
   }
   return true;
 }
-    
+
 /**
  * Function to check a matching between two values, considering also value as a Date.
  */
 function valuesMatch(value1, value2) {
-  return ((value1 instanceof Date && value1.getTime() === value2.getTime()) || value1 === value2)
+  return (
+    (value1 instanceof Date && value1.getTime() === value2.getTime()) ||
+    value1 === value2
+  );
 }
 
-/** 
+/**
  * Returns if a value is an object
  */
-function isObject (value) {
+function isObject(value) {
   return value && typeof value === 'object' && value.constructor === Object;
 }

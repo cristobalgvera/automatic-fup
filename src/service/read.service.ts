@@ -1,4 +1,4 @@
-import {REPAIR_DATA, DB, TEMPLATE, UI, PURCHASE_DATA} from '../config';
+import {REPAIR_DATA, DB, TEMPLATE, PURCHASE_DATA} from '../config';
 import {HeaderNumber} from '../util/interface/header-number.interface';
 import {
   VendorContact,
@@ -6,12 +6,7 @@ import {
 } from '../util/interface/vendor-contact.interface';
 import {GroupedVendors} from '../util/interface/grouped-vendors.interface';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
-import {
-  addSuffix,
-  toCamelCase,
-  userConfirmation,
-  validateEmail,
-} from './utility.service';
+import {toCamelCase} from './utility.service';
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
 import {purchaseOrderService} from './purchase-order.service';
 import {

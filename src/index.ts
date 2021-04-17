@@ -8,7 +8,7 @@ import {
   extractRepairDataByVendorName,
   getColumnNumbers,
 } from './service/read.service';
-import {COMMON, UI} from './config';
+import {COMMON, DB, UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 
 /****************************************************************
@@ -125,4 +125,25 @@ function consolidateRepairs() {
 
 function getOpenOrders() {
   getOpenOrdersFromVendors('2021/4/15');
+}
+
+function test() {
+  const spreadsheet = SpreadsheetApp.openById(DB.ID);
+  const sheet = spreadsheet.getSheetByName(DB.SHEET.VENDOR);
+
+  const vendorTable = new Table(sheet.getDataRange(), DB.COLUMN.ID);
+
+  const gridValues = vendorTable.getGridValues();
+  const headers = vendorTable.getHeader();
+  console.log({headers});
+
+  const vendors = vendorTable
+    .initiateItems()
+    .map(vendor => vendor.toObject().Email);
+  console.log({vendors});
+
+  const selectedVendors = vendorTable.select([
+    {Email: 'cristobal.gajardo@latam.com'},
+  ]);
+  console.log({selectedVendors});
 }
