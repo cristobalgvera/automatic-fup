@@ -5,7 +5,7 @@ module.exports = {
       require('@babel/preset-env').default,
       {
         targets: {
-          node: 'current',
+          node: '12',
         },
       },
     ],

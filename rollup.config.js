@@ -29,9 +29,8 @@ export default {
       mainFields: ['jsnext:main', 'main'],
     }),
     babel({
-      extensions,
+      extensions: ['ts'],
       babelHelpers: 'runtime',
-      plugins: ['@babel/plugin-proposal-nullish-coalescing-operator'],
     }),
   ],
 };
