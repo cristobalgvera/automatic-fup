@@ -9,6 +9,8 @@ const DB = {
     VENDOR_NAME: 'Name',
     ID: 'Id',
     VENDOR_EMAIL: 'Email',
+    CC: 'Cc',
+    VENDOR_TYPE: 'Type',
   },
 };
 

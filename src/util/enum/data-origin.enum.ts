@@ -1,0 +1,4 @@
+export enum DATA_ORIGIN {
+  PURCHASE = 'COMPRAS',
+  REPAIR = 'REPARACIONES',
+}

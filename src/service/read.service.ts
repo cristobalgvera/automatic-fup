@@ -11,13 +11,14 @@ import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.inter
 import {purchaseOrderService} from './purchase-order.service';
 import {
   _getFupInitialData,
-  _getVendorsNames,
+  _getVendorsNames as _getVendorsNamesByDataOrigin,
   _getToContactVendors,
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
   _alertVendorsToFilter,
   _alertVendorWithProblems,
 } from '../util/service/read.utility';
+import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
@@ -28,12 +29,14 @@ function extractRepairDataByVendorName(
   const {
     expectedSheet,
     utils: {filterColumnNumbers, sortColumnNumber, headerNumber: headers},
-  } = _getFupInitialData('REPAIR');
-  const {groupedVendors, vendorsContact} = _getVendorsNames();
+  } = _getFupInitialData(DATA_ORIGIN.REPAIR);
+  const {groupedVendors, vendorsContact} = _getVendorsNamesByDataOrigin(
+    DATA_ORIGIN.REPAIR
+  );
 
   // Filter vendors checked as 'to send email', get his
   // contact data and set useful format to work with them
-  const toContactVendors = _getToContactVendors(vendorsContact);
+  const toContactVendors = _getToContactVendors(vendorsContact, groupedVendors);
   const toFilterVendors = Object.values(toContactVendors);
 
   if (
@@ -87,10 +90,12 @@ function extractPurchaseDataByVendorName(
   const {
     expectedSheet,
     utils: {filterColumnNumbers, sortColumnNumber, headerNumber: headers},
-  } = _getFupInitialData('PURCHASE');
-  const {groupedVendors, vendorsContact} = _getVendorsNames();
+  } = _getFupInitialData(DATA_ORIGIN.PURCHASE);
+  const {groupedVendors, vendorsContact} = _getVendorsNamesByDataOrigin(
+    DATA_ORIGIN.PURCHASE
+  );
 
-  const toContactVendors = _getToContactVendors(vendorsContact);
+  const toContactVendors = _getToContactVendors(vendorsContact, groupedVendors);
   const toFilterVendors = Object.values(toContactVendors);
 
   if (

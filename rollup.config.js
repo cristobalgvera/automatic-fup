@@ -18,10 +18,12 @@ const preventThreeShakingPlugin = () => {
 
 export default {
   input: './src/index.ts',
-  output: {
-    dir: 'build',
-    format: 'cjs',
-  },
+  output: [
+    {
+      dir: 'build',
+      format: 'cjs',
+    },
+  ],
   plugins: [
     preventThreeShakingPlugin(),
     nodeResolve({

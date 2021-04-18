@@ -8,9 +8,9 @@ import {
   extractRepairDataByVendorName,
   getColumnNumbers,
 } from './service/read.service';
-import {COMMON, DB, UI} from './config';
+import {UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
-import {validateEmail} from './service/utility.service';
+import {DATA_ORIGIN} from './util/enum/data-origin.enum';
 
 /****************************************************************
  *
@@ -60,7 +60,7 @@ function createFileForEachPurchaseVendor(automatic?: boolean) {
   const {
     templateSpreadsheet,
     registriesFolder,
-  } = getTemplateAndCreateFolderForRegistries(COMMON.DATA_ORIGIN.PURCHASE);
+  } = getTemplateAndCreateFolderForRegistries(DATA_ORIGIN.PURCHASE);
   const columnNumbers = getColumnNumbers(templateSpreadsheet, headers, true);
   console.warn('FOLDER CREATION END');
 
@@ -95,7 +95,7 @@ function createFileForEachRepairVendor(automatic?: boolean) {
   const {
     templateSpreadsheet,
     registriesFolder,
-  } = getTemplateAndCreateFolderForRegistries(COMMON.DATA_ORIGIN.REPAIR);
+  } = getTemplateAndCreateFolderForRegistries(DATA_ORIGIN.REPAIR);
   const columnNumbers = getColumnNumbers(templateSpreadsheet, headers, false);
   console.warn('FOLDER CREATION END');
 
@@ -126,80 +126,4 @@ function consolidateRepairs() {
 
 function getOpenOrders() {
   getOpenOrdersFromVendors('2021/4/15');
-}
-
-function exportVendorsData() {
-  const spreadsheet = SpreadsheetApp.openById(
-    '1LCWZozWjrVwrH43aJXdpWlo7V1jdRHUUmtNC6TAkXSk'
-  );
-  const sheet = spreadsheet.getSheetByName('Proveedores-asignados');
-
-  const vendorTable = new Table(sheet.getDataRange(), undefined);
-
-  const rows: string[][] = vendorTable.getGridValues();
-
-  type Separator = {emails: string[]; unknowns: string[]};
-
-  const normalizeStringEmailsList = (stringEmailList: string) => {
-    const re = /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
-
-    const spaceSplit = stringEmailList.split(/[<>()/[\]\\,;:\s"]/);
-    const groupByRegExp = spaceSplit
-      .map(word => {
-        const groupArray = re.exec(word);
-        return groupArray ? groupArray[0] : null;
-      })
-      .filter(val => val);
-    // const filterAt = spaceSplit.filter(word => word.includes('@'));
-    const {emails, unknowns} = groupByRegExp.reduce(
-      (acc, word: string) => {
-        if (validateEmail(word)) acc.emails.push(word);
-        else acc.unknowns.push(word);
-        return acc;
-      },
-      {emails: [], unknowns: []} as Separator
-    );
-
-    unknowns.length && console.error({unknowns});
-
-    return emails.length ? emails : null;
-  };
-
-  const vendorsByEmail = rows.reduce(
-    (acc, [code, name, responsable, , , , , focal]) => {
-      let emails = normalizeStringEmailsList(focal.toLocaleLowerCase());
-      if (!emails) emails = ['NO_EMAIL_FOUND'];
-
-      acc[emails[0]] ??= [];
-      acc[emails[0]].push([code, name, responsable, ...emails]);
-      return acc;
-    },
-    {} as {[email: string]: string[][]}
-  );
-
-  const emails = Object.keys(vendorsByEmail).map(email => [email]);
-  const data = Object.values(vendorsByEmail).flat();
-
-  const mySpreadsheet = SpreadsheetApp.openById(
-    '1iWRK1BV2on5bGOmejjmKHqfCsQ7DDEeTE1AXBTRLg3E'
-  );
-
-  const purchasesSheet = mySpreadsheet.getSheetByName('COMPRAS');
-  const contactSheet = mySpreadsheet.getSheetByName('CONTACTO');
-
-  const maxColumns = data.reduce(
-    (max, arr) => (arr.length > max ? arr.length : max),
-    0
-  );
-
-  const toInsertData = data.map(row => {
-    for (let i = 0; i < maxColumns; i++) row[i] = row[i] || null;
-
-    return row;
-  });
-
-  purchasesSheet
-    .getRange(1, 1, data.length, toInsertData[0].length)
-    .setValues(toInsertData);
-  contactSheet.getRange(1, 1, emails.length).setValues(emails);
 }

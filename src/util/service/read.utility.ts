@@ -18,28 +18,36 @@ import {
 } from '../../service/utility.service';
 import {getVendorsContact} from '../../service/read.service';
 import {purchaseOrderService} from '../../service/purchase-order.service';
+import {DATA_ORIGIN} from '../enum/data-origin.enum';
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
+type FilterColumns = {[x: string]: number};
 
-function _getToContactVendors(vendorsContact: VendorsContact) {
+function _getToContactVendors(
+  vendorsContact: VendorsContact,
+  groupedVendors: GroupedVendors
+) {
   return Object.entries(vendorsContact).reduce((acc, vendorContact) => {
     const [vendorId, contact] = vendorContact;
+
+    if (!groupedVendors[vendorId]) return acc;
+
     if (contact.sendEmail) acc[vendorId] = contact;
 
     return acc;
   }, {} as VendorsContact);
 }
 
-function _getVendorsNames() {
+function _getVendorsNames(dataOrigin: DATA_ORIGIN) {
   const db = SpreadsheetApp.openById(DB.ID);
 
-  const groupedVendors = _getGroupedVendors(db);
+  const groupedVendors = _getGroupedVendors(db, dataOrigin);
   const vendorsContact = getVendorsContact(db);
 
   return {groupedVendors, vendorsContact};
 }
 
-function _getGroupedVendors(db: Spreadsheet) {
+function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
   const groupedVendorsDataRange: string[][] = db
     .getSheetByName(DB.SHEET.LINKED_VENDOR_NAME)
     .getDataRange()
@@ -48,8 +56,13 @@ function _getGroupedVendors(db: Spreadsheet) {
 
   const vendorIdColumn = headers.indexOf(DB.COLUMN.VENDOR_ID);
   const vendorNameColumn = headers.indexOf(DB.COLUMN.VENDOR_NAME);
+  const vendorTypeColumn = headers.indexOf(DB.COLUMN.VENDOR_TYPE);
 
   return groupedVendorsDataRange.reduce((acc: GroupedVendors, vendor) => {
+    const vendorType = vendor[vendorTypeColumn];
+
+    if (vendorType !== dataOrigin) return acc;
+
     const vendorId = vendor[vendorIdColumn];
     const vendorName = vendor[vendorNameColumn];
 
@@ -291,18 +304,15 @@ function _getUtilitiesToEvaluateEmails() {
   return {toPurchaseOrders};
 }
 
-type DATA_ORIGIN = keyof typeof COMMON.DATA_ORIGIN;
-type FilterColumns = {[x: string]: number};
-
 function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
   let spreadsheet: Spreadsheet, expectedSheet: Sheet;
 
   switch (dataOrigin) {
-    case 'REPAIR':
+    case DATA_ORIGIN.REPAIR:
       spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
       expectedSheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
       break;
-    case 'PURCHASE':
+    case DATA_ORIGIN.PURCHASE:
       spreadsheet = SpreadsheetApp.openById(PURCHASE_DATA.ID);
       expectedSheet = spreadsheet.getSheetByName(PURCHASE_DATA.SHEET.ACTUAL);
       break;

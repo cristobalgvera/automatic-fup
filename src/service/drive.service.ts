@@ -5,12 +5,13 @@ import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {sendEmail} from './mail.service';
 import {VendorContact} from '../util/interface/vendor-contact.interface';
 import {_setBaseData} from '../util/service/drive.utility';
+import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 type Folder = GoogleAppsScript.Drive.Folder;
 type File = GoogleAppsScript.Drive.File;
 type SchemaFile = GoogleAppsScript.Drive.Schema.File;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
-function getTemplateAndCreateFolderForRegistries(dataOrigin: string) {
+function getTemplateAndCreateFolderForRegistries(dataOrigin: DATA_ORIGIN) {
   // Parent folder to store registries
   const folder = DriveApp.getFolderById(FOLDER_ID.REGISTRIES);
   const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE.ID);

@@ -71,6 +71,32 @@ function keysToCamelCase(obj: {}) {
   );
 }
 
+function normalizeStringEmailsList(stringEmailList: string) {
+  type Separator = {emails: string[]; unknowns: string[]};
+  const re = /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
+
+  const spaceSplit = stringEmailList.split(/[<>()/[\]\\,;:\s"]/);
+  const groupByRegExp = spaceSplit
+    .map(word => {
+      const groupArray = re.exec(word);
+      return groupArray ? groupArray[0] : null;
+    })
+    .filter(val => val);
+  // const filterAt = spaceSplit.filter(word => word.includes('@'));
+  const {emails, unknowns} = groupByRegExp.reduce(
+    (acc: Separator, word: string) => {
+      if (validateEmail(word)) acc.emails.push(word);
+      else acc.unknowns.push(word);
+      return acc;
+    },
+    {emails: [], unknowns: []}
+  );
+
+  unknowns.length && console.error({unknowns});
+
+  return emails.length ? emails : null;
+}
+
 export {
   removeExtension,
   toCamelCase,
@@ -82,4 +108,5 @@ export {
   obtainEmail,
   generatePurchaseOrderId,
   keysToCamelCase,
+  normalizeStringEmailsList,
 };

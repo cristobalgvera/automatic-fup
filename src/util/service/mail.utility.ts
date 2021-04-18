@@ -3,7 +3,7 @@ import {ByEmailSpreadsheets} from '../interface/by-email-spreadsheets.interface'
 import {VendorContact} from '../interface/vendor-contact.interface';
 import {excelToSheet} from '../../service/drive.service';
 import {getVendorsContact} from '../../service/read.service';
-import {obtainEmail} from '../../service/utility.service';
+import {obtainEmail, validateEmail} from '../../service/utility.service';
 type Blob = GoogleAppsScript.Base.Blob;
 type Folder = GoogleAppsScript.Drive.Folder;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -16,9 +16,9 @@ function include(filename: string) {
     return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
-function _sendExcelTo({name, email}: VendorContact, attachments: Blob[]) {
+function _sendExcelTo({name, email, cc}: VendorContact, attachments: Blob[]) {
   // Use template html file to write mail
-  const html = HtmlService.createTemplateFromFile('build/app/assets/mail');
+  const html = HtmlService.createTemplateFromFile('app/assets/mail');
 
   // Edit data variable of template html
   html.teamName = name;
@@ -28,9 +28,13 @@ function _sendExcelTo({name, email}: VendorContact, attachments: Blob[]) {
 
   console.log(`Sending email to ${name}`);
 
+  const validCcEmails = cc.split(',').filter(validateEmail).join(',');
+
+  const to = validCcEmails ? `${email},${validCcEmails}` : email;
+
   try {
     MailApp.sendEmail({
-      to: email,
+      to,
       htmlBody,
       attachments,
       subject: UI.MAIL.subject(),
@@ -46,7 +50,7 @@ function _sendExcelTo({name, email}: VendorContact, attachments: Blob[]) {
 }
 
 function _getUtilitiesToFilterEmails(folder: Folder) {
-  const vendorEmails = _getVendorEmails();
+  // To avoid Rollup three shaking
   include('');
 
   const byXlsxFiles = (attached: GmailAttachment) =>
@@ -56,7 +60,7 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
     !!message.getAttachments({includeAttachments: true}).length;
 
   const byIsVendorData = (message: GmailMessage) =>
-    obtainEmail(message.getFrom()) !== COMMON.EMAIL.LATAM_SENDER;
+    !COMMON.EMAIL.LATAM_SENDERS.includes(obtainEmail(message.getFrom()));
 
   const generateSpreadsheets = (message: GmailMessage, mailFolder: Folder) =>
     message
@@ -196,13 +200,6 @@ function _hasRequiredStructure(spreadsheet: Spreadsheet) {
         .getValues()[0]
         .includes(TEMPLATE.COLUMN.PURCHASE_ORDER)
     );
-}
-
-function _getVendorEmails() {
-  const db = SpreadsheetApp.openById(DB.ID);
-  const contacts = getVendorsContact(db);
-
-  return Object.entries(contacts).map(([, {email}]) => email);
 }
 
 export {
