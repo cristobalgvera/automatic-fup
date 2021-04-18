@@ -1,8 +1,7 @@
-import {COMMON, DB, TEMPLATE, UI} from '../../config';
+import {COMMON, TEMPLATE, UI} from '../../config';
 import {ByEmailSpreadsheets} from '../interface/by-email-spreadsheets.interface';
 import {VendorContact} from '../interface/vendor-contact.interface';
 import {excelToSheet} from '../../service/drive.service';
-import {getVendorsContact} from '../../service/read.service';
 import {obtainEmail, validateEmail} from '../../service/utility.service';
 type Blob = GoogleAppsScript.Base.Blob;
 type Folder = GoogleAppsScript.Drive.Folder;

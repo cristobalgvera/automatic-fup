@@ -307,7 +307,7 @@ baseClass_.createLegacyAuthToken_ = function (userEmail, optCustomClaims) {
  * https://firebase.google.com/docs/reference/rest/database?hl=en#section-query-parameters
  * @typedef {Object} OptQueryParameters
  * @property {string} [auth]
- * @property {string} [shallow] - Set this to true to limit the depth of the data returned at a location.
+ * @property {boolean} [shallow] - Set this to true to limit the depth of the data returned at a location.
  * @property {string} [print] - Formats the data returned in the response from the server.
  * @property {string} [orderBy] - Attribute to point searched parameters
  * @property {string} [startAt] - Define first string to accept when filter data

@@ -6,7 +6,11 @@ const COMMON = {
     },
   },
   EMAIL: {
-    LATAM_SENDERS: ['EMPTY@latam.com'],
+    LATAM_SENDERS: [
+      'cristobal.gajardo@latam.com',
+      'phillip.johnson@latam.com',
+      'claudia.guzmano@latam.com',
+    ],
   },
 };
 

@@ -3,7 +3,7 @@ import {createChildFolderFromFolderId, sheetToExcel} from './drive.service';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {writeInSheet} from './write.service';
 import {userConfirmation} from './utility.service';
-import {COMMON, FOLDER_ID, TEMPLATE, UI} from '../config';
+import {COMMON, FOLDER_ID, UI} from '../config';
 import {evaluateByEmailSpreadsheets} from './read.service';
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
 import {
@@ -11,6 +11,7 @@ import {
   _getUtilitiesToFilterEmails,
   _sendExcelTo,
 } from '../util/service/mail.utility';
+import {_isPurchaseSpreadsheet} from '../util/service/read.utility';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Folder = GoogleAppsScript.Drive.Folder;
@@ -110,16 +111,8 @@ function getOpenOrdersFromVendors(after: string) {
           folder
         );
         const spreadsheet = SpreadsheetApp.openById(file.getId());
-        const isPurchase = spreadsheet
-          .getSheets()
-          .some(sheet =>
-            sheet
-              .getRange(2, 1, 1, sheet.getLastColumn())
-              .getValues()[0]
-              .includes(TEMPLATE.COLUMN.LINE)
-          );
 
-        if (isPurchase)
+        if (_isPurchaseSpreadsheet(spreadsheet))
           purchasesFolder.addFile(DriveApp.getFileById(file.getId()));
         else repairsFolder.addFile(DriveApp.getFileById(file.getId()));
         return spreadsheet;

@@ -45,7 +45,9 @@ function validateStatus(id: string) {
     case PO_STATUS.NOT_SHIPPED_YET:
     case PO_STATUS.TO_BE_QUOTED:
     case PO_STATUS.UNDER_REPAIR_PROCESS:
-      return evaluateEsd(purchaseOrder);
+      return purchaseOrder.esd
+        ? new Date(purchaseOrder.esd) >= new Date()
+        : false;
     case PO_STATUS.AWAITING_CIA_PAYMENT:
     case PO_STATUS.AWAITING_ISSUED_BUYER:
     case PO_STATUS.AWAITING_QUOTE_APPROVAL:
@@ -58,10 +60,6 @@ function validateStatus(id: string) {
     default:
       return false;
   }
-}
-
-function evaluateEsd(purchaseOrder: PurchaseOrder) {
-  return purchaseOrder.esd ? new Date(purchaseOrder.esd) >= new Date() : false;
 }
 
 const purchaseOrderService = {

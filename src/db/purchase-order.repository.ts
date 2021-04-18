@@ -1,6 +1,6 @@
 import {database} from '.';
 import {FIREBASE} from '../config';
-import {generatePurchaseOrderId} from '../service/utility.service';
+import {_auditingEach, _setAuditData} from '../util/db/purchase-order.utility';
 import {PurchaseOrderCollection} from '../util/schema/purchase-order-collection.schema';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
@@ -8,18 +8,16 @@ const alreadyExistMessage = (id: string) => `ID: ${id} already exists`;
 const doNotExistMessage = (id: string) => `ID: ${id} don't exists`;
 
 function getAll(query?: OptQueryParameters): PurchaseOrder[] {
-  return database.getData(FIREBASE.PATH.PURCHASE_ORDER, query);
+  return database.getData(FIREBASE.PATH.PURCHASE_ORDER.BASE, query);
 }
 
 function getOne(id: string): PurchaseOrder {
-  return database.getData(`${FIREBASE.PATH.PURCHASE_ORDER}/${id}`);
+  return database.getData(`${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${id}`);
 }
 
 function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
-  purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-  purchaseOrder.audit.creationDate = new Date();
-  purchaseOrder.audit.createdBy = Session.getActiveUser().getEmail();
-  const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${purchaseOrder.id}`;
+  _setAuditData(purchaseOrder);
+  const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${purchaseOrder.id}`;
   if (!exists(purchaseOrder.id)) return database.setData(url, purchaseOrder);
 
   console.error(alreadyExistMessage(purchaseOrder.id));
@@ -29,21 +27,14 @@ function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
 function saveAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
   if (!purchaseOrders.length) return null;
 
-  const data = purchaseOrders.reduce((acc, purchaseOrder) => {
-    purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-    purchaseOrder.audit.creationDate = new Date();
-    purchaseOrder.audit.createdBy = Session.getActiveUser().getEmail();
-    return {...acc, [purchaseOrder.id]: {...purchaseOrder}};
-  }, {} as PurchaseOrderCollection);
+  const data = purchaseOrders.reduce(_auditingEach, {});
 
-  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER, data);
+  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data);
 }
 
 function updateOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
-  purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-  purchaseOrder.audit.updateDate = new Date();
-  purchaseOrder.audit.updatedBy = Session.getActiveUser().getEmail();
-  const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${purchaseOrder.id}`;
+  _setAuditData(purchaseOrder, true);
+  const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${purchaseOrder.id}`;
 
   if (exists(purchaseOrder.id)) return database.updateData(url, purchaseOrder);
 
@@ -54,18 +45,13 @@ function updateOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
 function updateAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
   if (!purchaseOrders.length) return null;
 
-  const data = purchaseOrders.reduce((acc, purchaseOrder) => {
-    purchaseOrder.id ??= generatePurchaseOrderId(purchaseOrder);
-    purchaseOrder.audit.updateDate = new Date();
-    purchaseOrder.audit.updatedBy = Session.getActiveUser().getEmail();
-    return {...acc, [purchaseOrder.id]: {...purchaseOrder}};
-  }, {} as PurchaseOrderCollection);
+  const data = purchaseOrders.reduce(_auditingEach, {});
 
-  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER, data);
+  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data);
 }
 
 function removeOne(id: string): boolean {
-  const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${id}`;
+  const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${id}`;
 
   if (exists(id)) {
     database.removeData(url);
@@ -85,7 +71,7 @@ function removeAll(ids: string[]): boolean {
   );
 
   try {
-    database.updateData(FIREBASE.PATH.PURCHASE_ORDER, data);
+    database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data);
     return true;
   } catch (error) {
     console.error(error);
@@ -94,8 +80,14 @@ function removeAll(ids: string[]): boolean {
 }
 
 function exists(id: string) {
-  const url = `${FIREBASE.PATH.PURCHASE_ORDER}/${id}`;
-  return !!database.getData<PurchaseOrder>(url, {shallow: true})?.id;
+  const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${id}`;
+  return !!database.getData(url, {shallow: true})?.id;
+}
+
+function _updateAudit(auditWithId: AuditWithId) {
+  const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${auditWithId.id}/${FIREBASE.PATH.PURCHASE_ORDER.AUDIT}`;
+  delete auditWithId.id;
+  database.updateData(url, auditWithId);
 }
 
 const _purchaseOrderRepository = {

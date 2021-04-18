@@ -296,10 +296,7 @@ function _getUtilitiesToEvaluateEmails() {
       toPurchaseOrdersArray
     );
 
-    const purchasesOrders = purchaseOrdersArray.reduce(
-      (acc, purchases) => acc.concat(purchases.map(purchase => purchase)),
-      []
-    );
+    const purchasesOrders = purchaseOrdersArray.flat();
 
     return acc.concat(purchasesOrders);
   };
@@ -404,6 +401,17 @@ function _alertVendorWithProblems(
   return false;
 }
 
+function _isPurchaseSpreadsheet(spreadsheet: Spreadsheet) {
+  return spreadsheet
+    .getSheets()
+    .some(sheet =>
+      sheet
+        .getRange(2, 1, 1, sheet.getLastColumn())
+        .getValues()[0]
+        .includes(TEMPLATE.COLUMN.LINE)
+    );
+}
+
 export {
   _getFupInitialData,
   _getVendorsNames,
@@ -412,4 +420,5 @@ export {
   _getUtilitiesToEvaluateEmails,
   _alertVendorsToFilter,
   _alertVendorWithProblems,
+  _isPurchaseSpreadsheet,
 };

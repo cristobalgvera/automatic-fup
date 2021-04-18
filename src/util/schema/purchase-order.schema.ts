@@ -10,13 +10,15 @@ export interface PurchaseOrder {
   qtyShipped?: number;
   awb?: string;
   comments?: string;
-  audit?: {
-    vendorEmail?: string;
-    creationDate?: Date;
-    createdBy?: string;
-    updateDate?: Date;
-    updatedBy?: string;
-  };
+  audit?: Audit;
+}
+
+export interface Audit {
+  vendorEmail?: string;
+  creationDate?: Date;
+  createdBy?: string;
+  updateDate?: Date;
+  updatedBy?: string;
 }
 
 export enum PO_STATUS {
