@@ -97,6 +97,41 @@ function normalizeStringEmailsList(stringEmailList: string) {
   return emails.length ? emails : null;
 }
 
+function isValidDate(date: any): Date | undefined {
+  const valid = !isNaN(date) && date instanceof Date;
+  return valid ? date : undefined;
+}
+
+function cleanUpUndefined<T>(obj: T): T {
+  const t = obj;
+  for (const v in t)
+    if (typeof t[v] === 'object') cleanUpUndefined(t[v]);
+    else if (t[v] === undefined) delete t[v];
+  return t;
+}
+
+// Evaluate use
+function cleanse<T>(obj: T): T {
+  Object.keys(obj).forEach(key => {
+    // Get this value and its type
+    const value = obj[key];
+    const type = typeof value;
+    if (type === 'object') {
+      // Recurse...
+      cleanse(value);
+      // ...and remove if now "empty" (NOTE: insert your definition of "empty" here)
+      if (!Object.keys(value).length) {
+        delete obj[key];
+      }
+    } else if (type === 'undefined') {
+      // Undefined, remove it
+      delete obj[key];
+    }
+  });
+
+  return obj;
+}
+
 export {
   removeExtension,
   toCamelCase,
@@ -109,4 +144,6 @@ export {
   generatePurchaseOrderId,
   keysToCamelCase,
   normalizeStringEmailsList,
+  isValidDate,
+  cleanUpUndefined,
 };

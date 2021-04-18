@@ -1,6 +1,10 @@
 import {FIREBASE} from '../../config';
 import {database} from '../../db';
-import {generatePurchaseOrderId} from '../../service/utility.service';
+import {
+  cleanUpUndefined,
+  generatePurchaseOrderId,
+  isValidDate,
+} from '../../service/utility.service';
 import {PurchaseOrderCollection} from '../schema/purchase-order-collection.schema';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
 
@@ -35,4 +39,26 @@ function _auditingEach(
   return {...acc, [purchaseOrder.id]: {...purchaseOrder}};
 }
 
-export {_setAuditData, _auditingEach};
+function _convertProperties(purchaseOrder: PurchaseOrder) {
+  purchaseOrder.line = purchaseOrder.line ? +purchaseOrder.line : 1;
+
+  purchaseOrder.qtyShipped = purchaseOrder.qtyShipped
+    ? +purchaseOrder.qtyShipped
+    : undefined;
+  purchaseOrder.qtyShipped === undefined && delete purchaseOrder.qtyShipped;
+
+  purchaseOrder.esd = isValidDate(new Date(purchaseOrder.esd));
+  purchaseOrder.shippedDate = isValidDate(new Date(purchaseOrder.shippedDate));
+
+  purchaseOrder.audit!.creationDate = isValidDate(
+    new Date(purchaseOrder.audit!.creationDate)
+  );
+
+  purchaseOrder.audit!.updateDate = isValidDate(
+    new Date(purchaseOrder.audit!.updateDate)
+  );
+
+  return cleanUpUndefined(purchaseOrder);
+}
+
+export {_setAuditData, _auditingEach, _convertProperties};

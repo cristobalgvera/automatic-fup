@@ -1,5 +1,6 @@
 import {TEMPLATE} from '../config';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
+import {purchaseOrderService} from './purchase-order.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function writeInSheet(
@@ -48,6 +49,10 @@ function writeInSheet(
   );
 
   SpreadsheetApp.flush();
+}
+
+function updateFupSheet() {
+  // const toUpdatePurchaseOrders =;
 }
 
 export {writeInSheet};

@@ -1,18 +1,29 @@
 import {database} from '.';
 import {FIREBASE} from '../config';
-import {_auditingEach, _setAuditData} from '../util/db/purchase-order.utility';
+import {
+  _auditingEach,
+  _convertProperties,
+  _setAuditData,
+} from '../util/db/purchase-order.utility';
 import {PurchaseOrderCollection} from '../util/schema/purchase-order-collection.schema';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
 const alreadyExistMessage = (id: string) => `ID: ${id} already exists`;
 const doNotExistMessage = (id: string) => `ID: ${id} don't exists`;
 
-function getAll(query?: OptQueryParameters): PurchaseOrder[] {
-  return database.getData(FIREBASE.PATH.PURCHASE_ORDER.BASE, query);
+function getOne(id: string): PurchaseOrder {
+  const purchaseOrder: PurchaseOrder = database.getData(
+    `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${id}`
+  );
+  return _convertProperties(purchaseOrder);
 }
 
-function getOne(id: string): PurchaseOrder {
-  return database.getData(`${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${id}`);
+function getAll(query?: OptQueryParameters): PurchaseOrder[] {
+  const purchaseOrders: PurchaseOrderCollection = database.getData(
+    FIREBASE.PATH.PURCHASE_ORDER.BASE,
+    query
+  );
+  return Object.values(purchaseOrders).map(_convertProperties);
 }
 
 function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
@@ -82,12 +93,6 @@ function removeAll(ids: string[]): boolean {
 function exists(id: string) {
   const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${id}`;
   return !!database.getData(url, {shallow: true})?.id;
-}
-
-function _updateAudit(auditWithId: AuditWithId) {
-  const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${auditWithId.id}/${FIREBASE.PATH.PURCHASE_ORDER.AUDIT}`;
-  delete auditWithId.id;
-  database.updateData(url, auditWithId);
 }
 
 const _purchaseOrderRepository = {

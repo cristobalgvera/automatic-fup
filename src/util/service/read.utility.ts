@@ -214,6 +214,7 @@ function _getUtilitiesToEvaluateEmails() {
       audit: {
         vendorEmail: vendorEmail || null,
         isPurchase: !!row[headerNumbers.line],
+        updatedInSheet: false,
       },
     });
 
