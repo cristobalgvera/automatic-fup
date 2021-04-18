@@ -105,7 +105,7 @@ function _utilitiesToExtractFupData(
       : row[headers[REPAIR_DATA.COLUMN.RO_NUMBER]];
 
     const line = row[headers[PURCHASE_DATA.COLUMN.LINE]];
-    const id = `${purchaseOrder}-${line ?? 1}`;
+    const id = `${purchaseOrder}${line ?? 1}`;
 
     return !purchaseOrderService.validateStatus(id);
   };

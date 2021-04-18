@@ -1,6 +1,8 @@
-import {TEMPLATE} from '../config';
+import {PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../config';
+import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
+import {_getFupInitialData} from '../util/service/read.utility';
 import {purchaseOrderService} from './purchase-order.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
@@ -55,8 +57,45 @@ function writeInSheet(
 
 function updateFupData() {
   const [purchases, repairs] = purchaseOrderService.getPurchaseOrdersToUpdate();
+  if (purchases.length) updatePurchases(purchases);
+}
 
-  console.log({purchases, repairs});
+function updatePurchases(purchases: PurchaseOrder[]) {
+  const {
+    expectedSheet,
+    utils: {headerNumber: headers},
+  } = _getFupInitialData(DATA_ORIGIN.PURCHASE);
+
+  const rowNumberByKey: {[name: string]: number} = expectedSheet
+    .getRange(1, 1, expectedSheet.getLastRow())
+    .getValues()
+    .reduce((acc, [key], i) => ({...acc, [key]: i + 1}), {});
+
+  const firstColumnToEdit =
+    headers[PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.PO_STATUS] + 1;
+  const lastColumnToEdit =
+    headers[PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.COMMENTS] + 1;
+
+  const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
+
+  purchases.forEach(
+    ({id, status, esd, shippedDate, qtyShipped, awb, comments}) => {
+      const rowNumber = rowNumberByKey[id.replace('-', '')];
+      if (!rowNumber) return;
+
+      const vendorData = [
+        [status, esd, shippedDate, qtyShipped, awb, comments],
+      ];
+      expectedSheet
+        .getRange(rowNumber, firstColumnToEdit, 1, totalColumns)
+        .setValues(vendorData);
+    }
+  );
+}
+
+function updateRepairs(repairs: PurchaseOrder[]) {
+  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
+  const sheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
 }
 
 export {writeInSheet};

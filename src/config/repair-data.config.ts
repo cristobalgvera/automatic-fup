@@ -14,6 +14,14 @@ const REPAIR_DATA = {
       HITO_RADAR: ['Vendor', 'Vendor Sin Quote'],
     },
     SORT_COLUMNS: {VENDOR_NAME: 'VENDOR_NAME'},
+    VENDOR_DATA_COLUMNS: {
+      PO_STATUS: 'PO Status',
+      ESD: 'ESD',
+      SHIPPED_DATE: 'Shipped Date',
+      QTY_SHIPPED: 'Qty Shipped',
+      AWB: 'AWB',
+      COMMENTS: 'Comments',
+    },
   },
 };
 

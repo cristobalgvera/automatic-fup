@@ -10,7 +10,7 @@ function todayNoYear() {
 }
 
 function generatePurchaseOrderId({purchaseOrder, line}: PurchaseOrder) {
-  return `${purchaseOrder}-${line ?? 1}`;
+  return `${purchaseOrder}${line ?? 1}`;
 }
 
 // Utility method extracted from StackOverflow
