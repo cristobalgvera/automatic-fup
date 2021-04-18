@@ -15,6 +15,7 @@ export interface PurchaseOrder {
 
 export interface Audit {
   vendorEmail?: string;
+  isPurchase: boolean;
   creationDate?: Date;
   createdBy?: string;
   updateDate?: Date;

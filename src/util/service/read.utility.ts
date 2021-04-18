@@ -213,6 +213,7 @@ function _getUtilitiesToEvaluateEmails() {
       comments: row[headerNumbers.comments] || null,
       audit: {
         vendorEmail: vendorEmail || null,
+        isPurchase: !!row[headerNumbers.line],
       },
     });
 
