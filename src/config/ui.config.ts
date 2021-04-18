@@ -21,7 +21,7 @@ const UI = {
   },
   FOLDER: {
     REGISTRIES: {
-      getName: (dataOrigin: string) => `[${today()}] REGISTROS ${dataOrigin}`,
+      getName: (dataOrigin: string) => `[${today()}] ${dataOrigin}`,
     },
     CONSOLIDATED: {
       getName: (isPurchase: boolean) =>

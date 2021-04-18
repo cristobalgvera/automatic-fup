@@ -3,6 +3,7 @@ const DB = {
   SHEET: {
     LINKED_VENDOR_NAME: 'Linked Vendor Name',
     VENDOR: 'Vendor',
+    VENDOR_TYPE: 'Vendor Type',
   },
   COLUMN: {
     VENDOR_ID: 'VendorId',

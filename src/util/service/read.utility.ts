@@ -158,10 +158,13 @@ function _utilitiesToExtractFupData(
       : false;
 
   const onVendorId = (acc, row: string[]) => {
-    const vendorId = getVendorId(row[sortColumnNumber]);
+    const vendorName = row[sortColumnNumber];
+    const vendorId = getVendorId(vendorName);
 
     if (!acc[vendorId])
-      console.log(`Retrieving '${vendorId}' info from FUP data`);
+      console.log(
+        `Retrieving '${vendorName} (${vendorId})' info from FUP data`
+      );
 
     acc[vendorId] ??= [];
 
@@ -335,13 +338,13 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
   let sortColumnNumber: number;
 
   switch (dataOrigin) {
-    case 'REPAIR':
+    case DATA_ORIGIN.REPAIR:
       filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR] ??=
         headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR];
       sortColumnNumber =
         headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
       break;
-    case 'PURCHASE':
+    case DATA_ORIGIN.PURCHASE:
       filterColumnNumbers[
         PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
       ] ??= headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL];

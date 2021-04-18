@@ -11,6 +11,7 @@ import {
 import {UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 import {DATA_ORIGIN} from './util/enum/data-origin.enum';
+import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
 
 /****************************************************************
  *
@@ -126,4 +127,8 @@ function consolidateRepairs() {
 
 function getOpenOrders() {
   getOpenOrdersFromVendors('2021/4/15');
+}
+
+function validateVendors() {
+  validateUsedVendors();
 }

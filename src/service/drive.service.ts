@@ -195,10 +195,12 @@ function createSheetFiles(
     const vendorContact = vendorsContact.find(
       contact => contact.id === vendorId
     );
+    const vendorName = vendorContact.name;
+    const sheetName = `${vendorName} (${vendorContact.email})`;
 
-    console.log(`Creating '${vendorId}' spreadsheet`);
+    console.log(`Creating '${vendorName}' spreadsheet named '${sheetName}'`);
 
-    const vendorSpreadsheet = templateSpreadsheet.copy(vendorContact.name);
+    const vendorSpreadsheet = templateSpreadsheet.copy(sheetName);
     registriesFolder.addFile(DriveApp.getFileById(vendorSpreadsheet.getId()));
 
     // Point to created spreadsheet sheet

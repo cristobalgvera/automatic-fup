@@ -26,7 +26,7 @@ function _sendExcelTo({name, email, cc}: VendorContact, attachments: Blob[]) {
   // Create real html from template one (whit all variable data)
   const htmlBody = html.evaluate().getContent();
 
-  console.log(`Sending email to ${name}`);
+  console.log(`Sending email to ${name} (<${email}>)`);
 
   const validCcEmails = cc.split(',').filter(validateEmail).join(',');
 
