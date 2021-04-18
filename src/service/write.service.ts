@@ -1,5 +1,6 @@
 import {TEMPLATE} from '../config';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 import {purchaseOrderService} from './purchase-order.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
@@ -49,10 +50,13 @@ function writeInSheet(
   );
 
   SpreadsheetApp.flush();
+  updateFupData();
 }
 
-function updateFupSheet() {
-  // const toUpdatePurchaseOrders =;
+function updateFupData() {
+  const [purchases, repairs] = purchaseOrderService.getPurchaseOrdersToUpdate();
+
+  console.log({purchases, repairs});
 }
 
 export {writeInSheet};

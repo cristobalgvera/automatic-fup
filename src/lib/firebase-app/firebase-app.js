@@ -312,7 +312,7 @@ baseClass_.createLegacyAuthToken_ = function (userEmail, optCustomClaims) {
  * @property {string} [orderBy] - Attribute to point searched parameters
  * @property {string} [startAt] - Define first string to accept when filter data
  * @property {string} [endAt] - Define last string to accept when filter data
- * @property {string} [equalTo] - Define exact match to find
+ * @property {string | boolean} [equalTo] - Define exact match to find
  * @property {string} [limitToFirst]
  * @property {string} [limitToLast]
  */

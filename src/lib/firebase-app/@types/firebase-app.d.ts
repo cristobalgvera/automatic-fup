@@ -191,7 +191,7 @@ type OptQueryParameters = {
   /**
    * - Define exact match to find
    */
-  equalTo?: string;
+  equalTo?: string | boolean;
   limitToFirst?: string;
   limitToLast?: string;
 };

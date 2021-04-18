@@ -62,6 +62,23 @@ function validateStatus(id: string) {
   }
 }
 
+function getPurchaseOrdersToUpdate(): [PurchaseOrder[], PurchaseOrder[]] {
+  const purchaseOrders = purchaseOrderService.getAll({
+    orderBy: 'audit/updatedInSheet',
+    equalTo: false,
+  });
+
+  if (!purchaseOrders.length) return [[], []];
+
+  return purchaseOrders.reduce(
+    (acc: [PurchaseOrder[], PurchaseOrder[]], purchaseOrder) =>
+      purchaseOrder.audit.isPurchase
+        ? [[...acc[0], purchaseOrder], [...acc[1]]]
+        : [[...acc[0]], [...acc[1], purchaseOrder]],
+    [[], []]
+  );
+}
+
 const purchaseOrderService = {
   saveAll,
   saveOne,
@@ -73,6 +90,10 @@ const purchaseOrderService = {
   removeOne,
   exists,
   validateStatus,
+  /**
+   * @returns {Array.<PurchaseOrder[]>} Array with two values: [purchases, repairs]
+   */
+  getPurchaseOrdersToUpdate,
 };
 
 export {purchaseOrderService};
