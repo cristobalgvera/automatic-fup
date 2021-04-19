@@ -1,42 +1,81 @@
 import {DB, PURCHASE_DATA, REPAIR_DATA} from '../../config';
 
-export function validateUsedVendors() {
+export function validateUsedVendors(
+  isPurchase: boolean,
+  byCode?: boolean,
+  colToPut?: number
+) {
   const dbSpreadsheet = SpreadsheetApp.openById(DB.ID);
   const linkedVendorNameSheet = dbSpreadsheet.getSheetByName(
     DB.SHEET.LINKED_VENDOR_NAME
   );
 
-  const dbVendorNames: string[] = linkedVendorNameSheet
-    .getRange(427, 2, linkedVendorNameSheet.getLastRow())
+  const dbVendorData: string[] = linkedVendorNameSheet
+    .getRange(
+      2,
+      1,
+      linkedVendorNameSheet.getLastRow(),
+      linkedVendorNameSheet.getLastColumn()
+    )
     .getValues()
+    .filter(row => (row[3] === isPurchase ? 'COMPRAS' : 'REPARACIONES'))
+    .map(row => row[byCode ? 2 : 1])
     .flat()
-    .map(v => v.toLocaleLowerCase());
+    .map(value => value.toLocaleLowerCase());
 
-  const purchasesSpreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
-  const purchasesActualSheet = purchasesSpreadsheet.getSheetByName(
-    REPAIR_DATA.SHEET.ACTUAL
+  const dataSpreadsheet = SpreadsheetApp.openById(
+    isPurchase ? PURCHASE_DATA.ID : REPAIR_DATA.ID
+  );
+  const dataActualSheet = dataSpreadsheet.getSheetByName(
+    isPurchase ? PURCHASE_DATA.SHEET.ACTUAL : REPAIR_DATA.SHEET.ACTUAL
   );
 
-  const purchasesData = purchasesActualSheet.getDataRange().getValues();
-  const headers = purchasesData.splice(0, 1)[0];
+  const dataData = dataActualSheet.getDataRange().getValues();
+  const headers = dataData.splice(0, 1)[0];
 
+  const vendorCodeCol = headers.indexOf(
+    isPurchase
+      ? PURCHASE_DATA.COLUMN.VENDOR_CODE
+      : REPAIR_DATA.COLUMN.VENDOR_CODE
+  );
+  const vendorNameCol = headers.indexOf(
+    isPurchase
+      ? PURCHASE_DATA.COLUMN.VENDOR_NAME
+      : REPAIR_DATA.COLUMN.VENDOR_NAME
+  );
   const hitoRadarCol = headers.indexOf(
     REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR
   );
-  const vendorNameCol = headers.indexOf(REPAIR_DATA.COLUMN.VENDOR_NAME);
-
-  const purchasesVendorNames: string[] = purchasesData
-    .filter(data =>
-      REPAIR_DATA.UTIL.FILTERS.HITO_RADAR.includes(data[hitoRadarCol])
-    )
-    .map(data => data[vendorNameCol]);
-
-  const unusedVendorNames = purchasesVendorNames.filter(
-    name => !dbVendorNames.includes(name.toLocaleLowerCase())
+  const ackCol = headers.indexOf(PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK);
+  const fupStatusActualCol = headers.indexOf(
+    PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
   );
 
-  const uniqueUnusedNames = Array.from(new Set(unusedVendorNames), name => [
-    name,
+  let dataVendorData: string[];
+
+  if (isPurchase) {
+    dataVendorData = dataData
+      .filter(data => PURCHASE_DATA.UTIL.FILTERS.ACK.includes(data[ackCol]))
+      .filter(data =>
+        PURCHASE_DATA.UTIL.FILTERS.FUP_STATUS_ACTUAL.includes(
+          data[fupStatusActualCol]
+        )
+      )
+      .map(data => data[byCode ? vendorCodeCol : vendorNameCol]);
+  } else {
+    dataVendorData = dataData
+      .filter(data =>
+        REPAIR_DATA.UTIL.FILTERS.HITO_RADAR.includes(data[hitoRadarCol])
+      )
+      .map(data => data[byCode ? vendorCodeCol : vendorNameCol]);
+  }
+
+  const unusedVendorData = dataVendorData.filter(
+    data => !dbVendorData.includes(data.toLocaleLowerCase())
+  );
+
+  const uniqueUnusedData = Array.from(new Set(unusedVendorData), data => [
+    data,
   ]);
 
   const spreadsheet = SpreadsheetApp.openById(
@@ -44,5 +83,7 @@ export function validateUsedVendors() {
   );
   const sheet = spreadsheet.getSheetByName('OTROS');
 
-  sheet.getRange(2, 3, uniqueUnusedNames.length).setValues(uniqueUnusedNames);
+  const col = colToPut ?? (isPurchase ? 1 : 2);
+
+  sheet.getRange(2, col, uniqueUnusedData.length).setValues(uniqueUnusedData);
 }

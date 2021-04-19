@@ -3,10 +3,11 @@ import {UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 import {updateFupData} from './service/write.service';
 import {createVendorFiles} from './service/assembler.service';
-import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
-import {exportRepairVendorData} from './util/one-time/export-repair-vendor-data.one-time';
-import {changeVendorId} from './util/one-time/change-vendor-id.one-time';
-import {exportPurchaseVendorData} from './util/one-time/export-purchase-vendor-data.one-time';
+import {
+  filterPurchaseVendorData,
+  filterRepairVendorData,
+  validatePurchasesByCode,
+} from './util/one-time';
 
 /****************************************************************
  *
@@ -77,18 +78,14 @@ function updateOpenOrders() {
   updateFupData();
 }
 
-function a() {
-  validateUsedVendors();
+function filterPurchaseVendors() {
+  filterPurchaseVendorData();
 }
 
-function b() {
-  exportRepairVendorData();
+function filterRepairVendors() {
+  filterRepairVendorData();
 }
 
-function c() {
-  changeVendorId();
-}
-
-function d() {
-  exportPurchaseVendorData();
+function validatePurchases() {
+  validatePurchasesByCode(9);
 }

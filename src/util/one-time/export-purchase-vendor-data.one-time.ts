@@ -11,11 +11,13 @@ export function exportPurchaseVendorData() {
 
   const vendorsByEmail = rows.reduce(
     (acc, [code, name, responsable, , , , , focal]) => {
-      let emails = normalizeStringEmailsList(focal.toLocaleLowerCase());
-      if (!emails) emails = ['NO_EMAIL_FOUND'];
+      const emails = normalizeStringEmailsList(focal.toLocaleLowerCase());
 
-      acc[emails[0]] ??= [];
-      acc[emails[0]].push([code, name, responsable, ...emails]);
+      if (emails) {
+        acc[emails[0]] ??= [];
+        acc[emails[0]].push([code, name, responsable, ...emails]);
+      }
+
       return acc;
     },
     {} as {[email: string]: string[][]}
@@ -58,4 +60,6 @@ export function exportPurchaseVendorData() {
   contactSheet
     .getRange(2, 1, emails.length, emails[0].length)
     .setValues(emails);
+
+  SpreadsheetApp.flush();
 }

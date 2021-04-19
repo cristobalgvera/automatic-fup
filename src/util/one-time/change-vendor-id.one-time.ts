@@ -1,7 +1,8 @@
-export function changeVendorId() {
-  const spreadsheetId = '1iWRK1BV2on5bGOmejjmKHqfCsQ7DDEeTE1AXBTRLg3E';
-  const sheetName = 'REPARACIONES BRA';
-  const toUnshift = 'R - ';
+export function changeVendorId(
+  toUnshift: string,
+  sheetName = 'REPARACIONES BRA',
+  spreadsheetId = '1iWRK1BV2on5bGOmejjmKHqfCsQ7DDEeTE1AXBTRLg3E'
+) {
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(
     sheetName
   );

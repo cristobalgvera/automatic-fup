@@ -15,19 +15,25 @@ export function exportRepairVendorData() {
 
   const vendorsByEmail = rows.reduce(
     (acc, [name, code, , , , , , , , sscContact, braContact, standard]) => {
-      let sscEmails = normalizeStringEmailsList(sscContact.toLocaleLowerCase());
-      let braEmails = normalizeStringEmailsList(braContact.toLocaleLowerCase());
-
-      sscEmails ??= ['NO_EMAIL_FOUND'];
-      braEmails ??= ['NO_EMAIL_FOUND'];
+      const sscEmails = normalizeStringEmailsList(
+        sscContact.toLocaleLowerCase()
+      );
+      const braEmails = normalizeStringEmailsList(
+        braContact.toLocaleLowerCase()
+      );
 
       const ssc = acc.ssc;
-      ssc[sscEmails[0]] ??= [];
-      ssc[sscEmails[0]].push([code, name, standard, ...sscEmails]);
-
       const bra = acc.bra;
-      bra[braEmails[0]] ??= [];
-      bra[braEmails[0]].push([code, name, standard, ...braEmails]);
+
+      if (sscEmails) {
+        ssc[sscEmails[0]] ??= [];
+        ssc[sscEmails[0]].push([code, name, standard, ...sscEmails]);
+      }
+
+      if (braEmails) {
+        bra[braEmails[0]] ??= [];
+        bra[braEmails[0]].push([code, name, standard, ...braEmails]);
+      }
 
       return {ssc, bra};
     },
@@ -109,4 +115,6 @@ export function exportRepairVendorData() {
   braContactSheet
     .getRange(2, 1, braEmails.length, braEmails[0].length)
     .setValues(braEmails);
+
+  SpreadsheetApp.flush();
 }
