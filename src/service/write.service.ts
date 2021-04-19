@@ -90,6 +90,13 @@ function updateFupData() {
     purchaseOrderService.setUpdatedPurchaseOrders(updatedPurchases);
     console.warn('UPDATING OPEN ORDERS OF PURCHASES DATA END');
   }
+
+  // if (repairs.length) {
+  //   console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA START');
+  //   const updatedRepairs = _updateRepairs(repairs);
+  //   purchaseOrderService.setUpdatedPurchaseOrders(updatedRepairs);
+  //   console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA END');
+  // }
 }
 
 function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
@@ -123,9 +130,52 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
   return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
 }
 
-function _updateRepairs(repairs: PurchaseOrder[]) {
-  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
-  const sheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
-}
+function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
+  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.FUP.ID);
+  const sheet = spreadsheet.getSheetByName(REPAIR_DATA.FUP.SHEET.ACTUAL);
 
+  const {
+    keyColumn,
+    firstColumnToEdit,
+    lastColumnToEdit,
+  }: {
+    [column: string]: number;
+  } = sheet
+    .getRange(1, 1, 1, sheet.getLastColumn())
+    .getValues()[0]
+    .reduce(
+      (acc, header, i) => {
+        switch (header) {
+          case REPAIR_DATA.FUP.COLUMN.RO_NUMBER:
+            return {...acc, keyColumn: i + 1};
+          case REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.PO_STATUS:
+            return {...acc, firstColumnToEdit: i + 1};
+          case REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE:
+            return {...acc, lastColumnToEdit: i + 1};
+          default:
+            return acc;
+        }
+      },
+      {keyColumn: null, firstColumnToEdit: null, lastColumnToEdit: null}
+    );
+
+  const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
+
+  const rowNumberByKey: {[name: string]: number} = sheet
+    .getRange(1, keyColumn, sheet.getLastRow())
+    .getValues()
+    .reduce((acc, [key], i) => ({...acc, [key]: i + 1}), {});
+
+  const {
+    actions: {updateSheet},
+  } = _utilitiesToUpdateFupData(
+    sheet,
+    rowNumberByKey,
+    firstColumnToEdit,
+    totalColumns,
+    false
+  );
+
+  return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
+}
 export {writeInSheet, updateFupData, updateDbSheetSendDates};

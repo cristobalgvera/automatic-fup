@@ -23,7 +23,14 @@ function _utilitiesToUpdateFupData(
       line,
     } = purchaseOrder;
     const rowNumber = rowNumberByKey[id];
-    if (!rowNumber) return null;
+    if (!rowNumber) {
+      console.error(
+        `'Not found PO: ${id} (${order}-${line ?? 1})' in ${
+          isPurchase ? 'purchases' : 'repairs'
+        } FUP data`
+      );
+      return null;
+    }
 
     const [action, responsible] = _setResponsible(status, isPurchase);
     const vendorData = [
@@ -39,8 +46,11 @@ function _utilitiesToUpdateFupData(
       ],
     ];
     console.log(
-      `Updating '${id} (${order}-${line ?? 1})', row '${rowNumber}' in FUP data`
+      `Updating '${id} (${order}-${line ?? 1})', row '${rowNumber}' in ${
+        isPurchase ? 'purchases' : 'repairs'
+      } FUP data`
     );
+
     sheet
       .getRange(rowNumber, firstColumnToEdit, 1, totalColumns)
       .setValues(vendorData);

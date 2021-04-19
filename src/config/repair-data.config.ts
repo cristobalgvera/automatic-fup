@@ -2,6 +2,15 @@ import {RESPONSIBLE} from '../util/enum/responsible.enum';
 
 const REPAIR_DATA = {
   ID: '1jub6SfL1l8e7oDa1L2GuklQHOBydqFZIbwWC9gNrCo4',
+  FUP: {
+    ID: '1XTw--ITO81CTzBbvJgocPgv27gngRXYF6TvccupAbeE',
+    SHEET: {
+      ACTUAL: 'Actual',
+    },
+    COLUMN: {
+      RO_NUMBER: 'RO Number',
+    },
+  },
   SHEET: {
     ACTUAL: 'Actual',
   },
@@ -31,8 +40,8 @@ const REPAIR_DATA = {
       QTY_SHIPPED: 'Qty Shipped',
       AWB: 'AWB',
       COMMENTS: 'Comments',
-      ACTION: 'Action',
-      RESPONSIBLE: 'Responsible',
+      ACTION: 'Acción',
+      RESPONSIBLE: 'Responsable',
     },
   },
 };
