@@ -1,4 +1,5 @@
 const COMMON = {
+  DEV_MODE: true,
   UTIL: {
     LOCALE: 'es-CL',
     FILE_EXTENSION: {

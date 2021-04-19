@@ -5,6 +5,7 @@ const DB = {
     VENDOR: 'Vendor',
     VENDOR_TYPE: 'Vendor Type',
     VENDOR_ZONE: 'Vendor Zone',
+    DEV: 'DEV',
   },
   COLUMN: {
     VENDOR_ID: 'VendorId',

@@ -1,4 +1,4 @@
-import {REPAIR_DATA, DB, TEMPLATE, PURCHASE_DATA} from '../config';
+import {REPAIR_DATA, DB, TEMPLATE, PURCHASE_DATA, COMMON} from '../config';
 import {HeaderNumber} from '../util/interface/header-number.interface';
 import {
   VendorContact,
@@ -190,7 +190,7 @@ function getVendorsContact(
   dataOrigin?: DATA_ORIGIN
 ): VendorsContact {
   const vendorsDataDataRange: string[][] = db
-    .getSheetByName(DB.SHEET.VENDOR)
+    .getSheetByName(COMMON.DEV_MODE ? DB.SHEET.DEV : DB.SHEET.VENDOR)
     .getDataRange()
     .getValues();
   const headers = vendorsDataDataRange.splice(0, 1)[0].map(toCamelCase);
