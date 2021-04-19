@@ -1,3 +1,5 @@
+import {RESPONSIBLE} from '../util/enum/responsible.enum';
+
 const PURCHASE_DATA = {
   ID: '1zuf5oNcS5-kZNR5v2pCisgXGRuu2UUqAa0bz_k5WvOM',
   SHEET: {
@@ -13,6 +15,7 @@ const PURCHASE_DATA = {
     FILTER_COLUMNS: {
       FUP_STATUS_ACTUAL: 'FUP_STATUS_ACTUAL',
       ACK: 'ACK',
+      RESPONSIBLE: 'RESPONSIBLE',
     },
     FILTERS: {
       FUP_STATUS_ACTUAL: [
@@ -23,6 +26,7 @@ const PURCHASE_DATA = {
         'Partial Delivery',
       ],
       ACK: ['SI', 'NO'],
+      RESPONSIBLE: [RESPONSIBLE.VENDOR.toString()],
     },
     SORT_COLUMNS: {VENDOR_NAME: 'VENDOR_NAME'},
     VENDOR_DATA_COLUMNS: {

@@ -57,12 +57,14 @@ function writeInSheet(
 function updateFupData() {
   const [purchases, repairs] = purchaseOrderService.getToUpdatePurchaseOrders();
   if (purchases.length) {
-    const updatedPurchases = updatePurchases(purchases);
+    console.warn('UPDATING OPEN ORDERS OF PURCHASES DATA START');
+    const updatedPurchases = _updatePurchases(purchases);
     purchaseOrderService.setUpdatedPurchaseOrders(updatedPurchases);
+    console.warn('UPDATING OPEN ORDERS OF PURCHASES DATA END');
   }
 }
 
-function updatePurchases(purchaseOrders: PurchaseOrder[]) {
+function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
   const {
     expectedSheet,
     utils: {headerNumber: headers},
@@ -93,9 +95,9 @@ function updatePurchases(purchaseOrders: PurchaseOrder[]) {
   return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
 }
 
-function updateRepairs(repairs: PurchaseOrder[]) {
+function _updateRepairs(repairs: PurchaseOrder[]) {
   const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
   const sheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
 }
 
-export {writeInSheet};
+export {writeInSheet, updateFupData};

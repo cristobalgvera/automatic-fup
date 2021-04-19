@@ -1,3 +1,5 @@
+import {RESPONSIBLE} from '../util/enum/responsible.enum';
+
 const REPAIR_DATA = {
   ID: '1jub6SfL1l8e7oDa1L2GuklQHOBydqFZIbwWC9gNrCo4',
   SHEET: {
@@ -9,9 +11,10 @@ const REPAIR_DATA = {
     LINE: '',
   },
   UTIL: {
-    FILTER_COLUMNS: {HITO_RADAR: 'Hito_Radar'},
+    FILTER_COLUMNS: {HITO_RADAR: 'Hito_Radar', RESPONSIBLE: 'RESPONSIBLE'},
     FILTERS: {
       HITO_RADAR: ['Vendor', 'Vendor Sin Quote'],
+      RESPONSIBLE: [RESPONSIBLE.VENDOR.toString()],
     },
     SORT_COLUMNS: {VENDOR_NAME: 'VENDOR_NAME'},
     VENDOR_DATA_COLUMNS: {

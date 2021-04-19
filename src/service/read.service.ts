@@ -11,7 +11,7 @@ import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.inter
 import {purchaseOrderService} from './purchase-order.service';
 import {
   _getFupInitialData,
-  _getVendorsNames as _getVendorsNamesByDataOrigin,
+  _getVendorsNamesByDataOrigin,
   _getToContactVendors,
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
@@ -24,7 +24,7 @@ type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
 function extractRepairDataByVendorName(
   automatic?: boolean,
-  filters: string[] = REPAIR_DATA.UTIL.FILTERS.HITO_RADAR
+  filters = REPAIR_DATA.UTIL.FILTERS
 ) {
   const {
     expectedSheet,
@@ -46,7 +46,7 @@ function extractRepairDataByVendorName(
     return {};
 
   const {
-    filters: {byHitoRadar, bySendEmail, byValidEmail},
+    filters: {byHitoRadar, bySendEmail, byValidEmail, byResponsible},
     reducers: {onVendorId, onHasDataVendors},
   } = _utilitiesToExtractFupData(
     toFilterVendors,
@@ -62,6 +62,7 @@ function extractRepairDataByVendorName(
   const rawVendors: GroupedVendors = expectedSheet
     .getDataRange()
     .getValues()
+    .filter(byResponsible)
     .filter(byHitoRadar)
     .filter(byValidEmail)
     .filter(bySendEmail)
@@ -105,7 +106,13 @@ function extractPurchaseDataByVendorName(
     return {};
 
   const {
-    filters: {byAck, byFupStatusActual, bySendEmail, byValidEmail},
+    filters: {
+      byResponsible,
+      byAck,
+      byFupStatusActual,
+      bySendEmail,
+      byValidEmail,
+    },
     reducers: {onVendorId, onHasDataVendors},
   } = _utilitiesToExtractFupData(
     toFilterVendors,
@@ -120,6 +127,7 @@ function extractPurchaseDataByVendorName(
   const rawVendors: GroupedVendors = expectedSheet
     .getDataRange()
     .getValues()
+    .filter(byResponsible)
     .filter(byAck)
     .filter(byFupStatusActual)
     .filter(byValidEmail)

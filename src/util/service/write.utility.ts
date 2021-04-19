@@ -19,6 +19,8 @@ function _utilitiesToUpdateFupData(
       qtyShipped,
       awb,
       comments,
+      purchaseOrder: order,
+      line,
     } = purchaseOrder;
     const rowNumber = rowNumberByKey[id];
     if (!rowNumber) return null;
@@ -36,6 +38,9 @@ function _utilitiesToUpdateFupData(
         responsible,
       ],
     ];
+    console.log(
+      `Updating '${id} (${order}-${line ?? 1})', row '${rowNumber}' in FUP data`
+    );
     sheet
       .getRange(rowNumber, firstColumnToEdit, 1, totalColumns)
       .setValues(vendorData);

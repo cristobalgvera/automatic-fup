@@ -12,6 +12,7 @@ import {UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 import {DATA_ORIGIN} from './util/enum/data-origin.enum';
 import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
+import {updateFupData} from './service/write.service';
 
 /****************************************************************
  *
@@ -131,4 +132,8 @@ function getOpenOrders() {
 
 function validateVendors() {
   validateUsedVendors();
+}
+
+function updateOpenOrders() {
+  updateFupData();
 }

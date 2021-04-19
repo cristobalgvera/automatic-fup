@@ -31,7 +31,7 @@ function _getToContactVendors(
   }, {} as VendorsContact);
 }
 
-function _getVendorsNames(dataOrigin: DATA_ORIGIN) {
+function _getVendorsNamesByDataOrigin(dataOrigin: DATA_ORIGIN) {
   const db = SpreadsheetApp.openById(DB.ID);
 
   const groupedVendors = _getGroupedVendors(db, dataOrigin);
@@ -66,13 +66,14 @@ function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
 }
 
 type PurchaseFilters = typeof PURCHASE_DATA.UTIL.FILTERS;
+type RepairFilters = typeof REPAIR_DATA.UTIL.FILTERS;
 
 function _utilitiesToExtractFupData(
   toFilterVendors: VendorContact[],
   groupedVendors: GroupedVendors,
   filterColumnNumbers: FilterColumns,
   sortColumnNumber: number,
-  filters: string[] | PurchaseFilters,
+  filters: RepairFilters | PurchaseFilters,
   headers: HeaderNumber,
   isPurchase = true
 ) {
@@ -117,10 +118,18 @@ function _utilitiesToExtractFupData(
     )[0];
 
   const byHitoRadar = (row: string[]) => {
-    if ('length' in filters)
-      return filters.includes(
+    if ('HITO_RADAR' in filters)
+      return filters.HITO_RADAR.includes(
         row[filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR]]
       );
+  };
+
+  const byResponsible = (row: string[]) => {
+    if ('RESPONSIBLE' in filters) {
+      const value =
+        row[filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE]];
+      return value ? filters.RESPONSIBLE.includes(value) : true;
+    }
   };
 
   const byAck = (row: string[]) => {
@@ -179,6 +188,7 @@ function _utilitiesToExtractFupData(
       byFupStatusActual,
       bySendEmail,
       byValidEmail,
+      byResponsible,
     },
     reducers: {
       onVendorId,
@@ -409,7 +419,7 @@ function _isPurchaseSpreadsheet(spreadsheet: Spreadsheet) {
 
 export {
   _getFupInitialData,
-  _getVendorsNames,
+  _getVendorsNamesByDataOrigin,
   _getToContactVendors,
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
