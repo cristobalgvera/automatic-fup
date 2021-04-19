@@ -2,7 +2,11 @@ import {COMMON, TEMPLATE, UI} from '../../config';
 import {ByEmailSpreadsheets} from '../interface/by-email-spreadsheets.interface';
 import {VendorContact} from '../interface/vendor-contact.interface';
 import {excelToSheet} from '../../service/drive.service';
-import {obtainEmail, validateEmail} from '../../service/utility.service';
+import {
+  getSeparatedDate,
+  obtainEmail,
+  validateEmail,
+} from '../../service/utility.service';
 type Blob = GoogleAppsScript.Base.Blob;
 type Folder = GoogleAppsScript.Drive.Folder;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -201,8 +205,18 @@ function _hasRequiredStructure(spreadsheet: Spreadsheet) {
     );
 }
 
+function _setAfterDate(daysAgo?: number) {
+  const after = new Date();
+  after.setDate(after.getDate() - (daysAgo ?? 1));
+
+  const {year, month, day} = getSeparatedDate(after);
+
+  return `${year}/${month}/${day}`;
+}
+
 export {
   _getPurchasesAndRepairsFolders,
   _getUtilitiesToFilterEmails,
   _sendExcelTo,
+  _setAfterDate,
 };

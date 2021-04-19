@@ -1,6 +1,6 @@
 import {normalizeStringEmailsList} from '../../service/utility.service';
 
-export function exportVendorsData() {
+export function exportPurchaseVendorData() {
   const sheetId = '1LCWZozWjrVwrH43aJXdpWlo7V1jdRHUUmtNC6TAkXSk';
   const spreadsheet = SpreadsheetApp.openById(sheetId);
   const sheet = spreadsheet.getSheetByName('Proveedores-asignados');

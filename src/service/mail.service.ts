@@ -10,6 +10,7 @@ import {
   _getPurchasesAndRepairsFolders,
   _getUtilitiesToFilterEmails,
   _sendExcelTo,
+  _setAfterDate,
 } from '../util/service/mail.utility';
 import {_isPurchaseSpreadsheet} from '../util/service/read.utility';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
@@ -57,7 +58,7 @@ function sendEmail(
   } while (!success || tries === 3);
 }
 
-function getOpenOrdersFromVendors(after: string) {
+function getOpenOrdersFromVendors(after?: string) {
   const folders = DriveApp.getFolderById(
     FOLDER_ID.EMAIL_AUTOMATED_READS
   ).getFoldersByName(UI.FOLDER.EMAIL_AUTOMATED_READS.getName());
@@ -70,6 +71,8 @@ function getOpenOrdersFromVendors(after: string) {
       FOLDER_ID.EMAIL_AUTOMATED_READS,
       UI.FOLDER.EMAIL_AUTOMATED_READS.getName()
     );
+
+  after ??= _setAfterDate();
 
   // Date param must be formatted as YYYY/MM/DD, and day
   // number should be one day before of requested information

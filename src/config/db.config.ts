@@ -4,6 +4,7 @@ const DB = {
     LINKED_VENDOR_NAME: 'Linked Vendor Name',
     VENDOR: 'Vendor',
     VENDOR_TYPE: 'Vendor Type',
+    VENDOR_ZONE: 'Vendor Zone',
   },
   COLUMN: {
     VENDOR_ID: 'VendorId',
@@ -12,6 +13,7 @@ const DB = {
     VENDOR_EMAIL: 'Email',
     CC: 'Cc',
     VENDOR_TYPE: 'Type',
+    VENDOR_ZONE: 'Zone',
   },
 };
 

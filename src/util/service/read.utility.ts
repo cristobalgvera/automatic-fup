@@ -50,6 +50,7 @@ function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
   const vendorIdColumn = headers.indexOf(DB.COLUMN.VENDOR_ID);
   const vendorNameColumn = headers.indexOf(DB.COLUMN.VENDOR_NAME);
   const vendorTypeColumn = headers.indexOf(DB.COLUMN.VENDOR_TYPE);
+  const vendorZoneColumn = headers.indexOf(DB.COLUMN.VENDOR_ZONE);
 
   return groupedVendorsDataRange.reduce((acc: GroupedVendors, vendor) => {
     const vendorType = vendor[vendorTypeColumn];
@@ -59,8 +60,14 @@ function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
     const vendorId = vendor[vendorIdColumn];
     const vendorName = vendor[vendorNameColumn];
 
+    const linkedVendorData = [vendorName];
+
+    // If is repair, add his zone as a second array parameter
+    if (dataOrigin === DATA_ORIGIN.REPAIR)
+      linkedVendorData.push(vendor[vendorZoneColumn]);
+
     acc[vendorId] ??= [];
-    acc[vendorId].push(vendorName);
+    acc[vendorId].push(linkedVendorData);
     return acc;
   }, {});
 }
@@ -90,7 +97,10 @@ function _utilitiesToExtractFupData(
   const shouldSendEmailToVendor = (searchedName: string) =>
     !!toFilterVendors.find(
       vendor =>
-        groupedVendors[vendor.id]?.find(name => name === searchedName) ?? false
+        groupedVendors[vendor.id]?.find(
+          ([name]) =>
+            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase()
+        ) ?? false
     );
 
   const shouldSendPurchaseOrderToVendor = (row: string[]) => {
@@ -106,7 +116,11 @@ function _utilitiesToExtractFupData(
 
   const isValidEmail = (searchedName: string) => {
     const email = toFilterVendors.find(
-      vendor => !!groupedVendors[vendor.id]?.find(name => name === searchedName)
+      vendor =>
+        !!groupedVendors[vendor.id]?.find(
+          ([name]) =>
+            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase()
+        )
     )?.email;
 
     return email ? validateEmail(email) : false;
@@ -114,7 +128,11 @@ function _utilitiesToExtractFupData(
 
   const getVendorId = (vendorName: string) =>
     toFilterGroupedVendors.find(
-      vendor => vendor[1]?.some(name => name === vendorName) ?? false
+      vendor =>
+        vendor[1]?.some(
+          ([name]) =>
+            name.toLocaleLowerCase() === vendorName.toLocaleLowerCase()
+        ) ?? false
     )[0];
 
   const byHitoRadar = (row: string[]) => {

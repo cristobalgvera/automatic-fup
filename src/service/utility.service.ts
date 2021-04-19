@@ -132,6 +132,25 @@ function cleanse<T>(obj: T): T {
   return obj;
 }
 
+function getSeparatedDate(date?: Date) {
+  const now = date ?? new Date();
+  const iso = now.toISOString();
+  const [year, month, day, hour, minute, second, millisecond] = iso.split(
+    /[-TZ:.]/
+  );
+  return {
+    now,
+    iso,
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+  };
+}
+
 export {
   removeExtension,
   toCamelCase,
@@ -146,4 +165,5 @@ export {
   normalizeStringEmailsList,
   isValidDate,
   cleanUpUndefined,
+  getSeparatedDate,
 };
