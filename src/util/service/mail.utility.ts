@@ -43,12 +43,17 @@ function _sendExcelTo(
 
   const to = validCcEmails ? `${email},${validCcEmails}` : email;
 
+  const copyTo = isPurchase
+    ? COMMON.EMAIL.TO_COPY.PURCHASES.join(',')
+    : COMMON.EMAIL.TO_COPY.REPAIRS.join(',');
+
   try {
     MailApp.sendEmail({
       to,
       htmlBody,
       attachments,
-      subject: UI.MAIL.subject(),
+      cc: copyTo,
+      subject: UI.MAIL.subject(name),
       replyTo: UI.MAIL.REPLY_TO,
       name: UI.MAIL.NAME,
     });

@@ -20,8 +20,7 @@ export function validateUsedVendors(
     .getValues()
     .filter(row => (row[3] === isPurchase ? 'COMPRAS' : 'REPARACIONES'))
     .map(row => row[byCode ? 2 : 1])
-    .flat()
-    .map(value => value.toLocaleLowerCase());
+    .map(value => String(value).toLocaleLowerCase());
 
   const dataSpreadsheet = SpreadsheetApp.openById(
     isPurchase ? PURCHASE_DATA.ID : REPAIR_DATA.ID

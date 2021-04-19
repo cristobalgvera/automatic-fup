@@ -113,7 +113,8 @@ function _utilitiesToExtractFupData(
           const codeMatch =
             code.toLocaleLowerCase() === searchedCode.toLocaleLowerCase();
           const nameMatch =
-            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase();
+            String(name).toLocaleLowerCase() ===
+            searchedName.toLocaleLowerCase();
 
           return codeMatch || nameMatch;
         }) ?? false
@@ -137,7 +138,8 @@ function _utilitiesToExtractFupData(
           const codeMatch =
             code.toLocaleLowerCase() === searchedCode.toLocaleLowerCase();
           const nameMatch =
-            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase();
+            String(name).toLocaleLowerCase() ===
+            searchedName.toLocaleLowerCase();
 
           return codeMatch || nameMatch;
         })
@@ -161,7 +163,7 @@ function _utilitiesToExtractFupData(
           const codeMatch =
             code.toLocaleLowerCase() === vendorCode.toLocaleLowerCase();
           const nameMatch =
-            name.toLocaleLowerCase() === vendorName.toLocaleLowerCase();
+            String(name).toLocaleLowerCase() === vendorName.toLocaleLowerCase();
           const zoneMatch =
             !vendorZone || zone === vendorZone.toLocaleUpperCase();
 

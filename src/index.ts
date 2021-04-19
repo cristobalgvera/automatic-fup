@@ -6,8 +6,8 @@ import {createVendorFiles} from './service/assembler.service';
 import {
   filterPurchaseVendorData,
   filterRepairVendorData,
-  validatePurchasesByCode,
 } from './util/one-time';
+import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
 
 /****************************************************************
  *
@@ -86,6 +86,6 @@ function filterRepairVendors() {
   filterRepairVendorData();
 }
 
-function validatePurchases() {
-  validatePurchasesByCode(9);
+function validateVendors() {
+  validateUsedVendors(true, true, 9);
 }

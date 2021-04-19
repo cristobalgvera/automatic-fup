@@ -11,6 +11,10 @@ const COMMON = {
       'phillip.johnson@latam.com',
       'claudia.guzmano@latam.com',
     ],
+    TO_COPY: {
+      PURCHASES: ['gabatec@lan.com', 'erick.burgoa@latam.com'],
+      REPAIRS: ['gabatec@lan.com', 'marcio.silva02@latam.com'],
+    },
   },
 };
 

@@ -6,7 +6,7 @@ function today() {
 }
 
 function todayNoYear() {
-  return Utilities.formatDate(new Date(), 'GMT-3', 'dd-MMM');
+  return Utilities.formatDate(new Date(), 'GMT-4', 'dd-MMM');
 }
 
 function generatePurchaseOrderId({purchaseOrder, line}: PurchaseOrder) {

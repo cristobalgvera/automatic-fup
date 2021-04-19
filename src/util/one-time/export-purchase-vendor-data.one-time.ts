@@ -5,12 +5,10 @@ export function exportPurchaseVendorData() {
   const spreadsheet = SpreadsheetApp.openById(sheetId);
   const sheet = spreadsheet.getSheetByName('Proveedores-asignados');
 
-  const vendorTable = new Table(sheet.getDataRange(), undefined);
-
-  const rows: string[][] = vendorTable.getGridValues();
-
-  const vendorsByEmail = rows.reduce(
-    (acc, [code, name, responsable, , , , , focal]) => {
+  const vendorsByEmail = sheet
+    .getDataRange()
+    .getValues()
+    .reduce((acc, [code, name, responsable, , , , , focal]) => {
       const emails = normalizeStringEmailsList(focal.toLocaleLowerCase());
 
       if (emails) {
@@ -19,9 +17,7 @@ export function exportPurchaseVendorData() {
       }
 
       return acc;
-    },
-    {} as {[email: string]: string[][]}
-  );
+    }, {} as {[email: string]: string[][]});
 
   const data = Object.values(vendorsByEmail).flat();
   const emails = Object.keys(vendorsByEmail).map(email => {

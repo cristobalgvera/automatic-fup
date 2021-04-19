@@ -6,7 +6,7 @@ export function changeVendorId(
   const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(
     sheetName
   );
-  const range = sheet.getRange(2, 3, sheet.getLastRow() - 1);
+  const range = sheet.getRange(2, 4, sheet.getLastRow() - 1);
   const data = range
     .getValues()
     .map(([id]) => (id !== 'NO_EMAIL_FOUND' ? [`${toUnshift}${id}`] : [id]));

@@ -62,7 +62,8 @@ const UI = {
       `No se ha podido enviar correo a ${name} (${email}), ¿reintentar?`,
   },
   MAIL: {
-    subject: () => `Status OPEN ORDERS ${todayNoYear()}`,
+    subject: (vendorName: string) =>
+      `[${vendorName}] Status - Open Orders ${todayNoYear()}`,
     REPLY_TO: '',
     NAME: 'LATAM Airlines',
   },
