@@ -15,7 +15,7 @@ function getOne(id: string): PurchaseOrder {
   const purchaseOrder: PurchaseOrder = database.getData(
     `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${id}`
   );
-  return _convertProperties(purchaseOrder);
+  return purchaseOrder ? _convertProperties(purchaseOrder) : null;
 }
 
 function getAll(query?: OptQueryParameters): PurchaseOrder[] {
@@ -23,7 +23,9 @@ function getAll(query?: OptQueryParameters): PurchaseOrder[] {
     FIREBASE.PATH.PURCHASE_ORDER.BASE,
     query
   );
-  return Object.values(purchaseOrders).map(_convertProperties);
+  return purchaseOrders
+    ? Object.values(purchaseOrders).map(_convertProperties)
+    : null;
 }
 
 function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {

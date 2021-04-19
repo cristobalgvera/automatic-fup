@@ -114,7 +114,7 @@ function extractPurchaseDataByVendorName(
     sortColumnNumber,
     filters,
     headers,
-    false
+    true
   );
 
   const rawVendors: GroupedVendors = expectedSheet

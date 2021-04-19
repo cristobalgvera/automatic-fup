@@ -36,8 +36,7 @@ function writeInSheet(
     .setValues(vendorPartNumbers);
 
   // Purchases have no line numbers
-  if (!isPurchase) vendorSheet.deleteColumns(templateLineColumn, 1);
-  else {
+  if (isPurchase) {
     // Set data in the same way of PO or part numbers
     const vendorLines = vendorData.map(data => [data[lineColumn]]);
     vendorSheet
@@ -53,7 +52,6 @@ function writeInSheet(
   );
 
   SpreadsheetApp.flush();
-  updateFupData();
 }
 
 function updateFupData() {

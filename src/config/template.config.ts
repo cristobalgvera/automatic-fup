@@ -10,7 +10,10 @@ type ColumnName = Required<
 >;
 
 const TEMPLATE = {
-  ID: '1fUxA_8WbypaQxifwepWa3cr_3CsxQw5a6tko4ZHLpns',
+  IDS: {
+    PURCHASE_DATA: '1fUxA_8WbypaQxifwepWa3cr_3CsxQw5a6tko4ZHLpns',
+    REPAIR_DATA: '1h1j9mWJxU-IB2QxEqyezgNqM7jh3ppN8q2fDWwDzAdo',
+  },
   SHEET: {
     OPEN_ORDERS: 'Open Orders',
   },

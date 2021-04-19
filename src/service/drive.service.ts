@@ -14,7 +14,16 @@ type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 function getTemplateAndCreateFolderForRegistries(dataOrigin: DATA_ORIGIN) {
   // Parent folder to store registries
   const folder = DriveApp.getFolderById(FOLDER_ID.REGISTRIES);
-  const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE.ID);
+
+  let templateSpreadsheet: Spreadsheet;
+  switch (dataOrigin) {
+    case DATA_ORIGIN.PURCHASE:
+      templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE.IDS.PURCHASE_DATA);
+      break;
+    case DATA_ORIGIN.REPAIR:
+      templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE.IDS.REPAIR_DATA);
+      break;
+  }
 
   // Folder to store new registries located in parent folder
   let registriesFolder: Folder;
@@ -50,7 +59,7 @@ function consolidateOpenOrders(isPurchase = true) {
   const purchasesOpenOrdersFolder = DriveApp.getFolderById(openOrdersId);
 
   // Template file to write vendors data
-  const templateFile = DriveApp.getFileById(TEMPLATE.ID)
+  const templateFile = DriveApp.getFileById(TEMPLATE.IDS.PURCHASE_DATA)
     .makeCopy()
     .setName(consolidatedFileName);
 

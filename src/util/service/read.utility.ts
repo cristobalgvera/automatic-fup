@@ -1,13 +1,6 @@
 import {VendorContact} from '../interface/vendor-contact.interface';
 import {VendorsContact} from '../interface/vendor-contact.interface';
-import {
-  COMMON,
-  DB,
-  PURCHASE_DATA,
-  REPAIR_DATA,
-  TEMPLATE,
-  UI,
-} from '../../config';
+import {DB, PURCHASE_DATA, REPAIR_DATA, TEMPLATE, UI} from '../../config';
 import {GroupedVendors} from '../interface/grouped-vendors.interface';
 import {HeaderNumber} from '../interface/header-number.interface';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
