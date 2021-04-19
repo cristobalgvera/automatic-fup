@@ -32,7 +32,7 @@ function _sendExcelTo(
   else html = HtmlService.createTemplateFromFile('app/assets/mail-repair');
 
   // Edit data variable of template html
-  html.teamName = name;
+  // html.teamName = name;
 
   // Create real html from template one (whit all variable data)
   const htmlBody = html.evaluate().getContent();
