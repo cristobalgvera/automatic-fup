@@ -29,7 +29,7 @@ function sendSheetToVendor(
 
 function sendEmail(
   vendorSheet: Sheet,
-  vendorData: string[],
+  vendorData: string[][],
   columnNumbers: ColumnNumbers,
   vendorContact: VendorContact,
   vendorSpreadsheet: Spreadsheet,
@@ -39,12 +39,14 @@ function sendEmail(
   // Put collected data in an empty vendor file
   writeInSheet(vendorSheet, vendorData, columnNumbers, isPurchase);
 
+  let id: string;
   let success: boolean;
   let tries = 1;
   do {
     // Convert spreadsheet into Excel file and send it to vendor
-    success = sendSheetToVendor(vendorContact, vendorSpreadsheet);
+    id = sendSheetToVendor(vendorContact, vendorSpreadsheet);
 
+    success = !!id;
     if (success) break;
 
     // In case of email sending fail, user can retry
@@ -56,6 +58,8 @@ function sendEmail(
       tries++;
     }
   } while (!success || tries === 3);
+
+  return id;
 }
 
 function getOpenOrdersFromVendors(after?: string) {

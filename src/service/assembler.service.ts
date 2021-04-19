@@ -4,18 +4,26 @@ import {
   createSheetFiles,
 } from './drive.service';
 import {
-  extractPurchaseDataByVendorName,
   getColumnNumbers,
   extractRepairDataByVendorName,
+  extractPurchaseDataByVendorName,
 } from './read.service';
+import {updateDbSheetSendDates} from './write.service';
 
-// To be manual
-function createFileForEachPurchaseVendor(automatic?: boolean) {
-  console.warn('RETRIEVING VENDORS CONTACTS TO OBTAIN PURCHASE FUP DATA START');
-  const {vendors, headers, vendorsContact} = extractPurchaseDataByVendorName(
-    automatic
+function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
+  console.warn(
+    `RETRIEVING VENDORS CONTACTS TO OBTAIN ${
+      isPurchase ? 'COMPRAS' : 'REPARACIONES'
+    } FUP DATA START`
   );
-  console.warn('RETRIEVING VENDORS CONTACTS TO OBTAIN PURCHASE FUP DATA END');
+  const {vendors, headers, vendorsContact} = isPurchase
+    ? extractPurchaseDataByVendorName(automatic)
+    : extractRepairDataByVendorName(automatic);
+  console.warn(
+    `RETRIEVING VENDORS CONTACTS TO OBTAIN ${
+      isPurchase ? 'COMPRAS' : 'REPARACIONES'
+    } FUP DATA END`
+  );
 
   // User cancel operation
   if (!vendorsContact) return;
@@ -24,8 +32,14 @@ function createFileForEachPurchaseVendor(automatic?: boolean) {
   const {
     templateSpreadsheet,
     registriesFolder,
-  } = getTemplateAndCreateFolderForRegistries(DATA_ORIGIN.PURCHASE);
-  const columnNumbers = getColumnNumbers(templateSpreadsheet, headers, true);
+  } = getTemplateAndCreateFolderForRegistries(
+    isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
+  );
+  const columnNumbers = getColumnNumbers(
+    templateSpreadsheet,
+    headers,
+    isPurchase
+  );
   console.warn('FOLDER CREATION END');
 
   console.warn('SHEETS CREATION START');
@@ -41,44 +55,14 @@ function createFileForEachPurchaseVendor(automatic?: boolean) {
   console.warn('SHEETS CREATION END');
 
   console.warn('EMAIL SENDING START');
-  sendEmails.forEach(sendEmail => sendEmail());
+  const mailedIds = sendEmails
+    .map(sendEmail => sendEmail(isPurchase))
+    .filter(id => id);
   console.warn('EMAIL SENDING END');
+
+  console.warn('UPDATE DB SHEET SEND DATE START');
+  updateDbSheetSendDates(mailedIds);
+  console.warn('UPDATE DB SHEET SEND DATE END');
 }
 
-// To be manual
-function createFileForEachRepairVendor(automatic?: boolean) {
-  console.warn('RETRIEVING VENDORS CONTACTS TO OBTAIN REPAIR FUP DATA START');
-  const {vendors, headers, vendorsContact} = extractRepairDataByVendorName(
-    automatic
-  );
-  console.warn('RETRIEVING VENDORS CONTACTS TO OBTAIN REPAIR FUP DATA END');
-
-  // User cancel operation
-  if (!vendorsContact) return;
-
-  console.warn('FOLDER CREATION START');
-  const {
-    templateSpreadsheet,
-    registriesFolder,
-  } = getTemplateAndCreateFolderForRegistries(DATA_ORIGIN.REPAIR);
-  const columnNumbers = getColumnNumbers(templateSpreadsheet, headers, false);
-  console.warn('FOLDER CREATION END');
-
-  console.warn('SHEETS CREATION START');
-  // Create sheet files and return a send email to vendor action for each one
-  const sendEmails = createSheetFiles(
-    vendors,
-    vendorsContact,
-    templateSpreadsheet,
-    registriesFolder,
-    columnNumbers,
-    automatic
-  );
-  console.warn('SHEETS CREATION END');
-
-  console.warn('EMAIL SENDING START');
-  sendEmails.forEach(sendEmail => sendEmail(false));
-  console.warn('EMAIL SENDING END');
-}
-
-export {createFileForEachPurchaseVendor, createFileForEachRepairVendor};
+export {createVendorFiles};

@@ -35,7 +35,7 @@ function _getVendorsNamesByDataOrigin(dataOrigin: DATA_ORIGIN) {
   const db = SpreadsheetApp.openById(DB.ID);
 
   const groupedVendors = _getGroupedVendors(db, dataOrigin);
-  const vendorsContact = getVendorsContact(db);
+  const vendorsContact = getVendorsContact(db, dataOrigin);
 
   return {groupedVendors, vendorsContact};
 }
@@ -82,7 +82,8 @@ function _utilitiesToExtractFupData(
   sortColumnNumber: number,
   filters: RepairFilters | PurchaseFilters,
   headers: HeaderNumber,
-  isPurchase = true
+  isPurchase = true,
+  zoneColumnNumber?: number
 ) {
   const toFilterGroupedVendors = Object.entries(
     toFilterVendors.reduce(
@@ -125,21 +126,33 @@ function _utilitiesToExtractFupData(
 
     return email ? validateEmail(email) : false;
   };
-
-  const getVendorId = (vendorName: string) =>
-    toFilterGroupedVendors.find(
+  /*
+    Check if names match, if match, check vendorZone variable
+    to know when to used it, if has to, compare it with the
+    actual zone of DB sheet stored value ['BRA' | 'SSC']
+  */
+  const getVendorId = (vendorName: string, vendorZone?: string) => {
+    const groupedVendor = toFilterGroupedVendors.find(
       vendor =>
         vendor[1]?.some(
-          ([name]) =>
-            name.toLocaleLowerCase() === vendorName.toLocaleLowerCase()
+          ([name, zone]) =>
+            name.toLocaleLowerCase() === vendorName.toLocaleLowerCase() &&
+            (!vendorZone || zone === vendorZone.toLocaleUpperCase())
         ) ?? false
-    )[0];
+    );
+    return groupedVendor ? groupedVendor[0] : null;
+  };
 
   const byHitoRadar = (row: string[]) => {
     if ('HITO_RADAR' in filters)
       return filters.HITO_RADAR.includes(
         row[filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR]]
       );
+  };
+
+  const byValidZone = (row: string[]) => {
+    if ('SYSTEM' in filters)
+      return filters.SYSTEM.includes(row[zoneColumnNumber].toLocaleUpperCase());
   };
 
   const byResponsible = (row: string[]) => {
@@ -177,9 +190,12 @@ function _utilitiesToExtractFupData(
       ? shouldSendEmailToVendor(row[sortColumnNumber])
       : false;
 
-  const onVendorId = (acc, row: string[]) => {
+  const onVendorId = (acc: GroupedVendors, row: string[]) => {
     const vendorName = row[sortColumnNumber];
-    const vendorId = getVendorId(vendorName);
+    const vendorZone = zoneColumnNumber !== undefined && row[zoneColumnNumber];
+    const vendorId = getVendorId(vendorName, vendorZone);
+
+    if (!vendorId) return acc;
 
     if (!acc[vendorId])
       console.log(
@@ -193,7 +209,10 @@ function _utilitiesToExtractFupData(
     return acc;
   };
 
-  const onHasDataVendors = (rawVendors: GroupedVendors) => (acc, name) => {
+  const onHasDataVendors = (rawVendors: GroupedVendors) => (
+    acc: GroupedVendors,
+    name: string
+  ) => {
     const dataAmount = rawVendors[name].length;
     if (!dataAmount) console.log(`Deleting '${name}' entry, has no data`);
     return dataAmount ? {...acc, [name]: rawVendors[name]} : acc;
@@ -204,6 +223,7 @@ function _utilitiesToExtractFupData(
       byHitoRadar,
       byAck,
       byFupStatusActual,
+      byValidZone,
       bySendEmail,
       byValidEmail,
       byResponsible,
@@ -220,9 +240,9 @@ function _getUtilitiesToEvaluateEmails() {
     vendorName: string,
     vendorEmail: string,
     headerNumbers: Partial<typeof TEMPLATE.UTIL.COLUMN_NAME>
-  ) => (curr: Partial<PurchaseOrder>[], row: string[]) =>
+  ) => (curr: PurchaseOrder[], row: string[]) =>
     curr.concat({
-      vendorName: vendorName ?? undefined,
+      vendorName: vendorName ?? 'NOT_FOUND',
       purchaseOrder: row[headerNumbers.purchaseOrder] || null,
       line: row[headerNumbers.line] || null,
       partNumber: row[headerNumbers.partNumber] || null,
@@ -282,9 +302,23 @@ function _getUtilitiesToEvaluateEmails() {
 
   const purchaseOrdersMapperGenerator = (
     templateHeaders: string[][],
-    vendorName: string,
+    purchaseContacts: [string, VendorContact][],
+    repairContacts: [string, VendorContact][],
     vendorEmail: string
   ) => (spreadsheet: Spreadsheet) => {
+    const isPurchase = _isPurchaseSpreadsheet(spreadsheet);
+
+    let contact: [string, VendorContact] | [];
+
+    if (isPurchase)
+      contact =
+        purchaseContacts.find(([, {email}]) => email === vendorEmail) ?? [];
+    else
+      contact =
+        repairContacts.find(([, {email}]) => email === vendorEmail) ?? [];
+
+    const vendorName = contact[1]?.name;
+
     const {
       spreadsheetValues,
       headerNumbers,
@@ -303,23 +337,21 @@ function _getUtilitiesToEvaluateEmails() {
   };
 
   const toPurchaseOrders = (
-    contacts: [string, VendorContact][],
+    purchaseContacts: [string, VendorContact][],
+    repairContacts: [string, VendorContact][],
     templateHeaders: string[][]
-  ) => (acc: PurchaseOrder[], [vendorEmail, spreadsheets]) => {
-    const contact = contacts.find(([, {email}]) => email === vendorEmail) ?? [];
-    const vendorName = contact[1]?.name;
-
+  ) => (
+    acc: PurchaseOrder[],
+    [vendorEmail, spreadsheets]: [string, Spreadsheet[]]
+  ) => {
     const toPurchaseOrdersArray = purchaseOrdersMapperGenerator(
       templateHeaders,
-      vendorName,
+      purchaseContacts,
+      repairContacts,
       vendorEmail
     );
 
-    const purchaseOrdersArray: PurchaseOrder[][] = spreadsheets.map(
-      toPurchaseOrdersArray
-    );
-
-    const purchasesOrders = purchaseOrdersArray.flat();
+    const purchasesOrders = spreadsheets.map(toPurchaseOrdersArray).flat();
 
     return acc.concat(purchasesOrders);
   };
@@ -356,6 +388,7 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
 
   const filterColumnNumbers: FilterColumns = {};
   let sortColumnNumber: number;
+  let zoneColumnNumber: number;
 
   switch (dataOrigin) {
     case DATA_ORIGIN.REPAIR:
@@ -363,6 +396,7 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
         headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR];
       sortColumnNumber =
         headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+      zoneColumnNumber = headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM];
       break;
     case DATA_ORIGIN.PURCHASE:
       filterColumnNumbers[
@@ -377,7 +411,12 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
 
   return {
     expectedSheet,
-    utils: {filterColumnNumbers, sortColumnNumber, headerNumber},
+    utils: {
+      filterColumnNumbers,
+      sortColumnNumber,
+      zoneColumnNumber,
+      headerNumber,
+    },
   };
 }
 

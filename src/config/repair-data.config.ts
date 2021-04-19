@@ -11,10 +11,15 @@ const REPAIR_DATA = {
     LINE: '',
   },
   UTIL: {
-    FILTER_COLUMNS: {HITO_RADAR: 'Hito_Radar', RESPONSIBLE: 'RESPONSIBLE'},
+    FILTER_COLUMNS: {
+      HITO_RADAR: 'Hito_Radar',
+      RESPONSIBLE: 'RESPONSIBLE',
+      SYSTEM: 'Sistema',
+    },
     FILTERS: {
       HITO_RADAR: ['Vendor', 'Vendor Sin Quote'],
       RESPONSIBLE: [RESPONSIBLE.VENDOR.toString()],
+      SYSTEM: ['SSC', 'BRA'],
     },
     SORT_COLUMNS: {VENDOR_NAME: 'VENDOR_NAME'},
     VENDOR_DATA_COLUMNS: {

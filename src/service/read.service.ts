@@ -28,7 +28,12 @@ function extractRepairDataByVendorName(
 ) {
   const {
     expectedSheet,
-    utils: {filterColumnNumbers, sortColumnNumber, headerNumber: headers},
+    utils: {
+      filterColumnNumbers,
+      sortColumnNumber,
+      zoneColumnNumber,
+      headerNumber: headers,
+    },
   } = _getFupInitialData(DATA_ORIGIN.REPAIR);
   const {groupedVendors, vendorsContact} = _getVendorsNamesByDataOrigin(
     DATA_ORIGIN.REPAIR
@@ -46,7 +51,13 @@ function extractRepairDataByVendorName(
     return {};
 
   const {
-    filters: {byHitoRadar, bySendEmail, byValidEmail, byResponsible},
+    filters: {
+      byHitoRadar,
+      bySendEmail,
+      byValidEmail,
+      byResponsible,
+      byValidZone,
+    },
     reducers: {onVendorId, onHasDataVendors},
   } = _utilitiesToExtractFupData(
     toFilterVendors,
@@ -55,13 +66,15 @@ function extractRepairDataByVendorName(
     sortColumnNumber,
     filters,
     headers,
-    false
+    false,
+    zoneColumnNumber
   );
 
   // Filter all vendors to get just the ones that are needed
   const rawVendors: GroupedVendors = expectedSheet
     .getDataRange()
     .getValues()
+    .filter(byValidZone)
     .filter(byResponsible)
     .filter(byHitoRadar)
     .filter(byValidEmail)
@@ -178,17 +191,22 @@ function getColumnNumbers(
   };
 }
 
-function getVendorsContact(db: Spreadsheet): VendorsContact {
+function getVendorsContact(
+  db: Spreadsheet,
+  dataOrigin?: DATA_ORIGIN
+): VendorsContact {
   const vendorsDataDataRange: string[][] = db
     .getSheetByName(DB.SHEET.VENDOR)
     .getDataRange()
     .getValues();
   const headers = vendorsDataDataRange.splice(0, 1)[0].map(toCamelCase);
   const idColumn = headers.indexOf(toCamelCase(DB.COLUMN.ID));
+  const typeColumn = headers.indexOf(toCamelCase(DB.COLUMN.VENDOR_TYPE));
 
   return vendorsDataDataRange.reduce((acc, vendor) => {
     const vendorId = vendor[idColumn];
-    if (!acc[vendorId]) {
+    const vendorType = vendor[typeColumn];
+    if (!acc[vendorId] && (!dataOrigin || vendorType === dataOrigin)) {
       acc[vendorId] = headers.reduce((obj, header, index) => {
         obj[header] = vendor[index];
         return obj;
@@ -204,12 +222,29 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
   const data = Object.entries(byEmailSpreadsheets);
   const vendorsContact = getVendorsContact(db);
   const contacts = Object.entries(vendorsContact);
+  const [purchasesContacts, repairsContacts]: [
+    [string, VendorContact][],
+    [string, VendorContact][]
+  ] = contacts.reduce(
+    (acc, [id, contact]) => {
+      const type = contact.type;
+      const purchases: [string, VendorContact][] = acc[0];
+      const repairs: [string, VendorContact][] = acc[1];
+      const row: [string, VendorContact] = [id, contact];
+      if (type === DATA_ORIGIN.PURCHASE) purchases.push(row);
+      else repairs.push(row);
+
+      return [purchases, repairs];
+    },
+    [[], []]
+  );
+
   const templateHeaders = Object.entries(TEMPLATE.UTIL.COLUMN_NAME);
 
   const {toPurchaseOrders} = _getUtilitiesToEvaluateEmails();
 
   const purchaseOrders = data.reduce(
-    toPurchaseOrders(contacts, templateHeaders),
+    toPurchaseOrders(purchasesContacts, repairsContacts, templateHeaders),
     []
   );
 

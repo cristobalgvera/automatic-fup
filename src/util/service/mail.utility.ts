@@ -19,7 +19,10 @@ function include(filename: string) {
     return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
-function _sendExcelTo({name, email, cc}: VendorContact, attachments: Blob[]) {
+function _sendExcelTo(
+  {id, name, email, cc}: VendorContact,
+  attachments: Blob[]
+) {
   // Use template html file to write mail
   const html = HtmlService.createTemplateFromFile('app/assets/mail');
 
@@ -45,10 +48,10 @@ function _sendExcelTo({name, email, cc}: VendorContact, attachments: Blob[]) {
       name: UI.MAIL.NAME,
     });
 
-    return true;
+    return id;
   } catch (e) {
     console.error(e);
-    return false;
+    return null;
   }
 }
 

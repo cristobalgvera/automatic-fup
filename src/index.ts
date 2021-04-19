@@ -2,11 +2,7 @@ import {consolidateOpenOrders} from './service/drive.service';
 import {UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 import {updateFupData} from './service/write.service';
-import {
-  createFileForEachPurchaseVendor,
-  createFileForEachRepairVendor,
-} from './service/assembler.service';
-import {exportRepairVendorData} from './util/one-time/export-repair-vendor-data.one-time';
+import {createVendorFiles} from './service/assembler.service';
 
 /****************************************************************
  *
@@ -45,6 +41,16 @@ function consolidatePurchases() {
 // To be manual
 function consolidateRepairs() {
   consolidateOpenOrders(false);
+}
+
+// To be manual
+function createFileForEachPurchaseVendor(automatic?: boolean) {
+  createVendorFiles(true, automatic);
+}
+
+// To be manual
+function createFileForEachRepairVendor(automatic?: boolean) {
+  createVendorFiles(false, automatic);
 }
 
 // To be automatic

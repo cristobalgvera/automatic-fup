@@ -1,4 +1,4 @@
-import {PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../config';
+import {DB, PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../config';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
@@ -9,7 +9,7 @@ type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function writeInSheet(
   vendorSheet: Sheet,
-  vendorData: string[],
+  vendorData: string[][],
   columnNumbers: ColumnNumbers,
   isPurchase = true
 ) {
@@ -52,6 +52,34 @@ function writeInSheet(
   );
 
   SpreadsheetApp.flush();
+}
+
+function updateDbSheetSendDates(ids: string[], when?: Date) {
+  const spreadsheet = SpreadsheetApp.openById(DB.ID);
+  const sheet = spreadsheet.getSheetByName(DB.SHEET.VENDOR);
+  const sendDateColumn =
+    sheet
+      .getRange(1, 1, 1, sheet.getLastColumn())
+      .getValues()[0]
+      .indexOf(DB.COLUMN.SEND_DATE) + 1;
+
+  const dbIds = sheet
+    .getRange(1, 1, sheet.getLastRow())
+    .getValues()
+    .reduce((acc, [key], i) => ({...acc, [key]: i + 1}), {});
+
+  const updateDate = when ?? new Date();
+
+  ids.forEach(id => {
+    const rowNumber = dbIds[id];
+    if (!rowNumber) {
+      console.error(`Error while updating send date of ${id}: ID not found`);
+      return null;
+    }
+
+    console.log(`Updating ${id} send date`);
+    sheet.getRange(rowNumber, sendDateColumn).setValue(updateDate);
+  });
 }
 
 function updateFupData() {
@@ -100,4 +128,4 @@ function _updateRepairs(repairs: PurchaseOrder[]) {
   const sheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
 }
 
-export {writeInSheet, updateFupData};
+export {writeInSheet, updateFupData, updateDbSheetSendDates};

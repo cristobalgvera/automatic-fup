@@ -1,3 +1,5 @@
+import {DATA_ORIGIN} from '../enum/data-origin.enum';
+
 export interface VendorContact {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface VendorContact {
   cc: string;
   sendDate: Date;
   sendEmail: boolean;
+  type: DATA_ORIGIN;
 }
 
 export interface VendorsContact {
