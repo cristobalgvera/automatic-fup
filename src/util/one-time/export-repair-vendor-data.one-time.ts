@@ -14,7 +14,7 @@ export function exportRepairVendorData() {
     );
 
   const vendorsByEmail = rows.reduce(
-    (acc, [name, , , , , , , , , sscContact, braContact, standard]) => {
+    (acc, [name, code, , , , , , , , sscContact, braContact, standard]) => {
       let sscEmails = normalizeStringEmailsList(sscContact.toLocaleLowerCase());
       let braEmails = normalizeStringEmailsList(braContact.toLocaleLowerCase());
 
@@ -23,11 +23,11 @@ export function exportRepairVendorData() {
 
       const ssc = acc.ssc;
       ssc[sscEmails[0]] ??= [];
-      ssc[sscEmails[0]].push([name, standard, ...sscEmails]);
+      ssc[sscEmails[0]].push([code, name, standard, ...sscEmails]);
 
       const bra = acc.bra;
       bra[braEmails[0]] ??= [];
-      bra[braEmails[0]].push([name, standard, ...braEmails]);
+      bra[braEmails[0]].push([code, name, standard, ...braEmails]);
 
       return {ssc, bra};
     },
@@ -42,11 +42,11 @@ export function exportRepairVendorData() {
   const sscEmails = Object.keys(sscVendorsByEmail).map(email => {
     const row =
       sscData.find(
-        ([name, standard, primaryEmail]) =>
+        ([, name, standard, primaryEmail]) =>
           primaryEmail === email && (standard || name)
       ) ?? [];
-    const responsable = row[0] || row[1] || 'VENDOR';
-    const [, , , ...cc] = row;
+    const responsable = row[1] || row[2] || 'VENDOR';
+    const [, , , , ...cc] = row;
 
     return ['SSC', email, responsable, cc.join(',')];
   });
@@ -81,11 +81,11 @@ export function exportRepairVendorData() {
   const braEmails = Object.keys(braVendorsByEmail).map(email => {
     const row =
       braData.find(
-        ([name, standard, primaryEmail]) =>
+        ([, name, standard, primaryEmail]) =>
           primaryEmail === email && (standard || name)
       ) ?? [];
-    const responsable = row[0] || row[1] || 'VENDOR';
-    const [, , , ...cc] = row;
+    const responsable = row[1] || row[2] || 'VENDOR';
+    const [, , , , ...cc] = row;
 
     return ['BRA', email, responsable, cc.join(',')];
   });

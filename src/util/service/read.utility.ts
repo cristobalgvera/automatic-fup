@@ -15,6 +15,7 @@ import {DATA_ORIGIN} from '../enum/data-origin.enum';
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type FilterColumns = {[x: string]: number};
+type SortColumns = {[x: string]: number};
 
 function _getToContactVendors(
   vendorsContact: VendorsContact,
@@ -51,6 +52,7 @@ function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
   const vendorNameColumn = headers.indexOf(DB.COLUMN.VENDOR_NAME);
   const vendorTypeColumn = headers.indexOf(DB.COLUMN.VENDOR_TYPE);
   const vendorZoneColumn = headers.indexOf(DB.COLUMN.VENDOR_ZONE);
+  const vendorCodeColumn = headers.indexOf(DB.COLUMN.VENDOR_CODE);
 
   return groupedVendorsDataRange.reduce((acc: GroupedVendors, vendor) => {
     const vendorType = vendor[vendorTypeColumn];
@@ -59,15 +61,11 @@ function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
 
     const vendorId = vendor[vendorIdColumn];
     const vendorName = vendor[vendorNameColumn];
-
-    const linkedVendorData = [vendorName];
-
-    // If is repair, add his zone as a second array parameter
-    if (dataOrigin === DATA_ORIGIN.REPAIR)
-      linkedVendorData.push(vendor[vendorZoneColumn]);
+    const vendorCode = vendor[vendorCodeColumn];
+    const vendorZone = vendor[vendorZoneColumn];
 
     acc[vendorId] ??= [];
-    acc[vendorId].push(linkedVendorData);
+    acc[vendorId].push([vendorName, vendorCode, vendorZone]);
     return acc;
   }, {});
 }
@@ -79,11 +77,10 @@ function _utilitiesToExtractFupData(
   toFilterVendors: VendorContact[],
   groupedVendors: GroupedVendors,
   filterColumnNumbers: FilterColumns,
-  sortColumnNumber: number,
+  sortColumnNumber: SortColumns,
   filters: RepairFilters | PurchaseFilters,
   headers: HeaderNumber,
-  isPurchase = true,
-  zoneColumnNumber?: number
+  isPurchase = true
 ) {
   const toFilterGroupedVendors = Object.entries(
     toFilterVendors.reduce(
@@ -95,13 +92,31 @@ function _utilitiesToExtractFupData(
     )
   );
 
-  const shouldSendEmailToVendor = (searchedName: string) =>
+  const _getNameAndCodeColumns = (): [number, number] => {
+    const vendorNameColumn = isPurchase
+      ? sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME]
+      : sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+    const vendorCodeColumn = isPurchase
+      ? sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE]
+      : sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
+
+    return [vendorNameColumn, vendorCodeColumn];
+  };
+
+  const shouldSendEmailToVendor = (
+    searchedName: string,
+    searchedCode: string
+  ) =>
     !!toFilterVendors.find(
       vendor =>
-        groupedVendors[vendor.id]?.find(
-          ([name]) =>
-            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase()
-        ) ?? false
+        groupedVendors[vendor.id]?.find(([name, code]) => {
+          const codeMatch =
+            code.toLocaleLowerCase() === searchedCode.toLocaleLowerCase();
+          const nameMatch =
+            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase();
+
+          return codeMatch || nameMatch;
+        }) ?? false
     );
 
   const shouldSendPurchaseOrderToVendor = (row: string[]) => {
@@ -115,13 +130,17 @@ function _utilitiesToExtractFupData(
     return !purchaseOrderService.validateStatus(id);
   };
 
-  const isValidEmail = (searchedName: string) => {
+  const isValidEmail = (searchedName: string, searchedCode: string) => {
     const email = toFilterVendors.find(
       vendor =>
-        !!groupedVendors[vendor.id]?.find(
-          ([name]) =>
-            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase()
-        )
+        !!groupedVendors[vendor.id]?.find(([name, code]) => {
+          const codeMatch =
+            code.toLocaleLowerCase() === searchedCode.toLocaleLowerCase();
+          const nameMatch =
+            name.toLocaleLowerCase() === searchedName.toLocaleLowerCase();
+
+          return codeMatch || nameMatch;
+        })
     )?.email;
 
     return email ? validateEmail(email) : false;
@@ -131,14 +150,23 @@ function _utilitiesToExtractFupData(
     to know when to used it, if has to, compare it with the
     actual zone of DB sheet stored value ['BRA' | 'SSC']
   */
-  const getVendorId = (vendorName: string, vendorZone?: string) => {
+  const getVendorId = (
+    vendorName: string,
+    vendorCode: string,
+    vendorZone?: string
+  ) => {
     const groupedVendor = toFilterGroupedVendors.find(
       vendor =>
-        vendor[1]?.some(
-          ([name, zone]) =>
-            name.toLocaleLowerCase() === vendorName.toLocaleLowerCase() &&
-            (!vendorZone || zone === vendorZone.toLocaleUpperCase())
-        ) ?? false
+        vendor[1]?.some(([name, code, zone]) => {
+          const codeMatch =
+            code.toLocaleLowerCase() === vendorCode.toLocaleLowerCase();
+          const nameMatch =
+            name.toLocaleLowerCase() === vendorName.toLocaleLowerCase();
+          const zoneMatch =
+            !vendorZone || zone === vendorZone.toLocaleUpperCase();
+
+          return (codeMatch || nameMatch) && zoneMatch;
+        }) ?? false
     );
     return groupedVendor ? groupedVendor[0] : null;
   };
@@ -152,7 +180,11 @@ function _utilitiesToExtractFupData(
 
   const byValidZone = (row: string[]) => {
     if ('SYSTEM' in filters)
-      return filters.SYSTEM.includes(row[zoneColumnNumber].toLocaleUpperCase());
+      return filters.SYSTEM.includes(
+        row[
+          filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM]
+        ].toLocaleUpperCase()
+      );
   };
 
   const byResponsible = (row: string[]) => {
@@ -182,24 +214,38 @@ function _utilitiesToExtractFupData(
     }
   };
 
-  const byValidEmail = (row: string[]) =>
-    toFilterVendors.length ? isValidEmail(row[sortColumnNumber]) : false;
+  const byValidEmail = (row: string[]) => {
+    const [vendorNameColumn, vendorCodeColumn] = _getNameAndCodeColumns();
 
-  const bySendEmail = (row: string[]) =>
-    toFilterVendors.length
-      ? shouldSendEmailToVendor(row[sortColumnNumber])
+    return toFilterVendors.length
+      ? isValidEmail(row[vendorNameColumn], row[vendorCodeColumn])
       : false;
+  };
+
+  const bySendEmail = (row: string[]) => {
+    const [vendorNameColumn, vendorCodeColumn] = _getNameAndCodeColumns();
+
+    return toFilterVendors.length
+      ? shouldSendEmailToVendor(row[vendorNameColumn], row[vendorCodeColumn])
+      : false;
+  };
 
   const onVendorId = (acc: GroupedVendors, row: string[]) => {
-    const vendorName = row[sortColumnNumber];
-    const vendorZone = zoneColumnNumber !== undefined && row[zoneColumnNumber];
-    const vendorId = getVendorId(vendorName, vendorZone);
+    const [vendorNameColumn, vendorCodeColumn] = _getNameAndCodeColumns();
+    const vendorZoneColumn =
+      filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM];
+
+    const vendorName = row[vendorNameColumn];
+    const vendorCode = row[vendorCodeColumn];
+    const vendorZone = row[vendorZoneColumn]; // Can be undefined
+
+    const vendorId = getVendorId(vendorName, vendorCode, vendorZone);
 
     if (!vendorId) return acc;
 
     if (!acc[vendorId])
       console.log(
-        `Retrieving '${vendorName} (${vendorId})' info from FUP data`
+        `Retrieving '${vendorName} (${vendorId} - ${vendorCode})' info from FUP data`
       );
 
     acc[vendorId] ??= [];
@@ -387,16 +433,19 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
   );
 
   const filterColumnNumbers: FilterColumns = {};
-  let sortColumnNumber: number;
-  let zoneColumnNumber: number;
+  const sortColumnNumber: SortColumns = {};
 
   switch (dataOrigin) {
     case DATA_ORIGIN.REPAIR:
       filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR] ??=
         headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR];
-      sortColumnNumber =
+      filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM] ??=
+        headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM];
+
+      sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME] =
         headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
-      zoneColumnNumber = headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM];
+      sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE] =
+        headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
       break;
     case DATA_ORIGIN.PURCHASE:
       filterColumnNumbers[
@@ -404,8 +453,11 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
       ] ??= headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL];
       filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK] ??=
         headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK];
-      sortColumnNumber =
+
+      sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME] =
         headerNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+      sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE] =
+        headerNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
       break;
   }
 
@@ -414,7 +466,6 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
     utils: {
       filterColumnNumbers,
       sortColumnNumber,
-      zoneColumnNumber,
       headerNumber,
     },
   };

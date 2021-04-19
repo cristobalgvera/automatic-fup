@@ -28,12 +28,7 @@ function extractRepairDataByVendorName(
 ) {
   const {
     expectedSheet,
-    utils: {
-      filterColumnNumbers,
-      sortColumnNumber,
-      zoneColumnNumber,
-      headerNumber: headers,
-    },
+    utils: {filterColumnNumbers, sortColumnNumber, headerNumber: headers},
   } = _getFupInitialData(DATA_ORIGIN.REPAIR);
   const {groupedVendors, vendorsContact} = _getVendorsNamesByDataOrigin(
     DATA_ORIGIN.REPAIR
@@ -66,8 +61,7 @@ function extractRepairDataByVendorName(
     sortColumnNumber,
     filters,
     headers,
-    false,
-    zoneColumnNumber
+    false
   );
 
   // Filter all vendors to get just the ones that are needed

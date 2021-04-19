@@ -9,7 +9,8 @@ export function validateUsedVendors() {
   const dbVendorNames: string[] = linkedVendorNameSheet
     .getRange(427, 2, linkedVendorNameSheet.getLastRow())
     .getValues()
-    .flat();
+    .flat()
+    .map(v => v.toLocaleLowerCase());
 
   const purchasesSpreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
   const purchasesActualSheet = purchasesSpreadsheet.getSheetByName(
@@ -31,7 +32,7 @@ export function validateUsedVendors() {
     .map(data => data[vendorNameCol]);
 
   const unusedVendorNames = purchasesVendorNames.filter(
-    name => !dbVendorNames.includes(name)
+    name => !dbVendorNames.includes(name.toLocaleLowerCase())
   );
 
   const uniqueUnusedNames = Array.from(new Set(unusedVendorNames), name => [
@@ -43,5 +44,5 @@ export function validateUsedVendors() {
   );
   const sheet = spreadsheet.getSheetByName('OTROS');
 
-  sheet.getRange(2, 2, uniqueUnusedNames.length).setValues(uniqueUnusedNames);
+  sheet.getRange(2, 3, uniqueUnusedNames.length).setValues(uniqueUnusedNames);
 }
