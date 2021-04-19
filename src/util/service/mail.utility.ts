@@ -12,6 +12,7 @@ type Folder = GoogleAppsScript.Drive.Folder;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type GmailMessage = GoogleAppsScript.Gmail.GmailMessage;
 type GmailAttachment = GoogleAppsScript.Gmail.GmailAttachment;
+type HtmlTemplate = GoogleAppsScript.HTML.HtmlTemplate;
 
 // Function to use inside of template html files to modularize responsibilities
 function include(filename: string) {
@@ -21,10 +22,14 @@ function include(filename: string) {
 
 function _sendExcelTo(
   {id, name, email, cc}: VendorContact,
-  attachments: Blob[]
+  attachments: Blob[],
+  isPurchase = true
 ) {
   // Use template html file to write mail
-  const html = HtmlService.createTemplateFromFile('app/assets/mail');
+  let html: HtmlTemplate;
+  if (isPurchase)
+    html = HtmlService.createTemplateFromFile('app/assets/mail-purchase');
+  else html = HtmlService.createTemplateFromFile('app/assets/mail-repair');
 
   // Edit data variable of template html
   html.teamName = name;

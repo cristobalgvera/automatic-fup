@@ -19,12 +19,13 @@ type Folder = GoogleAppsScript.Drive.Folder;
 
 function sendSheetToVendor(
   vendorContact: VendorContact,
-  vendorSpreadsheet: Spreadsheet
+  vendorSpreadsheet: Spreadsheet,
+  isPurchase = true
 ) {
   const vendorExcel = sheetToExcel(vendorSpreadsheet, vendorContact.name);
 
   // Return true or false based on success of email send
-  return _sendExcelTo(vendorContact, [vendorExcel]);
+  return _sendExcelTo(vendorContact, [vendorExcel], isPurchase);
 }
 
 function sendEmail(
@@ -44,7 +45,7 @@ function sendEmail(
   let tries = 1;
   do {
     // Convert spreadsheet into Excel file and send it to vendor
-    id = sendSheetToVendor(vendorContact, vendorSpreadsheet);
+    id = sendSheetToVendor(vendorContact, vendorSpreadsheet, isPurchase);
 
     success = !!id;
     if (success) break;

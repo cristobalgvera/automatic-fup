@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <?!= include('app/assets/styles'); ?>
+  </head>
+
+  <body>
+    <main>
+      <br />
+      <p class="justify-text greetings">
+        Dear
+        <?= teamName ?>
+        Team:
+      </p>
+
+      <p class="justify-text">
+        It is important for LATAM that your company keep us updated on the
+        status of all the open repair orders.
+      </p>
+
+      <p class="justify-text">
+        We will begin to periodically every 15 days send a form (attached) with a
+        LATAM-defined format meant to keep track of our open orders. We ask that
+        you follow the instructions included in the attached file and to keep us
+        informed of the status of our components through this tool.
+      </p>
+
+      <p class="justify-text">
+        Please consider these status to answer and include the required
+        information in each of them:
+      </p>
+      <ul class="list">
+        <li>
+          <strong>Not received:</strong> In case you have not been informed of
+          this order yet.
+        </li>
+        <li>
+          <strong>Core Return:</strong> Include serial number exchange in the
+          comments section.
+        </li>
+        <li>
+          <strong>To be quoted:</strong> In case you have not sent the quote
+          yet. Include the estimated delivery date (format: dd/mm/yyyy).
+        </li>
+        <li>
+          <strong>Awaiting quote approval:</strong> In case LATAM has not
+          approved the quote yet. Include quote number in the comments section.
+        </li>
+        <li>
+          <strong>Awaiting CIA payment:</strong> In case there is a pending CIA
+          payment. Include the invoice number in the comments section.
+        </li>
+        <li>
+          <strong>Under repair process:</strong> In case the material is in your
+          dependencies. Include the estimated delivery date (format:
+          dd/mm/yyyy).
+        </li>
+        <li>
+          <strong>Shipped:</strong> In case you have already sent this material
+          to LATAM. Include the AWB.
+        </li>
+        <li>
+          <strong>Scrapped:</strong> In case the material has been requested to
+          be scrapped on site. Include the scrap certification number in the
+          comments section.
+        </li>
+      </ul>
+
+      <p class="justify-text">
+        We request for your reply to take no longer than 3 working days
+        after receiving the form.
+      </p>
+
+      <p class="justify-text">
+        We trust in your support to help us in our supply chain process
+        and reduce the impact in our passengers.
+      </p>
+
+      <div class="regards">
+        <p class="justify-text">Best regards,</p>
+        <p class="justify-text bold">Supplier Management</p>
+      </div>
+
+      <div class="divisory-line"></div>
+
+      <img
+        src="https://drive.google.com/uc?export=download&id=1jtuEZOX0bsNswbsne_Cdx1MFLM3fbWq_"
+      />
+    </main>
+  </body>
+</html>
