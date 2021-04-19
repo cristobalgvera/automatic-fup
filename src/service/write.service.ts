@@ -3,6 +3,7 @@ import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 import {_getFupInitialData} from '../util/service/read.utility';
+import {_utilitiesToUpdateFupData} from '../util/service/write.utility';
 import {purchaseOrderService} from './purchase-order.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
@@ -56,11 +57,14 @@ function writeInSheet(
 }
 
 function updateFupData() {
-  const [purchases, repairs] = purchaseOrderService.getPurchaseOrdersToUpdate();
-  if (purchases.length) updatePurchases(purchases);
+  const [purchases, repairs] = purchaseOrderService.getToUpdatePurchaseOrders();
+  if (purchases.length) {
+    const updatedPurchases = updatePurchases(purchases);
+    purchaseOrderService.setUpdatedPurchaseOrders(updatedPurchases);
+  }
 }
 
-function updatePurchases(purchases: PurchaseOrder[]) {
+function updatePurchases(purchaseOrders: PurchaseOrder[]) {
   const {
     expectedSheet,
     utils: {headerNumber: headers},
@@ -78,19 +82,16 @@ function updatePurchases(purchases: PurchaseOrder[]) {
 
   const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
 
-  purchases.forEach(
-    ({id, status, esd, shippedDate, qtyShipped, awb, comments}) => {
-      const rowNumber = rowNumberByKey[id.replace('-', '')];
-      if (!rowNumber) return;
-
-      const vendorData = [
-        [status, esd, shippedDate, qtyShipped, awb, comments],
-      ];
-      expectedSheet
-        .getRange(rowNumber, firstColumnToEdit, 1, totalColumns)
-        .setValues(vendorData);
-    }
+  const {
+    actions: {updateSheet},
+  } = _utilitiesToUpdateFupData(
+    expectedSheet,
+    rowNumberByKey,
+    firstColumnToEdit,
+    totalColumns
   );
+
+  return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
 }
 
 function updateRepairs(repairs: PurchaseOrder[]) {

@@ -29,7 +29,8 @@ function getAll(query?: OptQueryParameters): PurchaseOrder[] {
 function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   _setAuditData(purchaseOrder);
   const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${purchaseOrder.id}`;
-  if (!exists(purchaseOrder.id)) return database.setData(url, purchaseOrder);
+  if (!exists(purchaseOrder.id))
+    return database.setData(url, purchaseOrder, {shallow: true});
 
   console.error(alreadyExistMessage(purchaseOrder.id));
   return null;
@@ -40,14 +41,17 @@ function saveAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
 
   const data = purchaseOrders.reduce(_auditingEach, {});
 
-  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data);
+  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data, {
+    shallow: true,
+  });
 }
 
 function updateOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   _setAuditData(purchaseOrder, true);
   const url = `${FIREBASE.PATH.PURCHASE_ORDER.BASE}/${purchaseOrder.id}`;
 
-  if (exists(purchaseOrder.id)) return database.updateData(url, purchaseOrder);
+  if (exists(purchaseOrder.id))
+    return database.updateData(url, purchaseOrder, {shallow: true});
 
   console.error(doNotExistMessage(purchaseOrder.id));
   return null;
@@ -58,7 +62,25 @@ function updateAll(purchaseOrders: PurchaseOrder[]): PurchaseOrderCollection {
 
   const data = purchaseOrders.reduce(_auditingEach, {});
 
-  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data);
+  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data, {
+    shallow: true,
+  });
+}
+
+function updateAllBypassingAudit(
+  purchaseOrders: PurchaseOrder[]
+): PurchaseOrderCollection {
+  if (!purchaseOrders.length) return null;
+  const data = purchaseOrders.reduce(
+    (acc: PurchaseOrderCollection, purchaseOrder) => ({
+      ...acc,
+      [purchaseOrder.id]: purchaseOrder,
+    }),
+    {}
+  );
+  return database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data, {
+    shallow: true,
+  });
 }
 
 function removeOne(id: string): boolean {
@@ -82,7 +104,9 @@ function removeAll(ids: string[]): boolean {
   );
 
   try {
-    database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data);
+    database.updateData(FIREBASE.PATH.PURCHASE_ORDER.BASE, data, {
+      shallow: true,
+    });
     return true;
   } catch (error) {
     console.error(error);
@@ -105,6 +129,7 @@ const _purchaseOrderRepository = {
   removeOne,
   removeAll,
   exists,
+  useCarefully: {updateAllBypassingAudit},
 };
 
 export {_purchaseOrderRepository};

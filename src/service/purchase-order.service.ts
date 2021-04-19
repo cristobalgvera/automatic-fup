@@ -62,7 +62,7 @@ function validateStatus(id: string) {
   }
 }
 
-function getPurchaseOrdersToUpdate(): [PurchaseOrder[], PurchaseOrder[]] {
+function getToUpdatePurchaseOrders(): [PurchaseOrder[], PurchaseOrder[]] {
   const purchaseOrders = purchaseOrderService.getAll({
     orderBy: 'audit/updatedInSheet',
     equalTo: false,
@@ -76,6 +76,12 @@ function getPurchaseOrdersToUpdate(): [PurchaseOrder[], PurchaseOrder[]] {
         ? [[...acc[0], purchaseOrder], [...acc[1]]]
         : [[...acc[0]], [...acc[1], purchaseOrder]],
     [[], []]
+  );
+}
+
+function setUpdatedPurchaseOrders(purchaseOrders: PurchaseOrder[]) {
+  return _purchaseOrderRepository.useCarefully.updateAllBypassingAudit(
+    purchaseOrders
   );
 }
 
@@ -93,7 +99,8 @@ const purchaseOrderService = {
   /**
    * @returns {Array.<PurchaseOrder[]>} Array with two values: [purchases, repairs]
    */
-  getPurchaseOrdersToUpdate,
+  getToUpdatePurchaseOrders,
+  setUpdatedPurchaseOrders,
 };
 
 export {purchaseOrderService};
