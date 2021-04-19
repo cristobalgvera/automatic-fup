@@ -9,6 +9,7 @@ const REPAIR_DATA = {
     RO_NUMBER: 'RO_Number',
     PART_NUMBER: 'PART_NUMBER',
     LINE: '',
+    VENDOR_NAME: 'VENDOR_NAME',
   },
   UTIL: {
     FILTER_COLUMNS: {

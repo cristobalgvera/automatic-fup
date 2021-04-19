@@ -1,4 +1,4 @@
-import {DB, PURCHASE_DATA} from '../../config';
+import {DB, PURCHASE_DATA, REPAIR_DATA} from '../../config';
 
 export function validateUsedVendors() {
   const dbSpreadsheet = SpreadsheetApp.openById(DB.ID);
@@ -7,30 +7,26 @@ export function validateUsedVendors() {
   );
 
   const dbVendorNames: string[] = linkedVendorNameSheet
-    .getRange(2, 2, linkedVendorNameSheet.getLastRow())
+    .getRange(427, 2, linkedVendorNameSheet.getLastRow())
     .getValues()
     .flat();
 
-  const purchasesSpreadsheet = SpreadsheetApp.openById(PURCHASE_DATA.ID);
+  const purchasesSpreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
   const purchasesActualSheet = purchasesSpreadsheet.getSheetByName(
-    PURCHASE_DATA.SHEET.ACTUAL
+    REPAIR_DATA.SHEET.ACTUAL
   );
 
   const purchasesData = purchasesActualSheet.getDataRange().getValues();
   const headers = purchasesData.splice(0, 1)[0];
 
-  const vendorNameCol = headers.indexOf(PURCHASE_DATA.COLUMN.VENDOR_NAME);
-  const ackCol = headers.indexOf(PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK);
-  const fupStatusActualCol = headers.indexOf(
-    PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
+  const hitoRadarCol = headers.indexOf(
+    REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR
   );
+  const vendorNameCol = headers.indexOf(REPAIR_DATA.COLUMN.VENDOR_NAME);
 
   const purchasesVendorNames: string[] = purchasesData
-    .filter(data => PURCHASE_DATA.UTIL.FILTERS.ACK.includes(data[ackCol]))
     .filter(data =>
-      PURCHASE_DATA.UTIL.FILTERS.FUP_STATUS_ACTUAL.includes(
-        data[fupStatusActualCol]
-      )
+      REPAIR_DATA.UTIL.FILTERS.HITO_RADAR.includes(data[hitoRadarCol])
     )
     .map(data => data[vendorNameCol]);
 
@@ -47,5 +43,5 @@ export function validateUsedVendors() {
   );
   const sheet = spreadsheet.getSheetByName('OTROS');
 
-  sheet.getRange(2, 1, uniqueUnusedNames.length).setValues(uniqueUnusedNames);
+  sheet.getRange(2, 2, uniqueUnusedNames.length).setValues(uniqueUnusedNames);
 }
