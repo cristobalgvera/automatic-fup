@@ -13,7 +13,7 @@ import {updateDbSheetSendDates} from './write.service';
 function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn(
     `RETRIEVING VENDORS CONTACTS TO OBTAIN ${
-      isPurchase ? 'COMPRAS' : 'REPARACIONES'
+      isPurchase ? 'PURCHASES' : 'REPAIRS'
     } FUP DATA START`
   );
   const {vendors, headers, vendorsContact} = isPurchase
@@ -21,7 +21,7 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
     : extractRepairDataByVendorName(automatic);
   console.warn(
     `RETRIEVING VENDORS CONTACTS TO OBTAIN ${
-      isPurchase ? 'COMPRAS' : 'REPARACIONES'
+      isPurchase ? 'PURCHASES' : 'REPAIRS'
     } FUP DATA END`
   );
 
