@@ -21,6 +21,8 @@ const REPAIR_DATA = {
       QTY_SHIPPED: 'Qty Shipped',
       AWB: 'AWB',
       COMMENTS: 'Comments',
+      ACTION: 'Action',
+      RESPONSIBLE: 'Responsible',
     },
   },
 };

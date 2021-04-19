@@ -76,7 +76,7 @@ function updatePurchases(purchaseOrders: PurchaseOrder[]) {
   const firstColumnToEdit =
     headers[PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.PO_STATUS] + 1;
   const lastColumnToEdit =
-    headers[PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.COMMENTS] + 1;
+    headers[PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE] + 1;
 
   const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
 
@@ -86,7 +86,8 @@ function updatePurchases(purchaseOrders: PurchaseOrder[]) {
     expectedSheet,
     rowNumberByKey,
     firstColumnToEdit,
-    totalColumns
+    totalColumns,
+    true
   );
 
   return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
