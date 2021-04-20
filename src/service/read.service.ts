@@ -38,6 +38,12 @@ function extractRepairDataByVendorName(
   const toContactVendors = _getToContactVendors(vendorsContact, groupedVendors);
   const toFilterVendors = Object.values(toContactVendors);
 
+  if (
+    !automatic &&
+    _alertVendorsToFilter(groupedVendors, toContactVendors, toFilterVendors)
+  )
+    return {};
+
   const {
     filters: {
       byHitoRadar,
@@ -92,6 +98,12 @@ function extractPurchaseDataByVendorName(
 
   const toContactVendors = _getToContactVendors(vendorsContact, groupedVendors);
   const toFilterVendors = Object.values(toContactVendors);
+
+  if (
+    !automatic &&
+    _alertVendorsToFilter(groupedVendors, toContactVendors, toFilterVendors)
+  )
+    return {};
 
   const {
     filters: {
