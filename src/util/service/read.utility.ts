@@ -111,7 +111,8 @@ function _utilitiesToExtractFupData(
       vendor =>
         groupedVendors[vendor.id]?.find(([name, code]) => {
           const codeMatch =
-            code.toLocaleLowerCase() === searchedCode.toLocaleLowerCase();
+            String(code).toLocaleLowerCase() ===
+            searchedCode.toLocaleLowerCase();
           const nameMatch =
             String(name).toLocaleLowerCase() ===
             searchedName.toLocaleLowerCase();
@@ -136,7 +137,8 @@ function _utilitiesToExtractFupData(
       vendor =>
         !!groupedVendors[vendor.id]?.find(([name, code]) => {
           const codeMatch =
-            code.toLocaleLowerCase() === searchedCode.toLocaleLowerCase();
+            String(code).toLocaleLowerCase() ===
+            searchedCode.toLocaleLowerCase();
           const nameMatch =
             String(name).toLocaleLowerCase() ===
             searchedName.toLocaleLowerCase();
@@ -161,7 +163,7 @@ function _utilitiesToExtractFupData(
       vendor =>
         vendor[1]?.some(([name, code, zone]) => {
           const codeMatch =
-            code.toLocaleLowerCase() === vendorCode.toLocaleLowerCase();
+            String(code).toLocaleLowerCase() === vendorCode.toLocaleLowerCase();
           const nameMatch =
             String(name).toLocaleLowerCase() === vendorName.toLocaleLowerCase();
           const zoneMatch =

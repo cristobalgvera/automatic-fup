@@ -1,5 +1,5 @@
 const COMMON = {
-  DEV_MODE: true,
+  DEV_MODE: false,
   UTIL: {
     LOCALE: 'es-CL',
     FILE_EXTENSION: {
@@ -14,7 +14,7 @@ const COMMON = {
     ],
     TO_COPY: {
       PURCHASES: ['gabatec@lan.com', 'erick.burgoa@latam.com'],
-      REPAIRS: ['marcio.silva02@latam.com'],
+      REPAIRS: ['gruporeparaciones@lanchile.com'],
     },
   },
 };

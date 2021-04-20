@@ -82,12 +82,6 @@ function extractRepairDataByVendorName(
 
   console.log(`TOTAL: ${Object.keys(vendors).length} vendors`);
 
-  if (
-    !automatic &&
-    _alertVendorWithProblems(vendors, toContactVendors, toFilterVendors)
-  )
-    return {};
-
   return {vendors, headers, vendorsContact: toFilterVendors};
 }
 
@@ -147,12 +141,6 @@ function extractPurchaseDataByVendorName(
   );
 
   console.log(`TOTAL: ${Object.keys(vendors).length} vendors`);
-
-  if (
-    !automatic &&
-    _alertVendorWithProblems(vendors, toContactVendors, toFilterVendors)
-  )
-    return {};
 
   return {vendors, headers, vendorsContact: toFilterVendors};
 }

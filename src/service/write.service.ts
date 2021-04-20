@@ -105,6 +105,7 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
     utils: {headerNumber: headers},
   } = _getFupInitialData(DATA_ORIGIN.PURCHASE);
 
+  console.log('Retrieving purchases data');
   const rowNumberByKey: {[name: string]: number} = expectedSheet
     .getRange(1, 1, expectedSheet.getLastRow())
     .getValues()
@@ -127,6 +128,7 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
     true
   );
 
+  console.log('Updating...');
   return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
 }
 
@@ -161,6 +163,7 @@ function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
 
   const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
 
+  console.log('Retrieving purchases data');
   const rowNumberByKey: {[name: string]: number} = sheet
     .getRange(1, keyColumn, sheet.getLastRow())
     .getValues()
@@ -176,6 +179,7 @@ function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
     false
   );
 
+  console.log('Updating...');
   return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
 }
 export {writeInSheet, updateFupData, updateDbSheetSendDates};
