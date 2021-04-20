@@ -1,6 +1,7 @@
 import {ACTION} from '../enum/action.enum';
+import {PO_STATUS} from '../enum/po-status.enum';
 import {RESPONSIBLE} from '../enum/responsible.enum';
-import {PO_STATUS, PurchaseOrder} from '../schema/purchase-order.schema';
+import {PurchaseOrder} from '../schema/purchase-order.schema';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function _utilitiesToUpdateFupData(

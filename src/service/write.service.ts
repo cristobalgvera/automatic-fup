@@ -4,7 +4,7 @@ import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 import {_getFupInitialData} from '../util/service/read.utility';
 import {_utilitiesToUpdateFupData} from '../util/service/write.utility';
-import {purchaseOrderService} from './purchase-order.service';
+import {purchaseOrderService} from './db/purchase-order.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function writeInSheet(

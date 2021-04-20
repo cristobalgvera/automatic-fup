@@ -6,4 +6,9 @@ const database = FirebaseApp.getDatabaseByUrl(
   ScriptApp.getOAuthToken()
 );
 
-export {database};
+const messages = {
+  alreadyExistMessage: (id: string) => `ID: ${id} already exists`,
+  doNotExistMessage: (id: string) => `ID: ${id} don't exists`,
+};
+
+export {database, messages};

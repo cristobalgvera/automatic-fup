@@ -10,7 +10,7 @@ import {
   validateEmail,
 } from '../../service/utility.service';
 import {getVendorsContact} from '../../service/read.service';
-import {purchaseOrderService} from '../../service/purchase-order.service';
+import {purchaseOrderService} from '../../service/db/purchase-order.service';
 import {DATA_ORIGIN} from '../enum/data-origin.enum';
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;

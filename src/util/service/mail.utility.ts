@@ -7,6 +7,7 @@ import {
   obtainEmail,
   validateEmail,
 } from '../../service/utility.service';
+import {mailRecordService} from '../../service/db/mail-record.service';
 type Blob = GoogleAppsScript.Base.Blob;
 type Folder = GoogleAppsScript.Drive.Folder;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -45,7 +46,7 @@ function _sendExcelTo(
 
   let copyTo: string;
 
-  if (!COMMON.DEV_MODE)
+  if (!COMMON.DEV_MODE())
     copyTo = isPurchase
       ? COMMON.EMAIL.TO_COPY.PURCHASES.join(',')
       : COMMON.EMAIL.TO_COPY.REPAIRS.join(',');
@@ -81,31 +82,47 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
   const byIsVendorData = (message: GmailMessage) =>
     !COMMON.EMAIL.LATAM_SENDERS.includes(obtainEmail(message.getFrom()));
 
-  const generateSpreadsheets = (message: GmailMessage, mailFolder: Folder) =>
-    message
-      .getAttachments()
-      .filter(byXlsxFiles)
-      .reduce(
-        (acc, attachment) => {
-          console.log(
-            `Getting info from '${message.getSubject()}' sended by '${message.getFrom()}' on '${message
-              .getDate()
-              .toISOString()}'`
-          );
+  const byAlreadyRead = (message: GmailMessage) =>
+    !mailRecordService.existsById(message.getId());
 
-          const {email, isValid, spreadsheet} = _createAndFilterSpreadsheet(
-            message,
-            mailFolder,
-            attachment,
-            invalidStructureFolder
-          );
+  const generateSpreadsheets = (message: GmailMessage, mailFolder: Folder) => {
+    // Can be 'XXXXXX<mail@domain>' or 'mail@domain' format
+    const from = message.getFrom();
 
-          return {
-            [email]: isValid ? acc[email].concat(spreadsheet) : acc[email],
-          };
-        },
-        {[obtainEmail(message.getFrom())]: []} as ByEmailSpreadsheets
-      );
+    const generatedSpreadsheets =
+      !COMMON.DEV_MODE() &&
+      message
+        .getAttachments()
+        .filter(byXlsxFiles)
+        .reduce(
+          (acc, attachment) => {
+            console.log(
+              `Getting info from '${message.getSubject()}' sended by '${from}' on '${message
+                .getDate()
+                .toISOString()}'`
+            );
+
+            const {email, isValid, spreadsheet} = _createAndFilterSpreadsheet(
+              message,
+              mailFolder,
+              attachment,
+              invalidStructureFolder
+            );
+
+            return {
+              [email]: isValid ? acc[email].concat(spreadsheet) : acc[email],
+            };
+          },
+          {[obtainEmail(message.getFrom())]: []} as ByEmailSpreadsheets
+        );
+
+    mailRecordService.saveOne({
+      mailId: message.getId(),
+      vendorEmail: obtainEmail(from) || 'EMAIL_NOT_FOUND',
+    });
+
+    return generatedSpreadsheets || [];
+  };
 
   const groupByVendorEmail = (
     attachmentAcc: ByEmailSpreadsheets,
@@ -145,7 +162,7 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
     );
 
   return {
-    filters: {byIncludeAttachments, byIsVendorData},
+    filters: {byIncludeAttachments, byIsVendorData, byAlreadyRead},
     reducers: {groupByVendorEmail},
     actions: {generateSpreadsheets},
     extras: {tempFolder, invalidStructureFolder},

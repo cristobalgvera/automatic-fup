@@ -85,7 +85,7 @@ function getOpenOrdersFromVendors(after?: string) {
   // const query = `from:(${email}) filename:${COMMON.UTIL.FILE_EXTENSION.XLSX} after:${after}`;
 
   const {
-    filters: {byIncludeAttachments, byIsVendorData},
+    filters: {byIncludeAttachments, byIsVendorData, byAlreadyRead},
     reducers: {groupByVendorEmail},
     actions: {generateSpreadsheets},
     extras: {tempFolder, invalidStructureFolder},
@@ -100,6 +100,7 @@ function getOpenOrdersFromVendors(after?: string) {
       .getMessages()
       .filter(byIsVendorData)
       .filter(byIncludeAttachments)
+      .filter(byAlreadyRead)
       .map(message => generateSpreadsheets(message, mailFolder));
   });
 
@@ -137,7 +138,7 @@ function getOpenOrdersFromVendors(after?: string) {
   // data will be sended to trash from Drive
   tempFolder.setTrashed(true);
 
-  evaluateByEmailSpreadsheets(spreadsheetsByVendor);
+  if (!COMMON.DEV_MODE()) evaluateByEmailSpreadsheets(spreadsheetsByVendor);
 }
 
 export {sendSheetToVendor, sendEmail, getOpenOrdersFromVendors};

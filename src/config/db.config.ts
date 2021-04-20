@@ -17,6 +17,7 @@ const DB = {
     VENDOR_ZONE: 'Zone',
     SEND_DATE: 'Send date',
     VENDOR_CODE: 'Code',
+    DEV_MODE: 'DEV MODE',
   },
 };
 

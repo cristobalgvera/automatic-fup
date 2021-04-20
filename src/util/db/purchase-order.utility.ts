@@ -5,7 +5,7 @@ import {
   generatePurchaseOrderId,
   isValidDate,
 } from '../../service/utility.service';
-import {PurchaseOrderCollection} from '../schema/purchase-order-collection.schema';
+import {PurchaseOrderCollection} from '../schema/collection/purchase-order-collection.schema';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
 
 export type PurchaseOrderNoAudited = Omit<PurchaseOrder, 'audit'>;

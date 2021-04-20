@@ -61,6 +61,10 @@ function validateEmail(email: string) {
 function obtainEmail(sender: string) {
   const start = sender.lastIndexOf('<') + 1;
   const end = sender.lastIndexOf('>');
+
+  // If no '<' was found, 'start' will be 0 (-1 + 1)
+  if (!start) return sender;
+
   return sender.substring(start, end);
 }
 

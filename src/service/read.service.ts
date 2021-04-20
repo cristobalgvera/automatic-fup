@@ -8,7 +8,7 @@ import {GroupedVendors} from '../util/interface/grouped-vendors.interface';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {toCamelCase} from './utility.service';
 import {ByEmailSpreadsheets} from '../util/interface/by-email-spreadsheets.interface';
-import {purchaseOrderService} from './purchase-order.service';
+import {purchaseOrderService} from './db/purchase-order.service';
 import {
   _getFupInitialData,
   _getVendorsNamesByDataOrigin,
@@ -16,7 +16,6 @@ import {
   _utilitiesToExtractFupData,
   _getUtilitiesToEvaluateEmails,
   _alertVendorsToFilter,
-  _alertVendorWithProblems,
 } from '../util/service/read.utility';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 
@@ -178,7 +177,7 @@ function getVendorsContact(
   dataOrigin?: DATA_ORIGIN
 ): VendorsContact {
   const vendorsDataDataRange: string[][] = db
-    .getSheetByName(COMMON.DEV_MODE ? DB.SHEET.DEV : DB.SHEET.VENDOR)
+    .getSheetByName(COMMON.DEV_MODE() ? DB.SHEET.DEV : DB.SHEET.VENDOR)
     .getDataRange()
     .getValues();
   const headers = vendorsDataDataRange.splice(0, 1)[0].map(toCamelCase);

@@ -1,5 +1,6 @@
-import {_purchaseOrderRepository} from '../db/purchase-order.repository';
-import {PO_STATUS, PurchaseOrder} from '../util/schema/purchase-order.schema';
+import {_purchaseOrderRepository} from '../../db/purchase-order.repository';
+import {PO_STATUS} from '../../util/enum/po-status.enum';
+import {PurchaseOrder} from '../../util/schema/purchase-order.schema';
 
 function exists(id: string) {
   return _purchaseOrderRepository.exists(id);

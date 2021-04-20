@@ -1,15 +1,12 @@
-import {database} from '.';
+import {database, messages} from '.';
 import {FIREBASE} from '../config';
 import {
   _auditingEach,
   _convertProperties,
   _setAuditData,
 } from '../util/db/purchase-order.utility';
-import {PurchaseOrderCollection} from '../util/schema/purchase-order-collection.schema';
+import {PurchaseOrderCollection} from '../util/schema/collection/purchase-order-collection.schema';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
-
-const alreadyExistMessage = (id: string) => `ID: ${id} already exists`;
-const doNotExistMessage = (id: string) => `ID: ${id} don't exists`;
 
 function getOne(id: string): PurchaseOrder {
   const purchaseOrder: PurchaseOrder = database.getData(
@@ -34,7 +31,7 @@ function saveOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   if (!exists(purchaseOrder.id))
     return database.setData(url, purchaseOrder, {shallow: true});
 
-  console.error(alreadyExistMessage(purchaseOrder.id));
+  console.error(messages.alreadyExistMessage(purchaseOrder.id));
   return null;
 }
 
@@ -55,7 +52,7 @@ function updateOne(purchaseOrder: PurchaseOrder): PurchaseOrder {
   if (exists(purchaseOrder.id))
     return database.updateData(url, purchaseOrder, {shallow: true});
 
-  console.error(doNotExistMessage(purchaseOrder.id));
+  console.error(messages.doNotExistMessage(purchaseOrder.id));
   return null;
 }
 
@@ -93,7 +90,7 @@ function removeOne(id: string): boolean {
     return true;
   }
 
-  console.error(doNotExistMessage(id));
+  console.error(messages.doNotExistMessage(id));
   return false;
 }
 
