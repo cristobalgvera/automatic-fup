@@ -181,6 +181,8 @@ function getVendorsContact(
     .getDataRange()
     .getValues();
   const headers = vendorsDataDataRange.splice(0, 1)[0].map(toCamelCase);
+  const empty = headers.indexOf('');
+  if (empty !== -1) headers.splice(empty);
   const idColumn = headers.indexOf(toCamelCase(DB.COLUMN.ID));
   const typeColumn = headers.indexOf(toCamelCase(DB.COLUMN.VENDOR_TYPE));
 
