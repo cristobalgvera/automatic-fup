@@ -63,7 +63,7 @@ const UI = {
   },
   MAIL: {
     subject: (vendorName: string) =>
-      `[${vendorName}] Status - Open Orders ${todayNoYear()}`,
+      `Status - Open Orders ${todayNoYear()}: ${vendorName}`,
     REPLY_TO: '',
     NAME: 'LATAM Airlines',
   },

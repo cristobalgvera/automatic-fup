@@ -22,7 +22,7 @@ function _utilitiesToUpdateFupData(
       purchaseOrder: order,
       line,
     } = purchaseOrder;
-    const rowNumber = rowNumberByKey[id];
+    const rowNumber = rowNumberByKey[isPurchase ? id : order];
     if (!rowNumber) {
       console.error(
         `'Not found PO: ${id} (${order}-${line ?? 1})' in ${

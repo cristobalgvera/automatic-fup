@@ -43,8 +43,10 @@ function _sendExcelTo(
 
   const to = validCcEmails ? `${email},${validCcEmails}` : email;
 
-  const copyTo =
-    !COMMON.DEV_MODE && isPurchase
+  let copyTo: string;
+
+  if (!COMMON.DEV_MODE)
+    copyTo = isPurchase
       ? COMMON.EMAIL.TO_COPY.PURCHASES.join(',')
       : COMMON.EMAIL.TO_COPY.REPAIRS.join(',');
 

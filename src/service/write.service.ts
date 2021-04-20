@@ -91,12 +91,12 @@ function updateFupData() {
     console.warn('UPDATING OPEN ORDERS OF PURCHASES DATA END');
   }
 
-  // if (repairs.length) {
-  //   console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA START');
-  //   const updatedRepairs = _updateRepairs(repairs);
-  //   purchaseOrderService.setUpdatedPurchaseOrders(updatedRepairs);
-  //   console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA END');
-  // }
+  if (repairs.length) {
+    console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA START');
+    const updatedRepairs = _updateRepairs(repairs);
+    purchaseOrderService.setUpdatedPurchaseOrders(updatedRepairs);
+    console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA END');
+  }
 }
 
 function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
