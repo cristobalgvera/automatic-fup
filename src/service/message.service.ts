@@ -79,7 +79,7 @@ function tryingToGetOpenOrdersFrom(email: string) {
 }
 
 function noNewEmailsWasFound() {
-  return 'No new emails was found';
+  return 'No new emails found';
 }
 
 function gettingInfoFrom(message: GmailMessage, from: string) {
