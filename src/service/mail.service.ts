@@ -92,9 +92,9 @@ function getOpenOrdersFromVendors(after?: string) {
   } = _getUtilitiesToFilterEmails(folder);
 
   // Get list of all attachments where filter condition is true
+  // and an action to store it in Firebase
   // This method take a lot of time to execute, should be optimized
-  const attachments = GmailApp.search(query).map(mail => {
-    console.log(`First message subject '${mail.getFirstMessageSubject()}'`);
+  const results = GmailApp.search(query).map(mail => {
     const mailFolder = tempFolder.createFolder(mail.getFirstMessageSubject());
     return mail
       .getMessages()
@@ -104,8 +104,17 @@ function getOpenOrdersFromVendors(after?: string) {
       .map(message => generateSpreadsheets(message, mailFolder));
   });
 
+  const [saveActions, attachments] = results.flat().reduce(
+    (acc, [action, attachment]) => {
+      const actions = acc[0].concat(action);
+      const attachments = acc[1].concat(attachment);
+      return [actions, attachments];
+    },
+    [[], []] as [(() => void)[], ByEmailSpreadsheets[]]
+  );
+
   // Get all attachments grouped by sender email in an object
-  const attachmentsByVendor = attachments.reduce(groupByVendorEmail, {});
+  const attachmentsByVendor = [attachments].reduce(groupByVendorEmail, {});
 
   // In case all files extracted are readable, delete unreadable files store folder
   if (!invalidStructureFolder.getFiles().hasNext())
@@ -138,7 +147,8 @@ function getOpenOrdersFromVendors(after?: string) {
   // data will be sended to trash from Drive
   tempFolder.setTrashed(true);
 
-  if (!COMMON.DEV_MODE()) evaluateByEmailSpreadsheets(spreadsheetsByVendor);
+  if (!COMMON.DEV_MODE())
+    evaluateByEmailSpreadsheets(spreadsheetsByVendor, saveActions);
 }
 
 export {sendSheetToVendor, sendEmail, getOpenOrdersFromVendors};

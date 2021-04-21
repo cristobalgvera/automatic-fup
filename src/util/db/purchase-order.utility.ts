@@ -1,11 +1,11 @@
 import {FIREBASE} from '../../config';
 import {database} from '../../db';
+import {PurchaseOrderCollection} from '../schema/collection/purchase-order-collection.schema';
 import {
   cleanUpUndefined,
   generatePurchaseOrderId,
   isValidDate,
 } from '../../service/utility.service';
-import {PurchaseOrderCollection} from '../schema/collection/purchase-order-collection.schema';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
 
 export type PurchaseOrderNoAudited = Omit<PurchaseOrder, 'audit'>;
@@ -46,6 +46,10 @@ function _convertProperties(purchaseOrder: PurchaseOrder) {
     ? +purchaseOrder.qtyShipped
     : undefined;
   purchaseOrder.qtyShipped === undefined && delete purchaseOrder.qtyShipped;
+
+  purchaseOrder.qtyPending = purchaseOrder.qtyPending
+    ? +purchaseOrder.qtyPending
+    : undefined;
 
   purchaseOrder.esd = isValidDate(new Date(purchaseOrder.esd));
   purchaseOrder.shippedDate = isValidDate(new Date(purchaseOrder.shippedDate));

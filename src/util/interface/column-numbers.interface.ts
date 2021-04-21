@@ -1,8 +1,10 @@
 export interface ColumnNumbers {
-  templateLineColumn: number;
-  partNumberColumn: number;
-  templatePartNumberColumn: number;
   templatePurchaseOrderColumn: number;
-  lineColumn: number;
+  templatePartNumberColumn: number;
+  templateLineColumn?: number;
+  templateQtdPendenteColumn?: number;
   roNumberColumn: number;
+  partNumberColumn: number;
+  lineColumn?: number;
+  qtdPendenteColumn?: number;
 }

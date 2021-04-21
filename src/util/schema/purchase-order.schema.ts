@@ -11,6 +11,7 @@ export interface PurchaseOrder {
   esd?: Date;
   shippedDate?: Date;
   qtyShipped?: number;
+  qtyPending?: number;
   awb?: string;
   comments?: string;
   audit?: Audit;

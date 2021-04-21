@@ -17,7 +17,6 @@ const REPAIR_DATA = {
   COLUMN: {
     RO_NUMBER: 'RO_Number',
     PART_NUMBER: 'PART_NUMBER',
-    LINE: '',
     VENDOR_NAME: 'VENDOR_NAME',
     VENDOR_CODE: 'VENDOR_CODE',
   },

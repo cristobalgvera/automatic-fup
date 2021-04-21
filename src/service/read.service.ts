@@ -160,15 +160,18 @@ function getColumnNumbers(
     templatePartNumberColumn:
       templateHeaders.indexOf(TEMPLATE.COLUMN.PART_NUMBER) + 1,
     templateLineColumn: templateHeaders.indexOf(TEMPLATE.COLUMN.LINE) + 1,
+    templateQtdPendenteColumn:
+      templateHeaders.indexOf(TEMPLATE.COLUMN.QTY_PENDING) + 1,
     roNumberColumn: isPurchase
       ? headers[PURCHASE_DATA.COLUMN.RO_NUMBER]
       : headers[REPAIR_DATA.COLUMN.RO_NUMBER],
     partNumberColumn: isPurchase
       ? headers[PURCHASE_DATA.COLUMN.PART_NUMBER]
       : headers[REPAIR_DATA.COLUMN.PART_NUMBER],
-    lineColumn: isPurchase
-      ? headers[PURCHASE_DATA.COLUMN.LINE]
-      : headers[REPAIR_DATA.COLUMN.LINE],
+    lineColumn: isPurchase ? headers[PURCHASE_DATA.COLUMN.LINE] : undefined,
+    qtdPendenteColumn: isPurchase
+      ? headers[PURCHASE_DATA.COLUMN.QTD_PENDENTE]
+      : undefined,
   };
 }
 
@@ -204,7 +207,10 @@ function getVendorsContact(
   }, {} as VendorsContact);
 }
 
-function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
+function evaluateByEmailSpreadsheets(
+  byEmailSpreadsheets: ByEmailSpreadsheets,
+  saveActions: (() => void)[]
+) {
   const db = SpreadsheetApp.openById(DB.ID);
   const data = Object.entries(byEmailSpreadsheets);
   const vendorsContact = getVendorsContact(db);
@@ -235,6 +241,7 @@ function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {
     []
   );
 
+  saveActions.forEach(action => action());
   purchaseOrderService.saveAll(purchaseOrders);
 }
 

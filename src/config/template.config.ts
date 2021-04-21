@@ -21,6 +21,7 @@ const TEMPLATE = {
     PURCHASE_ORDER: 'Purchase Order',
     PART_NUMBER: 'Part Number',
     LINE: 'Line',
+    QTY_PENDING: 'Qty Pending',
   },
   UTIL: {
     LEFT_MOST_COLUMN: 'Comments',
@@ -35,6 +36,7 @@ const TEMPLATE = {
       esd: 'ESD (DD/MM/YYYY)',
       shippedDate: 'Shipped Date (DD/MM/YYYY)',
       qtyShipped: 'Qty Shipped',
+      qtyPending: 'Qty Pending',
       awb: 'AWB',
       comments: 'Comments',
     },

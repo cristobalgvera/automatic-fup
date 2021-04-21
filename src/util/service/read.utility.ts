@@ -316,6 +316,7 @@ function _getUtilitiesToEvaluateEmails() {
       esd: row[headerNumbers.esd] || null,
       shippedDate: row[headerNumbers.shippedDate] || null,
       qtyShipped: row[headerNumbers.qtyShipped] || null,
+      qtyPending: row[headerNumbers.qtyPending] || null,
       awb: row[headerNumbers.awb] || null,
       comments: row[headerNumbers.comments] || null,
       audit: {

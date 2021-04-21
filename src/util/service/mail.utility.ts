@@ -85,7 +85,10 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
   const byAlreadyRead = (message: GmailMessage) =>
     !mailRecordService.existsById(message.getId());
 
-  const generateSpreadsheets = (message: GmailMessage, mailFolder: Folder) => {
+  const generateSpreadsheets = (
+    message: GmailMessage,
+    mailFolder: Folder
+  ): [() => void, ByEmailSpreadsheets] => {
     // Can be 'XXXXXX<mail@domain>' or 'mail@domain' format
     const from = message.getFrom();
 
@@ -116,12 +119,13 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
           {[obtainEmail(message.getFrom())]: []} as ByEmailSpreadsheets
         );
 
-    mailRecordService.saveOne({
-      mailId: message.getId(),
-      vendorEmail: obtainEmail(from) || 'EMAIL_NOT_FOUND',
-    });
+    const saveRecordAction = () =>
+      mailRecordService.saveOne({
+        mailId: message.getId(),
+        vendorEmail: obtainEmail(from) || 'EMAIL_NOT_FOUND',
+      });
 
-    return generatedSpreadsheets || [];
+    return [saveRecordAction, generatedSpreadsheets];
   };
 
   const groupByVendorEmail = (
