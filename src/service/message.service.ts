@@ -1,3 +1,4 @@
+import {COMMON} from '../config';
 import {LOG_STATE} from '../util/enum/log-state.enum';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
@@ -155,6 +156,12 @@ function disabledDueDevMode() {
   return 'THIS FUNCTION WAS DISABLED DUE DEV MODE IS ACTIVE';
 }
 
+function serviceDisabled(start?: number, end?: number) {
+  return `Service is disable between ${
+    start ?? COMMON.UTIL.WORKING_HOURS.MIN
+  } and ${end ?? COMMON.UTIL.WORKING_HOURS.MAX} hours and weekends`;
+}
+
 export {
   retrievingContacts,
   folderCreation,
@@ -184,4 +191,5 @@ export {
   tryingToGetOpenOrdersFrom,
   noNewEmailsWasFound,
   disabledDueDevMode,
+  serviceDisabled,
 };

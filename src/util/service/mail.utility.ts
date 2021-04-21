@@ -3,7 +3,7 @@ import {ByEmailSpreadsheets} from '../interface/by-email-spreadsheets.interface'
 import {VendorContact} from '../interface/vendor-contact.interface';
 import {excelToSheet} from '../../service/drive.service';
 import {
-  getSeparatedDate,
+  getDateUtilities,
   obtainEmail,
   validateEmail,
 } from '../../service/utility.service';
@@ -250,7 +250,9 @@ function _setAfterDate(daysAgo?: number) {
   const after = new Date();
   after.setDate(after.getDate() - (daysAgo ?? 1));
 
-  const {year, month, day} = getSeparatedDate(after);
+  const {
+    separated: {year, month, day},
+  } = getDateUtilities(after);
 
   return `${year}/${month}/${day}`;
 }

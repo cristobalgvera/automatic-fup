@@ -136,23 +136,53 @@ function cleanse<T>(obj: T): T {
   return obj;
 }
 
-function getSeparatedDate(date?: Date) {
+function getDateUtilities(date?: Date) {
   const now = date ?? new Date();
   const iso = now.toISOString();
-  const [year, month, day, hour, minute, second, millisecond] = iso.split(
-    /[-TZ:.]/
-  );
+
+  const locale = now.toLocaleString();
+  const [localeDate, localeTime] = locale.split(' ');
+  const [namedDay, namedMonth, , , , timeZone] = now.toString().split(' ');
+
+  const [day, month, year, hour, minute, second] = locale
+    .split(/[/ :]/)
+    .map(Number);
+
+  const dayOfWeek = now.getDay();
+  const isWeekend = dayOfWeek % 6 === 0;
+
   return {
     now,
-    iso,
-    year,
-    month,
-    day,
-    hour,
-    minute,
-    second,
-    millisecond,
+    formatted: {iso, localeTime, localeDate},
+    separated: {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      timeZone,
+    },
+    utilities: {
+      dayOfWeek,
+      namedDay,
+      namedMonth,
+      isWeekend,
+    },
   };
+}
+
+function validWorkingHours() {
+  const {
+    separated: {hour},
+    utilities: {isWeekend},
+  } = getDateUtilities();
+
+  const validHour =
+    hour >= COMMON.UTIL.WORKING_HOURS.MIN &&
+    hour <= COMMON.UTIL.WORKING_HOURS.MAX;
+
+  return !isWeekend && validHour;
 }
 
 function notifyDevMode(automatic?: boolean) {
@@ -183,6 +213,7 @@ export {
   normalizeStringEmailsList,
   isValidDate,
   cleanUpUndefined,
-  getSeparatedDate,
+  getDateUtilities,
   notifyDevMode,
+  validWorkingHours,
 };

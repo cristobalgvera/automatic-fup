@@ -13,6 +13,10 @@ const COMMON = {
     FILE_EXTENSION: {
       XLSX: 'xlsx',
     },
+    WORKING_HOURS: {
+      MIN: 7,
+      MAX: 21,
+    },
   },
   EMAIL: {
     LATAM_SENDERS: [

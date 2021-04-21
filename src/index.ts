@@ -8,11 +8,12 @@ import {
   filterRepairVendorData,
 } from './util/one-time';
 import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
-import {notifyDevMode} from './service/utility.service';
+import {notifyDevMode, validWorkingHours} from './service/utility.service';
 import {checkWorker} from './service/config.service';
 import {
   automaticSendDisabled,
   disabledDueDevMode,
+  serviceDisabled,
 } from './service/message.service';
 
 /****************************************************************
@@ -90,8 +91,17 @@ function getOpenOrdersDevMode() {
 
 // To be automatic
 function updateOpenOrders() {
-  if (!COMMON.DEV_MODE()) updateFupData();
-  else console.warn(disabledDueDevMode());
+  if (COMMON.DEV_MODE()) {
+    console.warn(disabledDueDevMode());
+    return;
+  }
+
+  if (!validWorkingHours()) {
+    console.warn(serviceDisabled());
+    return;
+  }
+
+  updateFupData();
 }
 
 function filterPurchaseVendors() {
