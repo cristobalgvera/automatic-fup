@@ -20,6 +20,10 @@ const DB = {
     AUTOMATICALLY_SEND_EMAIL: 'Automatically send email',
     DEV_MODE: 'DEV MODE',
   },
+  UTIL: {
+    VENDORS_TO_TAKE: 50,
+    MAX_VENDORS_TO_TAKE: 58,
+  },
 };
 
 export {DB};

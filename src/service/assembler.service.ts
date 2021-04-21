@@ -61,7 +61,10 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn('EMAIL SENDING END');
 
   console.warn('UPDATE DB SHEET SEND DATE START');
-  updateDbSheetSendDates(mailedIds);
+  updateDbSheetSendDates(
+    mailedIds,
+    isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
+  );
   console.warn('UPDATE DB SHEET SEND DATE END');
 }
 

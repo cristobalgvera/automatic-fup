@@ -26,17 +26,25 @@ function _getToContactVendors(
     VendorContact
   ]) => sendEmail && automaticallySendEmail;
 
-  return Object.entries(vendorsContact)
-    .filter(bySendEmailAutomatically)
-    .slice(0, 50)
-    .reduce((acc, vendorContact) => {
-      const [vendorId, contact] = vendorContact;
+  const entries = Object.entries(vendorsContact).filter(
+    bySendEmailAutomatically
+  );
 
-      if (!groupedVendors[vendorId]) return acc;
+  const allEntries = entries.length;
 
-      acc[vendorId] = contact;
-      return acc;
-    }, {} as VendorsContact);
+  const vendorsToTake =
+    allEntries <= DB.UTIL.MAX_VENDORS_TO_TAKE
+      ? allEntries
+      : DB.UTIL.VENDORS_TO_TAKE;
+
+  return entries.slice(0, vendorsToTake).reduce((acc, vendorContact) => {
+    const [vendorId, contact] = vendorContact;
+
+    if (!groupedVendors[vendorId]) return acc;
+
+    acc[vendorId] = contact;
+    return acc;
+  }, {} as VendorsContact);
 }
 
 function _getVendorsNamesByDataOrigin(dataOrigin: DATA_ORIGIN) {

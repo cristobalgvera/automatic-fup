@@ -54,35 +54,104 @@ function writeInSheet(
   SpreadsheetApp.flush();
 }
 
-function updateDbSheetSendDates(ids: string[], when?: Date) {
+function updateDbSheetSendDates(
+  ids: string[],
+  dataOrigin: DATA_ORIGIN,
+  when?: Date
+) {
   const spreadsheet = SpreadsheetApp.openById(DB.ID);
   const sheet = spreadsheet.getSheetByName(
     !COMMON.DEV_MODE() ? DB.SHEET.VENDOR : DB.SHEET.DEV
   );
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
 
-  const sendDateColumn = headers.indexOf(DB.COLUMN.SEND_DATE) + 1;
-  const automaticallySendEmailColumn =
-    headers.indexOf(DB.COLUMN.AUTOMATICALLY_SEND_EMAIL) + 1;
+  const sendDateColumn = headers.indexOf(DB.COLUMN.SEND_DATE);
+  const automaticallySendEmailColumn = headers.indexOf(
+    DB.COLUMN.AUTOMATICALLY_SEND_EMAIL
+  );
 
-  const dbIds = sheet
-    .getRange(1, 1, sheet.getLastRow())
-    .getValues()
-    .reduce((acc, [key], i) => ({...acc, [key]: i + 1}), {});
+  const data: (
+    | string
+    | boolean
+    | Date
+    | number
+  )[][] = sheet.getDataRange().getValues();
+
+  const dbIds = data.reduce(
+    (acc, [key], i) => ({...acc, [String(key)]: i}),
+    {}
+  );
 
   const updateDate = when ?? new Date();
 
+  console.log('Updating send date...');
   ids.forEach(id => {
     const rowNumber = dbIds[id];
-    if (!rowNumber) {
+    if (!rowNumber && rowNumber !== 0) {
       console.error(`Error while updating send date of ${id}: ID not found`);
       return null;
     }
 
-    console.log(`Updating ${id} send date`);
-    sheet.getRange(rowNumber, sendDateColumn).setValue(updateDate);
-    sheet.getRange(rowNumber, automaticallySendEmailColumn).uncheck();
+    data[rowNumber][sendDateColumn] = updateDate;
+    data[rowNumber][automaticallySendEmailColumn] = false;
   });
+
+  SpreadsheetApp.flush();
+
+  updateAutomaticallySendEmailColumn(
+    sheet,
+    dataOrigin,
+    data,
+    dbIds,
+    automaticallySendEmailColumn
+  );
+}
+
+function updateAutomaticallySendEmailColumn(
+  sheet: Sheet,
+  dataOrigin: DATA_ORIGIN,
+  data: (string | boolean | Date | number)[][],
+  dbIds?: {},
+  automaticallySendEmailColumn?: number
+) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+  const typeColumn = headers.indexOf(DB.COLUMN.VENDOR_TYPE);
+  const toCheckColumn =
+    automaticallySendEmailColumn ??
+    headers.indexOf(DB.COLUMN.AUTOMATICALLY_SEND_EMAIL);
+
+  const needUpdate = data
+    .filter(row => row[typeColumn] === dataOrigin)
+    .every(row => !row[toCheckColumn]);
+
+  if (!needUpdate) {
+    sheet.getDataRange().setValues(data);
+    return;
+  }
+
+  console.log('Automatically send column are empty, filling...');
+  console.warn('FILLING AUTOMATICALLY SEND EMAIL COLUMN START');
+  const idColumn = headers.indexOf(DB.COLUMN.ID);
+  const ids =
+    dbIds ?? data.reduce((acc, [key], i) => ({...acc, [String(key)]: i}), {});
+
+  data.forEach(row => {
+    const correctDataOrigin = row[typeColumn] === dataOrigin;
+    if (!correctDataOrigin) return;
+
+    const id = row[idColumn] as string;
+    const rowNumber = ids[id];
+    if (!rowNumber && rowNumber !== 0) {
+      console.error(`Error while checking ${id}: ID not found`);
+      return;
+    }
+
+    row[toCheckColumn] = true;
+  });
+
+  sheet.getDataRange().setValues(data);
+  console.warn('FILLING AUTOMATICALLY SEND EMAIL COLUMN START');
 }
 
 function updateFupData() {
