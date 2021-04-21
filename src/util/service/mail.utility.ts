@@ -123,13 +123,13 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
           {[obtainEmail(message.getFrom())]: []} as ByEmailSpreadsheets
         );
 
-    const saveRecordAction = () =>
+    const createMailRecordAction = () =>
       mailRecordService.saveOne({
         mailId: message.getId(),
         vendorEmail: obtainEmail(from) || NOT_FOUND.VENDOR_EMAIL,
       });
 
-    return [saveRecordAction, generatedSpreadsheets];
+    return [createMailRecordAction, generatedSpreadsheets];
   };
 
   const groupByVendorEmail = (

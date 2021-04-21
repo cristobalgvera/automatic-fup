@@ -111,7 +111,7 @@ function getOpenOrdersFromVendors(after?: string) {
       .map(message => generateSpreadsheets(message, mailFolder));
   });
 
-  const [saveActions, attachments] = results.flat().reduce(
+  const [createMailRecordActions, attachments] = results.flat().reduce(
     (acc, [action, attachment]) => {
       const actions = acc[0].concat(action);
       const attachments = acc[1].concat(attachment);
@@ -157,7 +157,7 @@ function getOpenOrdersFromVendors(after?: string) {
   tempFolder.setTrashed(true);
 
   if (!COMMON.DEV_MODE())
-    evaluateByEmailSpreadsheets(spreadsheetsByVendor, saveActions);
+    evaluateByEmailSpreadsheets(spreadsheetsByVendor, createMailRecordActions);
 }
 
 export {sendSheetToVendor, sendEmail, getOpenOrdersFromVendors};

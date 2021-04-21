@@ -83,15 +83,13 @@ function noNewEmailsWasFound() {
 }
 
 function gettingInfoFrom(message: GmailMessage, from: string) {
-  return `Getting info from '${message.getSubject()}' sended by '${from}' on '${message
-    .getDate()
-    .toISOString()}'`;
+  return `Getting info from '${message.getSubject()}' sended by '${from}' on '${message.getDate()}'`;
 }
 
 function foundSpreadsheetState(spreadsheet: Spreadsheet, isValid: boolean) {
-  return `Found spreadsheet named '${
+  return `>> Found spreadsheet named '${
     spreadsheet?.getName() ?? 'INVALID_SPREADSHEET'
-  }' ${isValid ? '' : 'DO NOT'} have a valid format`;
+  }' ${isValid ? '' : 'DOES NOT '}HAVE a valid format`;
 }
 
 function creatingSpreadsheet(vendorName: string, sheetName: string) {
@@ -142,7 +140,7 @@ function notFoundPurchaseOrderInFup(
 
   return `Not found PO: '${id} (${order}-${line ?? 1})' in ${
     isPurchase ? 'purchases' : 'repairs'
-  } FUP data -> Contact: '${vendorName} <${vendorEmail}>' | Send to: '${createdBy}' on '${creationDate}'`;
+  } FUP data -> Contact: '${vendorName} <${vendorEmail}>' | Send to: '${createdBy}', registered on '${creationDate}'`;
 }
 
 function automaticSendDisabled() {
@@ -151,6 +149,10 @@ function automaticSendDisabled() {
 
 function errorSendingEmailTo(id: string) {
   return `Error sending email to ${id}, retrying...`;
+}
+
+function disabledDueDevMode() {
+  return 'THIS FUNCTION WAS DISABLED DUE DEV MODE IS ACTIVE';
 }
 
 export {
@@ -181,4 +183,5 @@ export {
   foundSpreadsheetState,
   tryingToGetOpenOrdersFrom,
   noNewEmailsWasFound,
+  disabledDueDevMode,
 };

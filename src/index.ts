@@ -10,7 +10,10 @@ import {
 import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
 import {notifyDevMode} from './service/utility.service';
 import {checkWorker} from './service/config.service';
-import {automaticSendDisabled} from './service/message.service';
+import {
+  automaticSendDisabled,
+  disabledDueDevMode,
+} from './service/message.service';
 
 /****************************************************************
  *
@@ -77,12 +80,18 @@ function createFileForEachRepairVendorAutomatic() {
 
 // To be automatic
 function getOpenOrders() {
+  if (!COMMON.DEV_MODE()) getOpenOrdersFromVendors();
+  else console.warn(disabledDueDevMode());
+}
+
+function getOpenOrdersDevMode() {
   getOpenOrdersFromVendors();
 }
 
 // To be automatic
 function updateOpenOrders() {
-  updateFupData();
+  if (!COMMON.DEV_MODE()) updateFupData();
+  else console.warn(disabledDueDevMode());
 }
 
 function filterPurchaseVendors() {

@@ -5,8 +5,8 @@ function getById(mailId: string) {
   return _mailRecordRepository.getById(mailId);
 }
 
-function saveOne(mailRecord: CreateMailRecord) {
-  return _mailRecordRepository.saveOne(mailRecord);
+function saveOne(createMailRecord: CreateMailRecord) {
+  return _mailRecordRepository.saveOne(createMailRecord);
 }
 
 function existsById(mailId: string) {

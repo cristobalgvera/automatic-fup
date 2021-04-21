@@ -210,7 +210,7 @@ function getVendorsContact(
 
 function evaluateByEmailSpreadsheets(
   byEmailSpreadsheets: ByEmailSpreadsheets,
-  saveActions: (() => void)[]
+  createMailRecordActions: (() => void)[]
 ) {
   const db = SpreadsheetApp.openById(DB.ID);
   const data = Object.entries(byEmailSpreadsheets);
@@ -242,8 +242,8 @@ function evaluateByEmailSpreadsheets(
     []
   );
 
-  saveActions.forEach(action => action());
   purchaseOrderService.saveAll(purchaseOrders);
+  createMailRecordActions.forEach(create => create());
 }
 
 export {
