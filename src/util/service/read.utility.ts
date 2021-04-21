@@ -42,11 +42,12 @@ function _getVendorsNamesByDataOrigin(dataOrigin: DATA_ORIGIN) {
 }
 
 function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
-  const groupedVendorsDataRange: string[][] = db
+  const groupedVendorsData: string[][] = db
     .getSheetByName(DB.SHEET.LINKED_VENDOR_NAME)
     .getDataRange()
     .getValues();
-  const headers = groupedVendorsDataRange.splice(0, 1)[0];
+
+  const headers = groupedVendorsData.splice(0, 1)[0];
 
   const vendorIdColumn = headers.indexOf(DB.COLUMN.VENDOR_ID);
   const vendorNameColumn = headers.indexOf(DB.COLUMN.VENDOR_NAME);
@@ -54,7 +55,7 @@ function _getGroupedVendors(db: Spreadsheet, dataOrigin: DATA_ORIGIN) {
   const vendorZoneColumn = headers.indexOf(DB.COLUMN.VENDOR_ZONE);
   const vendorCodeColumn = headers.indexOf(DB.COLUMN.VENDOR_CODE);
 
-  return groupedVendorsDataRange.reduce((acc: GroupedVendors, vendor) => {
+  return groupedVendorsData.reduce((acc: GroupedVendors, vendor) => {
     const vendorType = vendor[vendorTypeColumn];
 
     if (vendorType !== dataOrigin) return acc;

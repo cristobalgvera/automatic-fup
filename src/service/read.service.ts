@@ -176,28 +176,36 @@ function getVendorsContact(
   db: Spreadsheet,
   dataOrigin?: DATA_ORIGIN
 ): VendorsContact {
-  const vendorsDataDataRange: string[][] = db
+  const vendorsDataValues: string[][] = db
     .getSheetByName(COMMON.DEV_MODE() ? DB.SHEET.DEV : DB.SHEET.VENDOR)
     .getDataRange()
     .getValues();
-  const headers = vendorsDataDataRange.splice(0, 1)[0].map(toCamelCase);
-  const empty = headers.indexOf('');
-  if (empty !== -1) headers.splice(empty);
+
+  const headers = vendorsDataValues.splice(0, 1)[0].map(toCamelCase);
+
+  const emptyHeaderCol = headers.indexOf('');
+  if (emptyHeaderCol !== -1) headers.splice(emptyHeaderCol);
+
   const idColumn = headers.indexOf(toCamelCase(DB.COLUMN.ID));
   const typeColumn = headers.indexOf(toCamelCase(DB.COLUMN.VENDOR_TYPE));
 
-  return vendorsDataDataRange.reduce((acc, vendor) => {
-    const vendorId = vendor[idColumn];
-    const vendorType = vendor[typeColumn];
-    if (!acc[vendorId] && (!dataOrigin || vendorType === dataOrigin)) {
-      acc[vendorId] = headers.reduce((obj, header, index) => {
-        obj[header] = vendor[index];
-        return obj;
-      }, {} as VendorContact);
-    }
+  const byCorrectDataOrigin = (vendor: string[]) =>
+    !dataOrigin || vendor[typeColumn] === dataOrigin;
 
-    return acc;
-  }, {} as VendorsContact);
+  return vendorsDataValues
+    .filter(byCorrectDataOrigin)
+    .slice(0, 50)
+    .reduce((acc, vendor) => {
+      const vendorId = vendor[idColumn];
+      if (!acc[vendorId]) {
+        acc[vendorId] = headers.reduce((obj, header, index) => {
+          obj[header] = vendor[index];
+          return obj;
+        }, {} as VendorContact);
+      }
+
+      return acc;
+    }, {} as VendorsContact);
 }
 
 function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {

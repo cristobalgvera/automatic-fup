@@ -1,4 +1,4 @@
-import {DB, PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../config';
+import {COMMON, DB, PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../config';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
@@ -56,7 +56,9 @@ function writeInSheet(
 
 function updateDbSheetSendDates(ids: string[], when?: Date) {
   const spreadsheet = SpreadsheetApp.openById(DB.ID);
-  const sheet = spreadsheet.getSheetByName(DB.SHEET.VENDOR);
+  const sheet = spreadsheet.getSheetByName(
+    !COMMON.DEV_MODE() ? DB.SHEET.VENDOR : DB.SHEET.DEV
+  );
   const sendDateColumn =
     sheet
       .getRange(1, 1, 1, sheet.getLastColumn())

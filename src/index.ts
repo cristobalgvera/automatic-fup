@@ -1,5 +1,5 @@
 import {consolidateOpenOrders} from './service/drive.service';
-import {UI} from './config';
+import {COMMON, UI} from './config';
 import {getOpenOrdersFromVendors} from './service/mail.service';
 import {updateFupData} from './service/write.service';
 import {createVendorFiles} from './service/assembler.service';
@@ -8,6 +8,7 @@ import {
   filterRepairVendorData,
 } from './util/one-time';
 import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
+import {notifyDevMode} from './service/utility.service';
 
 /****************************************************************
  *
@@ -50,11 +51,15 @@ function consolidateRepairs() {
 
 // To be manual
 function createFileForEachPurchaseVendor(automatic?: boolean) {
+  if (!notifyDevMode()) return;
+
   createVendorFiles(true, automatic);
 }
 
 // To be manual
 function createFileForEachRepairVendor(automatic?: boolean) {
+  if (!notifyDevMode()) return;
+
   createVendorFiles(false, automatic);
 }
 

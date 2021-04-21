@@ -155,6 +155,20 @@ function getSeparatedDate(date?: Date) {
   };
 }
 
+function notifyDevMode(automatic?: boolean) {
+  if (COMMON.DEV_MODE() && !automatic) {
+    const ui = SpreadsheetApp.getUi();
+
+    const response = ui.alert(
+      'Aplicación en modo de desarrollo',
+      'Los correos no serán enviados a los destinatarios esperados, ¿seguro que quieres continuar?',
+      ui.ButtonSet.YES_NO
+    );
+
+    return response === ui.Button.YES;
+  }
+}
+
 export {
   removeExtension,
   toCamelCase,
@@ -170,4 +184,5 @@ export {
   isValidDate,
   cleanUpUndefined,
   getSeparatedDate,
+  notifyDevMode,
 };
