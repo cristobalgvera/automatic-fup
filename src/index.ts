@@ -64,12 +64,14 @@ function createFileForEachRepairVendor(automatic?: boolean) {
 function createFileForEachPurchaseVendorAutomatic() {
   if (COMMON.CONFIGURATION()[DB.UTIL.CONFIG.FEATURE.AUTOMATIC_PURCHASES])
     createFileForEachPurchaseVendor(true);
+  else console.warn('AUTOMATIC SEND HAS BEEN DISABLED');
 }
 
 // To be automatic
 function createFileForEachRepairVendorAutomatic() {
   if (COMMON.CONFIGURATION()[DB.UTIL.CONFIG.FEATURE.AUTOMATIC_REPAIRS])
     createFileForEachRepairVendor(true);
+  else console.warn('AUTOMATIC SEND HAS BEEN DISABLED');
 }
 
 // To be automatic
