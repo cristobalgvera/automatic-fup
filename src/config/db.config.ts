@@ -6,6 +6,7 @@ const DB = {
     VENDOR_TYPE: 'Vendor Type',
     VENDOR_ZONE: 'Vendor Zone',
     DEV: 'DEV',
+    CONFIG: 'Config',
   },
   COLUMN: {
     VENDOR_ID: 'VendorId',
@@ -18,11 +19,21 @@ const DB = {
     SEND_DATE: 'Send date',
     VENDOR_CODE: 'Code',
     AUTOMATICALLY_SEND_EMAIL: 'Automatically send email',
-    DEV_MODE: 'DEV MODE',
   },
   UTIL: {
-    VENDORS_TO_TAKE: 50,
-    MAX_VENDORS_TO_TAKE: 58,
+    VENDORS_TO_TAKE: 70,
+    MAX_VENDORS_TO_TAKE: 75,
+    CONFIG: {
+      COLUMN: {
+        STATE: 'STATE',
+        FEATURE: 'FEATURE',
+      },
+      FEATURE: {
+        DEV_MODE: 'DEV MODE',
+        AUTOMATIC_PURCHASES: 'AUTOMATIC PURCHASES',
+        AUTOMATIC_REPAIRS: 'AUTOMATIC REPAIRS',
+      },
+    },
   },
 };
 

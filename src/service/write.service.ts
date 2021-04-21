@@ -4,8 +4,10 @@ import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 import {_getFupInitialData} from '../util/service/read.utility';
 import {_utilitiesToUpdateFupData} from '../util/service/write.utility';
+import {checkWorker} from './config.service';
 import {purchaseOrderService} from './db/purchase-order.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
+type SheetData = (string | boolean | Date | number)[][];
 
 function writeInSheet(
   vendorSheet: Sheet,
@@ -70,12 +72,7 @@ function updateDbSheetSendDates(
     DB.COLUMN.AUTOMATICALLY_SEND_EMAIL
   );
 
-  const data: (
-    | string
-    | boolean
-    | Date
-    | number
-  )[][] = sheet.getDataRange().getValues();
+  const data: SheetData = sheet.getDataRange().getValues();
 
   const dbIds = data.reduce(
     (acc, [key], i) => ({...acc, [String(key)]: i}),
@@ -110,7 +107,7 @@ function updateDbSheetSendDates(
 function updateAutomaticallySendEmailColumn(
   sheet: Sheet,
   dataOrigin: DATA_ORIGIN,
-  data: (string | boolean | Date | number)[][],
+  data: SheetData,
   dbIds?: {},
   automaticallySendEmailColumn?: number
 ) {
@@ -151,7 +148,17 @@ function updateAutomaticallySendEmailColumn(
   });
 
   sheet.getDataRange().setValues(data);
-  console.warn('FILLING AUTOMATICALLY SEND EMAIL COLUMN START');
+
+  switch (dataOrigin) {
+    case DATA_ORIGIN.PURCHASE:
+      checkWorker.uncheckAutomaticPurchases();
+      break;
+    case DATA_ORIGIN.REPAIR:
+      checkWorker.uncheckAutomaticRepairs();
+      break;
+  }
+
+  console.warn('FILLING AUTOMATICALLY SEND EMAIL COLUMN END');
 }
 
 function updateFupData() {

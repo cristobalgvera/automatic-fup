@@ -1,4 +1,5 @@
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
+import {VendorContact} from '../util/interface/vendor-contact.interface';
 import {
   getTemplateAndCreateFolderForRegistries,
   createSheetFiles,
@@ -27,6 +28,11 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
 
   // User cancel operation
   if (!vendorsContact) return;
+
+  if (!Object.keys(vendors)[0]) {
+    _updateDbSheetWhenNoVendors(vendorsContact, isPurchase);
+    return;
+  }
 
   console.warn('FOLDER CREATION START');
   const {
@@ -63,6 +69,26 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn('UPDATE DB SHEET SEND DATE START');
   updateDbSheetSendDates(
     mailedIds,
+    isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
+  );
+  console.warn('UPDATE DB SHEET SEND DATE END');
+}
+
+function _updateDbSheetWhenNoVendors(
+  vendorsContact: VendorContact[],
+  isPurchase: boolean
+) {
+  const ids = vendorsContact.map(({id}) => id);
+
+  console.log(
+    `No data was found in ${
+      isPurchase ? 'purchases' : 'repairs'
+    } FUP, updating DB sheet...`
+  );
+
+  console.warn('UPDATE DB SHEET SEND DATE START');
+  updateDbSheetSendDates(
+    ids,
     isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
   );
   console.warn('UPDATE DB SHEET SEND DATE END');

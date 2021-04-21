@@ -156,19 +156,17 @@ function getSeparatedDate(date?: Date) {
 }
 
 function notifyDevMode(automatic?: boolean) {
-  if (COMMON.DEV_MODE() && !automatic) {
-    const ui = SpreadsheetApp.getUi();
+  if (!(COMMON.DEV_MODE() && !automatic)) return true;
 
-    const response = ui.alert(
-      'Aplicación en modo de desarrollo',
-      'Los correos no serán enviados a los destinatarios esperados, ¿seguro que quieres continuar?',
-      ui.ButtonSet.YES_NO
-    );
+  const ui = SpreadsheetApp.getUi();
 
-    return response === ui.Button.YES;
-  }
+  const response = ui.alert(
+    'Aplicación en modo de desarrollo',
+    'Los correos no serán enviados a los destinatarios esperados, ¿seguro que quieres continuar?',
+    ui.ButtonSet.YES_NO
+  );
 
-  return true;
+  return response === ui.Button.YES;
 }
 
 export {
