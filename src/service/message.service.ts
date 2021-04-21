@@ -75,7 +75,11 @@ function sendingEmailTo(name: string, email: string) {
 }
 
 function tryingToGetOpenOrdersFrom(email: string) {
-  return `Trying to get open orders from '${email}' account`;
+  return `TRYING TO GET OPEN ORDERS FROM '${email}' ACCOUNT`;
+}
+
+function noNewEmailsWasFound() {
+  return 'No new emails was found';
 }
 
 function gettingInfoFrom(message: GmailMessage, from: string) {
@@ -176,4 +180,5 @@ export {
   errorSendingEmailTo,
   foundSpreadsheetState,
   tryingToGetOpenOrdersFrom,
+  noNewEmailsWasFound,
 };

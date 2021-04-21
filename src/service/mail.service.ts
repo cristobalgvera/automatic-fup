@@ -15,6 +15,7 @@ import {
 import {_isPurchaseSpreadsheet} from '../util/service/read.utility';
 import {
   errorSendingEmailTo,
+  noNewEmailsWasFound,
   tryingToGetOpenOrdersFrom,
 } from './message.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
@@ -118,6 +119,8 @@ function getOpenOrdersFromVendors(after?: string) {
     },
     [[], []] as [(() => void)[], ByEmailSpreadsheets[]]
   );
+
+  if (!attachments.length) console.log(noNewEmailsWasFound());
 
   // Get all attachments grouped by sender email in an object
   const attachmentsByVendor = [attachments].reduce(groupByVendorEmail, {});
