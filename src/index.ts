@@ -51,14 +51,14 @@ function consolidateRepairs() {
 
 // To be manual
 function createFileForEachPurchaseVendor(automatic?: boolean) {
-  if (!notifyDevMode()) return;
+  if (!notifyDevMode(automatic)) return;
 
   createVendorFiles(true, automatic);
 }
 
 // To be manual
 function createFileForEachRepairVendor(automatic?: boolean) {
-  if (!notifyDevMode()) return;
+  if (!notifyDevMode(automatic)) return;
 
   createVendorFiles(false, automatic);
 }

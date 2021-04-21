@@ -167,6 +167,8 @@ function notifyDevMode(automatic?: boolean) {
 
     return response === ui.Button.YES;
   }
+
+  return true;
 }
 
 export {

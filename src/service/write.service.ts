@@ -59,11 +59,11 @@ function updateDbSheetSendDates(ids: string[], when?: Date) {
   const sheet = spreadsheet.getSheetByName(
     !COMMON.DEV_MODE() ? DB.SHEET.VENDOR : DB.SHEET.DEV
   );
-  const sendDateColumn =
-    sheet
-      .getRange(1, 1, 1, sheet.getLastColumn())
-      .getValues()[0]
-      .indexOf(DB.COLUMN.SEND_DATE) + 1;
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+  const sendDateColumn = headers.indexOf(DB.COLUMN.SEND_DATE) + 1;
+  const automaticallySendEmailColumn =
+    headers.indexOf(DB.COLUMN.AUTOMATICALLY_SEND_EMAIL) + 1;
 
   const dbIds = sheet
     .getRange(1, 1, sheet.getLastRow())
@@ -81,6 +81,7 @@ function updateDbSheetSendDates(ids: string[], when?: Date) {
 
     console.log(`Updating ${id} send date`);
     sheet.getRange(rowNumber, sendDateColumn).setValue(updateDate);
+    sheet.getRange(rowNumber, automaticallySendEmailColumn).uncheck();
   });
 }
 

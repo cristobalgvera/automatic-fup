@@ -8,6 +8,7 @@ export interface VendorContact {
   sendDate: Date;
   sendEmail: boolean;
   type: DATA_ORIGIN;
+  automaticallySendEmail: boolean;
 }
 
 export interface VendorsContact {

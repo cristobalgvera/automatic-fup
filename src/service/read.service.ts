@@ -192,20 +192,16 @@ function getVendorsContact(
   const byCorrectDataOrigin = (vendor: string[]) =>
     !dataOrigin || vendor[typeColumn] === dataOrigin;
 
-  return vendorsDataValues
-    .filter(byCorrectDataOrigin)
-    .slice(0, 50)
-    .reduce((acc, vendor) => {
-      const vendorId = vendor[idColumn];
-      if (!acc[vendorId]) {
-        acc[vendorId] = headers.reduce((obj, header, index) => {
-          obj[header] = vendor[index];
-          return obj;
-        }, {} as VendorContact);
-      }
+  return vendorsDataValues.filter(byCorrectDataOrigin).reduce((acc, vendor) => {
+    const vendorId = vendor[idColumn];
+    if (!acc[vendorId])
+      acc[vendorId] = headers.reduce((obj, header, index) => {
+        obj[header] = vendor[index];
+        return obj;
+      }, {} as VendorContact);
 
-      return acc;
-    }, {} as VendorsContact);
+    return acc;
+  }, {} as VendorsContact);
 }
 
 function evaluateByEmailSpreadsheets(byEmailSpreadsheets: ByEmailSpreadsheets) {

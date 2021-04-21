@@ -21,15 +21,22 @@ function _getToContactVendors(
   vendorsContact: VendorsContact,
   groupedVendors: GroupedVendors
 ) {
-  return Object.entries(vendorsContact).reduce((acc, vendorContact) => {
-    const [vendorId, contact] = vendorContact;
+  const bySendEmailAutomatically = ([, {sendEmail, automaticallySendEmail}]: [
+    string,
+    VendorContact
+  ]) => sendEmail && automaticallySendEmail;
 
-    if (!groupedVendors[vendorId]) return acc;
+  return Object.entries(vendorsContact)
+    .filter(bySendEmailAutomatically)
+    .slice(0, 50)
+    .reduce((acc, vendorContact) => {
+      const [vendorId, contact] = vendorContact;
 
-    if (contact.sendEmail) acc[vendorId] = contact;
+      if (!groupedVendors[vendorId]) return acc;
 
-    return acc;
-  }, {} as VendorsContact);
+      acc[vendorId] = contact;
+      return acc;
+    }, {} as VendorsContact);
 }
 
 function _getVendorsNamesByDataOrigin(dataOrigin: DATA_ORIGIN) {
