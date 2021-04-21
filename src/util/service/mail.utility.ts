@@ -8,7 +8,12 @@ import {
   validateEmail,
 } from '../../service/utility.service';
 import {mailRecordService} from '../../service/db/mail-record.service';
-import {gettingInfoFrom, sendingEmailTo} from './message.utility';
+import {
+  foundSpreadsheetState,
+  gettingInfoFrom,
+  sendingEmailTo,
+} from '../../service/message.service';
+import {NOT_FOUND} from '../enum/not-found.enum';
 type Blob = GoogleAppsScript.Base.Blob;
 type Folder = GoogleAppsScript.Drive.Folder;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -109,6 +114,8 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
               invalidStructureFolder
             );
 
+            console.log(foundSpreadsheetState(spreadsheet, isValid));
+
             return {
               [email]: isValid ? acc[email].concat(spreadsheet) : acc[email],
             };
@@ -119,7 +126,7 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
     const saveRecordAction = () =>
       mailRecordService.saveOne({
         mailId: message.getId(),
-        vendorEmail: obtainEmail(from) || 'EMAIL_NOT_FOUND',
+        vendorEmail: obtainEmail(from) || NOT_FOUND.VENDOR_EMAIL,
       });
 
     return [saveRecordAction, generatedSpreadsheets];

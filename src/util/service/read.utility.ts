@@ -12,7 +12,11 @@ import {
 import {getVendorsContact} from '../../service/read.service';
 import {purchaseOrderService} from '../../service/db/purchase-order.service';
 import {DATA_ORIGIN} from '../enum/data-origin.enum';
-import {deletingNoDataEntry, retrievingInfoFrom} from './message.utility';
+import {
+  deletingNoDataEntry,
+  retrievingInfoFrom,
+} from '../../service/message.service';
+import {NOT_FOUND} from '../enum/not-found.enum';
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type FilterColumns = {[x: string]: number};
@@ -307,7 +311,7 @@ function _getUtilitiesToEvaluateEmails() {
     headerNumbers: Partial<typeof TEMPLATE.UTIL.COLUMN_NAME>
   ) => (curr: PurchaseOrder[], row: string[]) =>
     curr.concat({
-      vendorName: vendorName ?? 'NOT_FOUND',
+      vendorName: vendorName ?? NOT_FOUND.VENDOR_NAME,
       purchaseOrder: row[headerNumbers.purchaseOrder] || null,
       line: row[headerNumbers.line] || null,
       partNumber: row[headerNumbers.partNumber] || null,

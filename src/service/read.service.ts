@@ -18,7 +18,7 @@ import {
   _alertVendorsToFilter,
 } from '../util/service/read.utility';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
-import {totalVendors} from '../util/service/message.utility';
+import {totalVendors} from './message.service';
 
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 

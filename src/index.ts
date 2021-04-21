@@ -10,7 +10,7 @@ import {
 import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
 import {notifyDevMode} from './service/utility.service';
 import {checkWorker} from './service/config.service';
-import {automaticSendDisabled} from './util/service/message.utility';
+import {automaticSendDisabled} from './service/message.service';
 
 /****************************************************************
  *

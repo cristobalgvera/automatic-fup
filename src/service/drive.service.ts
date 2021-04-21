@@ -6,7 +6,7 @@ import {sendEmail} from './mail.service';
 import {VendorContact} from '../util/interface/vendor-contact.interface';
 import {_setBaseData} from '../util/service/drive.utility';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
-import {creatingSpreadsheet} from '../util/service/message.utility';
+import {creatingSpreadsheet} from './message.service';
 type Folder = GoogleAppsScript.Drive.Folder;
 type File = GoogleAppsScript.Drive.File;
 type SchemaFile = GoogleAppsScript.Drive.Schema.File;

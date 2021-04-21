@@ -13,7 +13,10 @@ import {
   _setAfterDate,
 } from '../util/service/mail.utility';
 import {_isPurchaseSpreadsheet} from '../util/service/read.utility';
-import {errorSendingEmailTo} from '../util/service/message.utility';
+import {
+  errorSendingEmailTo,
+  tryingToGetOpenOrdersFrom,
+} from './message.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Folder = GoogleAppsScript.Drive.Folder;
@@ -91,6 +94,8 @@ function getOpenOrdersFromVendors(after?: string) {
     actions: {generateSpreadsheets},
     extras: {tempFolder, invalidStructureFolder},
   } = _getUtilitiesToFilterEmails(folder);
+
+  console.warn(tryingToGetOpenOrdersFrom(Session.getActiveUser().getEmail()));
 
   // Get list of all attachments where filter condition is true
   // and an action to store it in Firebase

@@ -8,7 +8,7 @@ import {
   retrievingContacts,
   sheetCreation,
   updateDbSheetSendDateLog,
-} from '../util/service/message.utility';
+} from './message.service';
 import {
   getTemplateAndCreateFolderForRegistries,
   createSheetFiles,
@@ -86,7 +86,8 @@ function _updateDbSheetWhenNoVendors(
   console.warn(updateDbSheetSendDateLog(LOG_STATE.START));
   updateDbSheetSendDates(
     ids,
-    isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
+    isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR,
+    false
   );
   console.warn(updateDbSheetSendDateLog(LOG_STATE.END));
 }

@@ -12,7 +12,7 @@ import {
   updating,
   updatingOpenOrders,
   updatingSendDate,
-} from '../util/service/message.utility';
+} from './message.service';
 import {_getFupInitialData} from '../util/service/read.utility';
 import {_utilitiesToUpdateFupData} from '../util/service/write.utility';
 import {checkWorker} from './config.service';
@@ -82,6 +82,7 @@ function writeInSheet(
 function updateDbSheetSendDates(
   ids: string[],
   dataOrigin: DATA_ORIGIN,
+  shouldUpdateDates = true,
   when?: Date
 ) {
   const spreadsheet = SpreadsheetApp.openById(DB.ID);
@@ -112,7 +113,8 @@ function updateDbSheetSendDates(
       return null;
     }
 
-    data[rowNumber][sendDateColumn] = updateDate;
+    if (shouldUpdateDates) data[rowNumber][sendDateColumn] = updateDate;
+
     data[rowNumber][automaticallySendEmailColumn] = false;
   });
 

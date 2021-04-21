@@ -1,6 +1,8 @@
-import {LOG_STATE} from '../enum/log-state.enum';
+import {LOG_STATE} from '../util/enum/log-state.enum';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
 type GmailMessage = GoogleAppsScript.Gmail.GmailMessage;
+type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
 function retrievingContacts(logState: LOG_STATE, isPurchase: boolean) {
   return `RETRIEVING VENDORS CONTACTS TO OBTAIN ${
@@ -72,10 +74,20 @@ function sendingEmailTo(name: string, email: string) {
   return `Sending email to ${name} (<${email}>)`;
 }
 
+function tryingToGetOpenOrdersFrom(email: string) {
+  return `Trying to get open orders from '${email}' account`;
+}
+
 function gettingInfoFrom(message: GmailMessage, from: string) {
   return `Getting info from '${message.getSubject()}' sended by '${from}' on '${message
     .getDate()
     .toISOString()}'`;
+}
+
+function foundSpreadsheetState(spreadsheet: Spreadsheet, isValid: boolean) {
+  return `Found spreadsheet named '${
+    spreadsheet?.getName() ?? 'INVALID_SPREADSHEET'
+  }' ${isValid ? '' : 'DO NOT'} have a valid format`;
 }
 
 function creatingSpreadsheet(vendorName: string, sheetName: string) {
@@ -95,26 +107,38 @@ function deletingNoDataEntry(name: string) {
 }
 
 function updatingPurchaseOrderInFup(
-  id: string,
-  order: string,
-  line: number,
   rowNumber: number,
+  purchaseOrder: PurchaseOrder,
   isPurchase: boolean
 ) {
+  const {
+    id,
+    purchaseOrder: order,
+    line,
+    vendorName,
+    audit: {vendorEmail},
+  } = purchaseOrder;
+
   return `Updating '${id} (${order}-${line ?? 1})', row '${rowNumber}' in ${
     isPurchase ? 'purchases' : 'repairs'
-  } FUP data`;
+  } FUP data -> Contact: ${vendorName} <${vendorEmail}>`;
 }
 
 function notFoundPurchaseOrderInFup(
-  id: string,
-  order: string,
-  line: number,
+  purchaseOrder: PurchaseOrder,
   isPurchase: boolean
 ) {
-  return `'Not found PO: ${id} (${order}-${line ?? 1})' in ${
+  const {
+    id,
+    purchaseOrder: order,
+    line,
+    vendorName,
+    audit: {vendorEmail, creationDate, createdBy},
+  } = purchaseOrder;
+
+  return `Not found PO: '${id} (${order}-${line ?? 1})' in ${
     isPurchase ? 'purchases' : 'repairs'
-  } FUP data`;
+  } FUP data -> Contact: '${vendorName} <${vendorEmail}>' | Send to: '${createdBy}' on '${creationDate}'`;
 }
 
 function automaticSendDisabled() {
@@ -150,4 +174,6 @@ export {
   notFoundPurchaseOrderInFup,
   automaticSendDisabled,
   errorSendingEmailTo,
+  foundSpreadsheetState,
+  tryingToGetOpenOrdersFrom,
 };

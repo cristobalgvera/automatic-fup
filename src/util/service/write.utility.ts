@@ -5,7 +5,7 @@ import {PurchaseOrder} from '../schema/purchase-order.schema';
 import {
   notFoundPurchaseOrderInFup,
   updatingPurchaseOrderInFup,
-} from './message.utility';
+} from '../../service/message.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function _utilitiesToUpdateFupData(
@@ -25,11 +25,10 @@ function _utilitiesToUpdateFupData(
       awb,
       comments,
       purchaseOrder: order,
-      line,
     } = purchaseOrder;
     const rowNumber = rowNumberByKey[isPurchase ? id : order];
     if (!rowNumber) {
-      console.error(notFoundPurchaseOrderInFup(id, order, line, isPurchase));
+      console.error(notFoundPurchaseOrderInFup(purchaseOrder, isPurchase));
       return null;
     }
 
@@ -42,12 +41,12 @@ function _utilitiesToUpdateFupData(
         qtyShipped,
         awb,
         comments,
-        action,
-        responsible,
+        action ?? '',
+        responsible ?? '',
       ],
     ];
     console.log(
-      updatingPurchaseOrderInFup(id, order, line, rowNumber, isPurchase)
+      updatingPurchaseOrderInFup(rowNumber, purchaseOrder, isPurchase)
     );
 
     sheet
