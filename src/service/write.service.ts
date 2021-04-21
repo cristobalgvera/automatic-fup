@@ -28,34 +28,34 @@ function writeInSheet(
 
   const [roNumbers, partNumbers, lines, qtdPendentes] = vendorData.reduce(
     (acc, data) => {
-      const roNumbers = acc[0].concat([String(data[roNumberColumn])]);
-      const partNumbers = acc[1].concat([String(data[partNumberColumn])]);
-      const lines = acc[2].concat([String(data[lineColumn])]);
-      const qtdPendentes = acc[3].concat([String(data[qtdPendenteColumn])]);
+      const roNumbers = acc[0].concat([[String(data[roNumberColumn])]]);
+      const partNumbers = acc[1].concat([[String(data[partNumberColumn])]]);
+      const lines = acc[2].concat([[String(data[lineColumn])]]);
+      const qtdPendentes = acc[3].concat([[String(data[qtdPendenteColumn])]]);
 
       return [roNumbers, partNumbers, lines, qtdPendentes];
     },
-    [[], [], [], []] as [string[], string[], string[], string[]]
+    [[], [], [], []] as [string[][], string[][], string[][], string[][]]
   );
 
   vendorSheet
     .getRange(3, templatePurchaseOrderColumn, vendorData.length)
-    .setValues([roNumbers]);
+    .setValues(roNumbers);
 
   vendorSheet
     .getRange(3, templatePartNumberColumn, vendorData.length)
-    .setValues([partNumbers]);
+    .setValues(partNumbers);
 
   // Purchases have no line numbers
   if (isPurchase) {
     // Set data in the same way of PO or part numbers
     vendorSheet
       .getRange(3, templateLineColumn, vendorData.length)
-      .setValues([lines]);
+      .setValues(lines);
 
     vendorSheet
       .getRange(3, templateQtdPendenteColumn, vendorData.length)
-      .setValues([qtdPendentes]);
+      .setValues(qtdPendentes);
   }
 
   // Clean sheet deleting empty ending rows
