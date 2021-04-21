@@ -2,6 +2,10 @@ import {ACTION} from '../enum/action.enum';
 import {PO_STATUS} from '../enum/po-status.enum';
 import {RESPONSIBLE} from '../enum/responsible.enum';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
+import {
+  notFoundPurchaseOrderInFup,
+  updatingPurchaseOrderInFup,
+} from './message.utility';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function _utilitiesToUpdateFupData(
@@ -25,11 +29,7 @@ function _utilitiesToUpdateFupData(
     } = purchaseOrder;
     const rowNumber = rowNumberByKey[isPurchase ? id : order];
     if (!rowNumber) {
-      console.error(
-        `'Not found PO: ${id} (${order}-${line ?? 1})' in ${
-          isPurchase ? 'purchases' : 'repairs'
-        } FUP data`
-      );
+      console.error(notFoundPurchaseOrderInFup(id, order, line, isPurchase));
       return null;
     }
 
@@ -47,9 +47,7 @@ function _utilitiesToUpdateFupData(
       ],
     ];
     console.log(
-      `Updating '${id} (${order}-${line ?? 1})', row '${rowNumber}' in ${
-        isPurchase ? 'purchases' : 'repairs'
-      } FUP data`
+      updatingPurchaseOrderInFup(id, order, line, rowNumber, isPurchase)
     );
 
     sheet

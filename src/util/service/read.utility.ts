@@ -12,6 +12,7 @@ import {
 import {getVendorsContact} from '../../service/read.service';
 import {purchaseOrderService} from '../../service/db/purchase-order.service';
 import {DATA_ORIGIN} from '../enum/data-origin.enum';
+import {deletingNoDataEntry, retrievingInfoFrom} from './message.utility';
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type FilterColumns = {[x: string]: number};
@@ -264,9 +265,7 @@ function _utilitiesToExtractFupData(
     if (!vendorId) return acc;
 
     if (!acc[vendorId])
-      console.log(
-        `Retrieving '${vendorName} (${vendorId} - ${vendorCode})' info from FUP data`
-      );
+      console.log(retrievingInfoFrom(vendorName, vendorId, vendorCode));
 
     acc[vendorId] ??= [];
 
@@ -280,7 +279,7 @@ function _utilitiesToExtractFupData(
     name: string
   ) => {
     const dataAmount = rawVendors[name].length;
-    if (!dataAmount) console.log(`Deleting '${name}' entry, has no data`);
+    if (!dataAmount) console.log(deletingNoDataEntry(name));
     return dataAmount ? {...acc, [name]: rawVendors[name]} : acc;
   };
 

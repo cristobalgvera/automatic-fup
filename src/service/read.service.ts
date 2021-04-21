@@ -18,6 +18,7 @@ import {
   _alertVendorsToFilter,
 } from '../util/service/read.utility';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
+import {totalVendors} from '../util/service/message.utility';
 
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 
@@ -79,7 +80,7 @@ function extractRepairDataByVendorName(
     {}
   );
 
-  console.log(`TOTAL: ${Object.keys(vendors).length} vendors`);
+  console.log(totalVendors(Object.keys(vendors).length));
 
   return {vendors, headers, vendorsContact: toFilterVendors};
 }
@@ -139,7 +140,7 @@ function extractPurchaseDataByVendorName(
     {}
   );
 
-  console.log(`TOTAL: ${Object.keys(vendors).length} vendors`);
+  console.log(totalVendors(Object.keys(vendors).length));
 
   return {vendors, headers, vendorsContact: toFilterVendors};
 }

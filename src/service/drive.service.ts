@@ -6,6 +6,7 @@ import {sendEmail} from './mail.service';
 import {VendorContact} from '../util/interface/vendor-contact.interface';
 import {_setBaseData} from '../util/service/drive.utility';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
+import {creatingSpreadsheet} from '../util/service/message.utility';
 type Folder = GoogleAppsScript.Drive.Folder;
 type File = GoogleAppsScript.Drive.File;
 type SchemaFile = GoogleAppsScript.Drive.Schema.File;
@@ -126,8 +127,8 @@ function consolidateOpenOrders(isPurchase = true) {
 
       // Update consolidated sheet in case of delay
       SpreadsheetApp.flush();
-    } catch (e) {
-      console.error(e.toString());
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -137,8 +138,8 @@ function consolidateOpenOrders(isPurchase = true) {
       consolidated.getLastRow() + 1,
       TEMPLATE.UTIL.INITIAL_ROWS - 2
     );
-  } catch (e) {
-    console.error('ConsolidateOpenOrders:', e);
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -165,8 +166,8 @@ function excelToSheet(excelFile: File, folder: Folder) {
 
     // Variable file should return his id of creation (this may fail)
     return SpreadsheetApp.openById(file.id);
-  } catch (f) {
-    console.error(f.toString());
+  } catch (error) {
+    console.error(error);
     return null;
   }
 }
@@ -185,8 +186,8 @@ function sheetToExcel(vendorSpreadsheet: Spreadsheet, name: string) {
     return UrlFetchApp.fetch(url, params)
       .getBlob()
       .setName(`${name}.${COMMON.UTIL.FILE_EXTENSION.XLSX}`);
-  } catch (e) {
-    console.error(e.toString());
+  } catch (error) {
+    console.error(error);
     return null;
   }
 }
@@ -207,7 +208,7 @@ function createSheetFiles(
     const vendorName = vendorContact.name;
     const sheetName = `${vendorName} (${vendorContact.email})`;
 
-    console.log(`Creating '${vendorName}' spreadsheet named '${sheetName}'`);
+    console.log(creatingSpreadsheet(vendorName, sheetName));
 
     const vendorSpreadsheet = templateSpreadsheet.copy(sheetName);
     registriesFolder.addFile(DriveApp.getFileById(vendorSpreadsheet.getId()));

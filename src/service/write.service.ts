@@ -1,7 +1,18 @@
 import {COMMON, DB, PURCHASE_DATA, REPAIR_DATA, TEMPLATE} from '../config';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
+import {LOG_STATE} from '../util/enum/log-state.enum';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
+import {
+  emptyAutomaticColumns,
+  errorChecking,
+  errorUpdatingSendDate,
+  fillingAutomaticallySendColumn,
+  retrievingData,
+  updating,
+  updatingOpenOrders,
+  updatingSendDate,
+} from '../util/service/message.utility';
 import {_getFupInitialData} from '../util/service/read.utility';
 import {_utilitiesToUpdateFupData} from '../util/service/write.utility';
 import {checkWorker} from './config.service';
@@ -93,11 +104,11 @@ function updateDbSheetSendDates(
 
   const updateDate = when ?? new Date();
 
-  console.log('Updating send date...');
+  console.log(updatingSendDate());
   ids.forEach(id => {
     const rowNumber = dbIds[id];
     if (!rowNumber && rowNumber !== 0) {
-      console.error(`Error while updating send date of ${id}: ID not found`);
+      console.error(errorUpdatingSendDate(id));
       return null;
     }
 
@@ -139,8 +150,8 @@ function updateAutomaticallySendEmailColumn(
     return;
   }
 
-  console.log('Automatically send column are empty, filling...');
-  console.warn('FILLING AUTOMATICALLY SEND EMAIL COLUMN START');
+  console.log(emptyAutomaticColumns());
+  console.warn(fillingAutomaticallySendColumn(LOG_STATE.START));
   const idColumn = headers.indexOf(DB.COLUMN.ID);
   const ids =
     dbIds ?? data.reduce((acc, [key], i) => ({...acc, [String(key)]: i}), {});
@@ -152,7 +163,7 @@ function updateAutomaticallySendEmailColumn(
     const id = row[idColumn] as string;
     const rowNumber = ids[id];
     if (!rowNumber && rowNumber !== 0) {
-      console.error(`Error while checking ${id}: ID not found`);
+      console.error(errorChecking(id));
       return;
     }
 
@@ -170,23 +181,23 @@ function updateAutomaticallySendEmailColumn(
       break;
   }
 
-  console.warn('FILLING AUTOMATICALLY SEND EMAIL COLUMN END');
+  console.warn(fillingAutomaticallySendColumn(LOG_STATE.END));
 }
 
 function updateFupData() {
   const [purchases, repairs] = purchaseOrderService.getToUpdatePurchaseOrders();
   if (purchases.length) {
-    console.warn('UPDATING OPEN ORDERS OF PURCHASES DATA START');
+    console.warn(updatingOpenOrders(LOG_STATE.START, true));
     const updatedPurchases = _updatePurchases(purchases);
     purchaseOrderService.setUpdatedPurchaseOrders(updatedPurchases);
-    console.warn('UPDATING OPEN ORDERS OF PURCHASES DATA END');
+    console.warn(updatingOpenOrders(LOG_STATE.END, true));
   }
 
   if (repairs.length) {
-    console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA START');
+    console.warn(updatingOpenOrders(LOG_STATE.START, false));
     const updatedRepairs = _updateRepairs(repairs);
     purchaseOrderService.setUpdatedPurchaseOrders(updatedRepairs);
-    console.warn('UPDATING OPEN ORDERS OF REPAIRS DATA END');
+    console.warn(updatingOpenOrders(LOG_STATE.END, false));
   }
 }
 
@@ -196,7 +207,7 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
     utils: {headerNumber: headers},
   } = _getFupInitialData(DATA_ORIGIN.PURCHASE);
 
-  console.log('Retrieving purchases data');
+  console.log(retrievingData(true));
   const rowNumberByKey: {[name: string]: number} = expectedSheet
     .getRange(1, 1, expectedSheet.getLastRow())
     .getValues()
@@ -219,7 +230,7 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
     true
   );
 
-  console.log('Updating...');
+  console.log(updating());
   return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
 }
 
@@ -254,7 +265,7 @@ function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
 
   const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
 
-  console.log('Retrieving purchases data');
+  console.log(retrievingData(false));
   const rowNumberByKey: {[name: string]: number} = sheet
     .getRange(1, keyColumn, sheet.getLastRow())
     .getValues()
@@ -270,7 +281,7 @@ function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
     false
   );
 
-  console.log('Updating...');
+  console.log(updating());
   return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
 }
 export {writeInSheet, updateFupData, updateDbSheetSendDates};

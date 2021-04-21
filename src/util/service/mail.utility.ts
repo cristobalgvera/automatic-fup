@@ -8,6 +8,7 @@ import {
   validateEmail,
 } from '../../service/utility.service';
 import {mailRecordService} from '../../service/db/mail-record.service';
+import {gettingInfoFrom, sendingEmailTo} from './message.utility';
 type Blob = GoogleAppsScript.Base.Blob;
 type Folder = GoogleAppsScript.Drive.Folder;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -38,7 +39,7 @@ function _sendExcelTo(
   // Create real html from template one (whit all variable data)
   const htmlBody = html.evaluate().getContent();
 
-  console.log(`Sending email to ${name} (<${email}>)`);
+  console.log(sendingEmailTo(name, email));
 
   const validCcEmails = cc.split(',').filter(validateEmail).join(',');
 
@@ -63,8 +64,8 @@ function _sendExcelTo(
     });
 
     return id;
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     return null;
   }
 }
@@ -99,11 +100,7 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
         .filter(byXlsxFiles)
         .reduce(
           (acc, attachment) => {
-            console.log(
-              `Getting info from '${message.getSubject()}' sended by '${from}' on '${message
-                .getDate()
-                .toISOString()}'`
-            );
+            console.log(gettingInfoFrom(message, from));
 
             const {email, isValid, spreadsheet} = _createAndFilterSpreadsheet(
               message,

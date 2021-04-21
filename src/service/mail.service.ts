@@ -13,6 +13,7 @@ import {
   _setAfterDate,
 } from '../util/service/mail.utility';
 import {_isPurchaseSpreadsheet} from '../util/service/read.utility';
+import {errorSendingEmailTo} from '../util/service/message.utility';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Folder = GoogleAppsScript.Drive.Folder;
@@ -55,7 +56,7 @@ function sendEmail(
       if (!userConfirmation(UI.MODAL.errorSendingEmailTo(vendorContact)))
         success = true;
     } else if (tries < 3) {
-      console.error(`Error sending email to ${vendorContact.id}, retrying...`);
+      console.error(errorSendingEmailTo(vendorContact.id));
       tries++;
     }
   } while (!success || tries === 3);

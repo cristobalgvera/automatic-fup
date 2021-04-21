@@ -1,5 +1,14 @@
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
+import {LOG_STATE} from '../util/enum/log-state.enum';
 import {VendorContact} from '../util/interface/vendor-contact.interface';
+import {
+  emailSending,
+  folderCreation,
+  noDataWasFound,
+  retrievingContacts,
+  sheetCreation,
+  updateDbSheetSendDateLog,
+} from '../util/service/message.utility';
 import {
   getTemplateAndCreateFolderForRegistries,
   createSheetFiles,
@@ -12,19 +21,11 @@ import {
 import {updateDbSheetSendDates} from './write.service';
 
 function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
-  console.warn(
-    `RETRIEVING VENDORS CONTACTS TO OBTAIN ${
-      isPurchase ? 'PURCHASES' : 'REPAIRS'
-    } FUP DATA START`
-  );
+  console.warn(retrievingContacts(LOG_STATE.START, isPurchase));
   const {vendors, headers, vendorsContact} = isPurchase
     ? extractPurchaseDataByVendorName(automatic)
     : extractRepairDataByVendorName(automatic);
-  console.warn(
-    `RETRIEVING VENDORS CONTACTS TO OBTAIN ${
-      isPurchase ? 'PURCHASES' : 'REPAIRS'
-    } FUP DATA END`
-  );
+  console.warn(retrievingContacts(LOG_STATE.END, isPurchase));
 
   // User cancel operation
   if (!vendorsContact) return;
@@ -34,7 +35,7 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
     return;
   }
 
-  console.warn('FOLDER CREATION START');
+  console.warn(folderCreation(LOG_STATE.START));
   const {
     templateSpreadsheet,
     registriesFolder,
@@ -46,9 +47,9 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
     headers,
     isPurchase
   );
-  console.warn('FOLDER CREATION END');
+  console.warn(folderCreation(LOG_STATE.END));
 
-  console.warn('SHEETS CREATION START');
+  console.warn(sheetCreation(LOG_STATE.START));
   // Create sheet files and return a send email to vendor action for each one
   const sendEmails = createSheetFiles(
     vendors,
@@ -58,20 +59,20 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
     columnNumbers,
     automatic
   );
-  console.warn('SHEETS CREATION END');
+  console.warn(sheetCreation(LOG_STATE.END));
 
-  console.warn('EMAIL SENDING START');
+  console.warn(emailSending(LOG_STATE.START));
   const mailedIds = sendEmails
     .map(sendEmail => sendEmail(isPurchase))
     .filter(id => id);
-  console.warn('EMAIL SENDING END');
+  console.warn(emailSending(LOG_STATE.END));
 
-  console.warn('UPDATE DB SHEET SEND DATE START');
+  console.warn(updateDbSheetSendDateLog(LOG_STATE.START));
   updateDbSheetSendDates(
     mailedIds,
     isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
   );
-  console.warn('UPDATE DB SHEET SEND DATE END');
+  console.warn(updateDbSheetSendDateLog(LOG_STATE.END));
 }
 
 function _updateDbSheetWhenNoVendors(
@@ -80,18 +81,14 @@ function _updateDbSheetWhenNoVendors(
 ) {
   const ids = vendorsContact.map(({id}) => id);
 
-  console.log(
-    `No data was found in ${
-      isPurchase ? 'purchases' : 'repairs'
-    } FUP, updating DB sheet...`
-  );
+  console.log(noDataWasFound(isPurchase));
 
-  console.warn('UPDATE DB SHEET SEND DATE START');
+  console.warn(updateDbSheetSendDateLog(LOG_STATE.START));
   updateDbSheetSendDates(
     ids,
     isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
   );
-  console.warn('UPDATE DB SHEET SEND DATE END');
+  console.warn(updateDbSheetSendDateLog(LOG_STATE.END));
 }
 
 export {createVendorFiles};

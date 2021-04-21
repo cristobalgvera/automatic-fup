@@ -10,6 +10,7 @@ import {
 import {validateUsedVendors} from './util/one-time/validate-used-vendors.one-time';
 import {notifyDevMode} from './service/utility.service';
 import {checkWorker} from './service/config.service';
+import {automaticSendDisabled} from './util/service/message.utility';
 
 /****************************************************************
  *
@@ -64,14 +65,14 @@ function createFileForEachRepairVendor(automatic?: boolean) {
 function createFileForEachPurchaseVendorAutomatic() {
   if (COMMON.CONFIGURATION()[DB.UTIL.CONFIG.FEATURE.AUTOMATIC_PURCHASES])
     createFileForEachPurchaseVendor(true);
-  else console.warn('AUTOMATIC SEND HAS BEEN DISABLED');
+  else console.warn(automaticSendDisabled());
 }
 
 // To be automatic
 function createFileForEachRepairVendorAutomatic() {
   if (COMMON.CONFIGURATION()[DB.UTIL.CONFIG.FEATURE.AUTOMATIC_REPAIRS])
     createFileForEachRepairVendor(true);
-  else console.warn('AUTOMATIC SEND HAS BEEN DISABLED');
+  else console.warn(automaticSendDisabled());
 }
 
 // To be automatic
