@@ -242,7 +242,11 @@ function evaluateByEmailSpreadsheets(
     []
   );
 
-  purchaseOrderService.saveAll(purchaseOrders);
+  const filtered = purchaseOrders.filter(
+    ({purchaseOrder, partNumber}) => !!purchaseOrder && !!partNumber
+  );
+
+  purchaseOrderService.saveAll(filtered);
   createMailRecordActions.forEach(create => create());
 }
 

@@ -16,6 +16,7 @@ import {_isPurchaseSpreadsheet} from '../util/service/read.utility';
 import {
   errorSendingEmailTo,
   noNewEmailsWasFound,
+  totalReadMessages,
   tryingToGetOpenOrdersFrom,
 } from './message.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
@@ -103,6 +104,7 @@ function getOpenOrdersFromVendors(after?: string) {
   // This method take a lot of time to execute, should be optimized
   const results = GmailApp.search(query).map(mail => {
     const mailFolder = tempFolder.createFolder(mail.getFirstMessageSubject());
+
     return mail
       .getMessages()
       .filter(byIsVendorData)
@@ -120,7 +122,10 @@ function getOpenOrdersFromVendors(after?: string) {
     [[], []] as [(() => void)[], ByEmailSpreadsheets[]]
   );
 
-  if (!attachments.length) console.log(noNewEmailsWasFound());
+  console.log(totalReadMessages(createMailRecordActions.length));
+
+  if (!attachments.length && !createMailRecordActions.length)
+    console.log(noNewEmailsWasFound());
 
   // Get all attachments grouped by sender email in an object
   const attachmentsByVendor = [attachments].reduce(groupByVendorEmail, {});

@@ -14,8 +14,8 @@ const COMMON = {
       XLSX: 'xlsx',
     },
     WORKING_HOURS: {
-      MIN: 7,
-      MAX: 21,
+      MIN: 8 + 4, // GMT -4
+      MAX: 19 + 4, // GMT -4
     },
   },
   EMAIL: {

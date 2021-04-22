@@ -144,8 +144,8 @@ function getDateUtilities(date?: Date) {
   const [localeDate, localeTime] = locale.split(' ');
   const [namedDay, namedMonth, , , , timeZone] = now.toString().split(' ');
 
-  const [day, month, year, hour, minute, second] = locale
-    .split(/[/ :]/)
+  const [year, month, day, hour, minute, second, millisecond] = iso
+    .split(/[-T:.Z]/)
     .map(Number);
 
   const dayOfWeek = now.getDay();
@@ -161,6 +161,7 @@ function getDateUtilities(date?: Date) {
       hour,
       minute,
       second,
+      millisecond,
       timeZone,
     },
     utilities: {
@@ -180,7 +181,7 @@ function validWorkingHours() {
 
   const validHour =
     hour >= COMMON.UTIL.WORKING_HOURS.MIN &&
-    hour <= COMMON.UTIL.WORKING_HOURS.MAX;
+    hour < COMMON.UTIL.WORKING_HOURS.MAX;
 
   return !isWeekend && validHour;
 }

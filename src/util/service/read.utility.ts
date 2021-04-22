@@ -334,14 +334,13 @@ function _getUtilitiesToEvaluateEmails() {
     templateHeaders: string[][]
   ) => {
     // This should never fail if previous method validation was right
-    const sheet = spreadsheet
-      .getSheets()
-      .find(inSheet =>
-        inSheet
-          .getRange(2, 1, 1, inSheet.getLastColumn())
-          .getValues()[0]
-          .includes(TEMPLATE.COLUMN.PURCHASE_ORDER)
-      );
+    const sheet = spreadsheet.getSheets().find(inSheet => {
+      const lastColumn = inSheet.getLastColumn();
+      return inSheet
+        .getRange(2, 1, 1, lastColumn ? lastColumn : 1)
+        .getValues()[0]
+        .includes(TEMPLATE.COLUMN.PURCHASE_ORDER);
+    });
 
     let headers: string[] = sheet
       .getRange(2, 1, 1, sheet.getLastColumn())
@@ -539,14 +538,13 @@ function _alertVendorWithProblems(
 }
 
 function _isPurchaseSpreadsheet(spreadsheet: Spreadsheet) {
-  return spreadsheet
-    .getSheets()
-    .some(sheet =>
-      sheet
-        .getRange(2, 1, 1, sheet.getLastColumn())
-        .getValues()[0]
-        .includes(TEMPLATE.COLUMN.LINE)
-    );
+  return spreadsheet.getSheets().some(sheet => {
+    const lastColumn = sheet.getLastColumn();
+    return sheet
+      .getRange(2, 1, 1, lastColumn ? lastColumn : 1)
+      .getValues()[0]
+      .includes(TEMPLATE.COLUMN.LINE);
+  });
 }
 
 export {

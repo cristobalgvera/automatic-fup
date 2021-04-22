@@ -96,7 +96,7 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
     mailFolder: Folder
   ): [() => void, ByEmailSpreadsheets] => {
     // Can be 'XXXXXX<mail@domain>' or 'mail@domain' format
-    const from = message.getFrom();
+    const from = message.getFrom().toLocaleLowerCase();
 
     const generatedSpreadsheets =
       !COMMON.DEV_MODE() &&
@@ -126,6 +126,7 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
     const createMailRecordAction = () =>
       mailRecordService.saveOne({
         mailId: message.getId(),
+        subject: message.getSubject(),
         vendorEmail: obtainEmail(from) || NOT_FOUND.VENDOR_EMAIL,
       });
 
@@ -236,14 +237,13 @@ function _getPurchasesAndRepairsFolders(parentFolder: Folder) {
 function _hasRequiredStructure(spreadsheet: Spreadsheet) {
   // If false, means file structure was modified by the
   // vendor before send it or is another file
-  return spreadsheet
-    .getSheets()
-    .some(sheet =>
-      sheet
-        .getRange(2, 1, 1, sheet.getLastColumn())
-        .getValues()[0]
-        .includes(TEMPLATE.COLUMN.PURCHASE_ORDER)
-    );
+  return spreadsheet.getSheets().some(sheet => {
+    const lastColumn = sheet.getLastColumn();
+    return sheet
+      .getRange(2, 1, 1, lastColumn ? lastColumn : 1)
+      .getValues()[0]
+      .includes(TEMPLATE.COLUMN.PURCHASE_ORDER);
+  });
 }
 
 function _setAfterDate(daysAgo?: number) {

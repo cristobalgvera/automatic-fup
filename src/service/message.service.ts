@@ -83,8 +83,12 @@ function noNewEmailsWasFound() {
   return 'No new emails found';
 }
 
+function totalReadMessages(read: number) {
+  return `Checked: ${read} messages`;
+}
+
 function gettingInfoFrom(message: GmailMessage, from: string) {
-  return `Getting info from '${message.getSubject()}' sended by '${from}' on '${message.getDate()}'`;
+  return `Getting info from '${message.getSubject()}' sended by '${from}' on '${message.getDate()} - ID: ${message.getId()}'`;
 }
 
 function foundSpreadsheetState(spreadsheet: Spreadsheet, isValid: boolean) {
@@ -157,9 +161,11 @@ function disabledDueDevMode() {
 }
 
 function serviceDisabled(start?: number, end?: number) {
-  return `Service is disable between ${
-    start ?? COMMON.UTIL.WORKING_HOURS.MIN
-  } and ${end ?? COMMON.UTIL.WORKING_HOURS.MAX} hours and weekends`;
+  return `Service is disabled on weekends and between ${
+    end ?? COMMON.UTIL.WORKING_HOURS.MAX - 4 // GMT -4
+  }:00 and ${
+    start ?? COMMON.UTIL.WORKING_HOURS.MIN - 4 // GMT -4
+  }:00 o'clock to avoid over request Firebase with unused updates`;
 }
 
 export {
@@ -192,4 +198,5 @@ export {
   noNewEmailsWasFound,
   disabledDueDevMode,
   serviceDisabled,
+  totalReadMessages,
 };

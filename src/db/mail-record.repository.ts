@@ -37,9 +37,11 @@ function existsById(id: string) {
 function _createMailRecord({
   mailId,
   vendorEmail,
+  subject,
 }: CreateMailRecord): MailRecord {
   return {
     mailId,
+    subject,
     audit: {
       creationDate: new Date(),
       createdBy: Session.getActiveUser().getEmail(),
