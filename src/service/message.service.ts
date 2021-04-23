@@ -132,7 +132,7 @@ function updatingPurchaseOrderInFup(
 
   return `Updating '${id} (${order}-${line ?? 1})', row '${rowNumber}' in ${
     isPurchase ? 'purchases' : 'repairs'
-  } FUP data -> Contact: ${vendorName} <${vendorEmail}>`;
+  } FUP data -> Contact: ${vendorName} <${vendorEmail.toLocaleLowerCase()}>`;
 }
 
 function notFoundPurchaseOrderInFup(

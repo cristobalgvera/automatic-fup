@@ -44,14 +44,19 @@ function _getToContactVendors(
 
   console.log({vendorsToTake, entries});
 
-  return entries.slice(0, vendorsToTake).reduce((acc, vendorContact) => {
-    const [vendorId, contact] = vendorContact;
+  const reducedVendorsContact: VendorsContact = {};
+  let size = 0;
 
-    if (!groupedVendors[vendorId]) return acc;
+  // Sort of slice, but better performance
+  for (const [vendorId, contact] of entries) {
+    if (size >= vendorsToTake) break;
+    if (!groupedVendors[vendorId]) continue;
 
-    acc[vendorId] = contact;
-    return acc;
-  }, {} as VendorsContact);
+    reducedVendorsContact[vendorId] = {...contact};
+    size++;
+  }
+
+  return reducedVendorsContact;
 }
 
 function _getVendorsNamesByDataOrigin(dataOrigin: DATA_ORIGIN) {
@@ -325,7 +330,7 @@ function _getUtilitiesToEvaluateEmails() {
       awb: row[headerNumbers.awb] || null,
       comments: row[headerNumbers.comments] || null,
       audit: {
-        vendorEmail: vendorEmail || null,
+        vendorEmail: vendorEmail.toLocaleLowerCase() || null,
         isPurchase: !!row[headerNumbers.line],
         updatedInSheet: false,
       },

@@ -124,6 +124,8 @@ function updateDbSheetSendDates(
 
   SpreadsheetApp.flush();
 
+  console.log({checked: checkedIds.length, mailed: mailedIds.length});
+
   console.log(howManyVendorsChecked(checkedIds.length));
   updateAutomaticallySendEmailColumn(
     sheet,
