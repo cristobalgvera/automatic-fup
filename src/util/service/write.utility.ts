@@ -29,7 +29,9 @@ function _utilitiesToUpdateFupData(
     const rowNumber = rowNumberByKey[isPurchase ? id : order];
     if (!rowNumber) {
       console.error(notFoundPurchaseOrderInFup(purchaseOrder, isPurchase));
-      return null;
+      const conflictive: PurchaseOrder = {...purchaseOrder};
+      conflictive.audit.conflictive = true;
+      return conflictive;
     }
 
     const [action, responsible] = _setResponsible(status, isPurchase);

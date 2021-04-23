@@ -1,6 +1,7 @@
 import {_purchaseOrderRepository} from '../../db/purchase-order.repository';
 import {PO_STATUS} from '../../util/enum/po-status.enum';
 import {PurchaseOrder} from '../../util/schema/purchase-order.schema';
+import {conflictiveOpenOrdersHaveBeenFound} from '../message.service';
 
 function exists(id: string) {
   return _purchaseOrderRepository.exists(id);
@@ -63,15 +64,28 @@ function validateStatus(id: string) {
   }
 }
 
-function getToUpdatePurchaseOrders(): [PurchaseOrder[], PurchaseOrder[]] {
+function getToUpdatePurchaseOrders(
+  filterConflictive = true
+): [PurchaseOrder[], PurchaseOrder[]] {
   const purchaseOrders = purchaseOrderService.getAll({
     orderBy: 'audit/updatedInSheet',
     equalTo: false,
   });
 
-  if (!purchaseOrders.length) return [[], []];
+  const filtered = purchaseOrders.filter(
+    ({audit: {conflictive}}) => !conflictive || !filterConflictive
+  );
 
-  return purchaseOrders.reduce(
+  if (purchaseOrders.length > filtered.length)
+    console.warn(
+      conflictiveOpenOrdersHaveBeenFound(
+        purchaseOrders.length - filtered.length
+      )
+    );
+
+  if (!filtered.length) return [[], []];
+
+  return filtered.reduce(
     (acc: [PurchaseOrder[], PurchaseOrder[]], purchaseOrder) =>
       purchaseOrder.audit.isPurchase
         ? [[...acc[0], purchaseOrder], [...acc[1]]]

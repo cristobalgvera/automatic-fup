@@ -9,6 +9,7 @@ import {
   errorUpdatingSendDate,
   fillingAutomaticallySendColumn,
   howManyVendorsChecked,
+  noOpenOrdersToBeUpdated,
   retrievingData,
   updating,
   updatingOpenOrders,
@@ -192,6 +193,10 @@ function updateAutomaticallySendEmailColumn(
 
 function updateFupData() {
   const [purchases, repairs] = purchaseOrderService.getToUpdatePurchaseOrders();
+
+  if (!purchases.length && !repairs.length)
+    console.warn(noOpenOrdersToBeUpdated());
+
   if (purchases.length) {
     console.warn(updatingOpenOrders(LOG_STATE.START, true));
     const updatedPurchases = _updatePurchases(purchases);
@@ -237,7 +242,7 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
   );
 
   console.log(updating());
-  return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
+  return purchaseOrders.map(updateSheet);
 }
 
 function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
@@ -288,6 +293,6 @@ function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
   );
 
   console.log(updating());
-  return purchaseOrders.map(updateSheet).filter(purchaseOrder => purchaseOrder);
+  return purchaseOrders.map(updateSheet);
 }
 export {writeInSheet, updateFupData, updateDbSheetSendDates};

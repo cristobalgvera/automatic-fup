@@ -152,6 +152,14 @@ function notFoundPurchaseOrderInFup(
   } FUP data -> Contact: '${vendorName} <${vendorEmail}>' | Send to: '${createdBy}', registered on '${creationDate}'`;
 }
 
+function noOpenOrdersToBeUpdated() {
+  return 'NO NEW OPEN ORDERS DETAILS TO BE UPDATED FOUND IN DATABASE';
+}
+
+function conflictiveOpenOrdersHaveBeenFound(conflictiveOpenOrders: number) {
+  return `Database storage should be cleaned. There are ${conflictiveOpenOrders} conflictive open orders to check`;
+}
+
 function automaticSendDisabled() {
   return 'AUTOMATIC SEND HAS BEEN DISABLED';
 }
@@ -204,4 +212,6 @@ export {
   serviceDisabled,
   totalReadMessages,
   howManyVendorsChecked,
+  conflictiveOpenOrdersHaveBeenFound,
+  noOpenOrdersToBeUpdated,
 };
