@@ -128,7 +128,7 @@ function consolidateOpenOrders(isPurchase = true) {
       // Update consolidated sheet in case of delay
       SpreadsheetApp.flush();
     } catch (error) {
-      console.error(error);
+      console.error(JSON.stringify(error, null, 2));
     }
   }
 
@@ -139,7 +139,7 @@ function consolidateOpenOrders(isPurchase = true) {
       TEMPLATE.UTIL.INITIAL_ROWS - 2
     );
   } catch (error) {
-    console.error(error);
+    console.error(JSON.stringify(error, null, 2));
   }
 }
 
@@ -167,7 +167,7 @@ function excelToSheet(excelFile: File, folder: Folder) {
     // Variable file should return his id of creation (this may fail)
     return SpreadsheetApp.openById(file.id);
   } catch (error) {
-    console.error(error);
+    console.error(JSON.stringify(error, null, 2));
     return null;
   }
 }
@@ -187,7 +187,7 @@ function sheetToExcel(vendorSpreadsheet: Spreadsheet, name: string) {
       .getBlob()
       .setName(`${name}.${COMMON.UTIL.FILE_EXTENSION.XLSX}`);
   } catch (error) {
-    console.error(error);
+    console.error(JSON.stringify(error, null, 2));
     return null;
   }
 }

@@ -108,7 +108,7 @@ function removeAll(ids: string[]): boolean {
     });
     return true;
   } catch (error) {
-    console.error(error);
+    console.error(JSON.stringify(error, null, 2));
     return false;
   }
 }

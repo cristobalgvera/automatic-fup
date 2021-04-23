@@ -70,7 +70,7 @@ function _sendExcelTo(
 
     return id;
   } catch (error) {
-    console.error(error);
+    console.error(JSON.stringify(error, null, 2));
     return null;
   }
 }
