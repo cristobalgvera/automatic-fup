@@ -42,6 +42,8 @@ function _getToContactVendors(
       ? allEntries
       : DB.UTIL.VENDORS_TO_TAKE;
 
+  console.log({vendorsToTake, entries});
+
   return entries.slice(0, vendorsToTake).reduce((acc, vendorContact) => {
     const [vendorId, contact] = vendorContact;
 
@@ -348,9 +350,14 @@ function _getUtilitiesToEvaluateEmails() {
 
     // Find PO column number if sheet columns was modified
     const poNumberColumnNumber =
-      headers.indexOf(TEMPLATE.COLUMN.PURCHASE_ORDER) + 1;
+      headers.indexOf(TEMPLATE.UTIL.COLUMN_NAME.purchaseOrder) + 1;
+    const commentColumnNumber =
+      headers.indexOf(TEMPLATE.UTIL.COLUMN_NAME.comments) + 1;
 
-    headers = headers.slice(poNumberColumnNumber - 1, poNumberColumnNumber + 9);
+    headers = headers.slice(
+      poNumberColumnNumber - 1,
+      commentColumnNumber ? commentColumnNumber : poNumberColumnNumber + 10
+    );
 
     // Minus header rows
     const numberOfRows = sheet.getLastRow() - 2;
@@ -363,7 +370,12 @@ function _getUtilitiesToEvaluateEmails() {
     }, {} as Partial<typeof TEMPLATE.UTIL.COLUMN_NAME>);
 
     const spreadsheetValues: string[][] = sheet
-      .getRange(3, poNumberColumnNumber, numberOfRows, 9)
+      .getRange(
+        3,
+        poNumberColumnNumber,
+        numberOfRows,
+        commentColumnNumber ? commentColumnNumber : 10
+      )
       .getValues();
 
     return {spreadsheetValues, headerNumbers};
