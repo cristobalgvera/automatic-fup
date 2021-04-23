@@ -8,6 +8,7 @@ import {
   errorChecking,
   errorUpdatingSendDate,
   fillingAutomaticallySendColumn,
+  howManyVendorsChecked,
   retrievingData,
   updating,
   updatingOpenOrders,
@@ -80,7 +81,8 @@ function writeInSheet(
 }
 
 function updateDbSheetSendDates(
-  ids: string[],
+  mailedIds: string[],
+  checkedIds: string[],
   dataOrigin: DATA_ORIGIN,
   shouldUpdateDates = true,
   when?: Date
@@ -106,20 +108,22 @@ function updateDbSheetSendDates(
   const updateDate = when ?? new Date();
 
   console.log(updatingSendDate());
-  ids.forEach(id => {
+  checkedIds.forEach(id => {
     const rowNumber = dbIds[id];
     if (!rowNumber && rowNumber !== 0) {
       console.error(errorUpdatingSendDate(id));
       return null;
     }
 
-    if (shouldUpdateDates) data[rowNumber][sendDateColumn] = updateDate;
+    if (shouldUpdateDates && mailedIds.includes(id))
+      data[rowNumber][sendDateColumn] = updateDate;
 
     data[rowNumber][automaticallySendEmailColumn] = false;
   });
 
   SpreadsheetApp.flush();
 
+  console.log(howManyVendorsChecked(checkedIds.length));
   updateAutomaticallySendEmailColumn(
     sheet,
     dataOrigin,

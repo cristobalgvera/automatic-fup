@@ -97,6 +97,10 @@ function foundSpreadsheetState(spreadsheet: Spreadsheet, isValid: boolean) {
   }' ${isValid ? '' : 'DOES NOT '}HAVE a valid format`;
 }
 
+function howManyVendorsChecked(checkedIds: number) {
+  return `Was checked ${checkedIds} vendors`;
+}
+
 function creatingSpreadsheet(vendorName: string, sheetName: string) {
   return `Creating '${vendorName}' spreadsheet named '${sheetName}'`;
 }
@@ -199,4 +203,5 @@ export {
   disabledDueDevMode,
   serviceDisabled,
   totalReadMessages,
+  howManyVendorsChecked,
 };

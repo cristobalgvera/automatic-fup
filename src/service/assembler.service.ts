@@ -68,8 +68,10 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn(emailSending(LOG_STATE.END));
 
   console.warn(updateDbSheetSendDateLog(LOG_STATE.START));
+  const checkedIds = vendorsContact.map(({id}) => id);
   updateDbSheetSendDates(
     mailedIds,
+    checkedIds,
     isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
   );
   console.warn(updateDbSheetSendDateLog(LOG_STATE.END));
