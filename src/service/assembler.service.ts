@@ -81,13 +81,14 @@ function _updateDbSheetWhenNoVendors(
   vendorsContact: VendorContact[],
   isPurchase: boolean
 ) {
-  const ids = vendorsContact.map(({id}) => id);
+  const checkedIds = vendorsContact.map(({id}) => id);
 
   console.log(noDataWasFound(isPurchase));
 
   console.warn(updateDbSheetSendDateLog(LOG_STATE.START));
   updateDbSheetSendDates(
-    ids,
+    [],
+    checkedIds,
     isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR,
     false
   );
