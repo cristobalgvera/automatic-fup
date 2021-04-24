@@ -22,7 +22,7 @@ import {updateDbSheetSendDates} from './write.service';
 
 function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn(retrievingContacts(LOG_STATE.START, isPurchase));
-  const {vendors, headers, vendorsContact} = isPurchase
+  const {vendors, headers, vendorsContact, noData} = isPurchase
     ? extractPurchaseDataByVendorName(automatic)
     : extractRepairDataByVendorName(automatic);
   console.warn(retrievingContacts(LOG_STATE.END, isPurchase));
@@ -30,7 +30,8 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   // User cancel operation
   if (!vendorsContact) return;
 
-  if (!Object.keys(vendors)[0]) {
+  if (noData) {
+    console.log({noData, vendorsContact, vendors});
     _updateDbSheetWhenNoVendors(vendorsContact, isPurchase);
     return;
   }

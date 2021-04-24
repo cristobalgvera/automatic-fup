@@ -42,8 +42,6 @@ function _getToContactVendors(
       ? allEntries
       : DB.UTIL.VENDORS_TO_TAKE;
 
-  console.log({vendorsToTake, entries});
-
   const reducedVendorsContact: VendorsContact = {};
   let size = 0;
 
@@ -56,7 +54,12 @@ function _getToContactVendors(
     size++;
   }
 
-  return reducedVendorsContact;
+  if (!size) {
+    const checkedVendorsContact = entries.map(([, contact]) => contact);
+    return {reducedVendorsContact, checkedVendorsContact};
+  }
+
+  return {reducedVendorsContact};
 }
 
 function _getVendorsNamesByDataOrigin(dataOrigin: DATA_ORIGIN) {

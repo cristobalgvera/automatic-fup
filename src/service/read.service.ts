@@ -36,7 +36,10 @@ function extractRepairDataByVendorName(
 
   // Filter vendors checked as 'to send email', get his
   // contact data and set useful format to work with them
-  const toContactVendors = _getToContactVendors(vendorsContact, groupedVendors);
+  const {
+    reducedVendorsContact: toContactVendors,
+    checkedVendorsContact,
+  } = _getToContactVendors(vendorsContact, groupedVendors);
   const toFilterVendors = Object.values(toContactVendors);
 
   if (
@@ -44,6 +47,9 @@ function extractRepairDataByVendorName(
     _alertVendorsToFilter(groupedVendors, toContactVendors, toFilterVendors)
   )
     return {};
+
+  if (!toFilterVendors.length)
+    return {noData: true, vendorsContact: checkedVendorsContact};
 
   const {
     filters: {
@@ -97,7 +103,10 @@ function extractPurchaseDataByVendorName(
     DATA_ORIGIN.PURCHASE
   );
 
-  const toContactVendors = _getToContactVendors(vendorsContact, groupedVendors);
+  const {
+    reducedVendorsContact: toContactVendors,
+    checkedVendorsContact,
+  } = _getToContactVendors(vendorsContact, groupedVendors);
   const toFilterVendors = Object.values(toContactVendors);
 
   if (
@@ -105,6 +114,9 @@ function extractPurchaseDataByVendorName(
     _alertVendorsToFilter(groupedVendors, toContactVendors, toFilterVendors)
   )
     return {};
+
+  if (!toFilterVendors.length)
+    return {noData: true, vendorsContact: checkedVendorsContact};
 
   const {
     filters: {
