@@ -19,6 +19,7 @@ import {_getFupInitialData} from '../util/service/read.utility';
 import {_utilitiesToUpdateFupData} from '../util/service/write.utility';
 import {checkWorker} from './config.service';
 import {purchaseOrderService} from './db/purchase-order.service';
+import {storeData} from './analytics.service';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type SheetData = (string | boolean | Date | number)[][];
 
@@ -195,23 +196,28 @@ function updateAutomaticallySendEmailColumn(
 
 function updateFupData() {
   const [purchases, repairs] = purchaseOrderService.getToUpdatePurchaseOrders();
+  let updatedPurchases: PurchaseOrder[], updatedRepairs: PurchaseOrder[];
 
-  if (!purchases.length && !repairs.length)
+  if (!purchases.length && !repairs.length) {
     console.warn(noOpenOrdersToBeUpdated());
+    return;
+  }
 
   if (purchases.length) {
     console.warn(updatingOpenOrders(LOG_STATE.START, true));
-    const updatedPurchases = _updatePurchases(purchases);
+    updatedPurchases = _updatePurchases(purchases);
     purchaseOrderService.setUpdatedPurchaseOrders(updatedPurchases);
     console.warn(updatingOpenOrders(LOG_STATE.END, true));
   }
 
   if (repairs.length) {
     console.warn(updatingOpenOrders(LOG_STATE.START, false));
-    const updatedRepairs = _updateRepairs(repairs);
+    updatedRepairs = _updateRepairs(repairs);
     purchaseOrderService.setUpdatedPurchaseOrders(updatedRepairs);
     console.warn(updatingOpenOrders(LOG_STATE.END, false));
   }
+
+  storeData([...updatedPurchases, ...updatedRepairs]);
 }
 
 function _updatePurchases(purchaseOrders: PurchaseOrder[]) {

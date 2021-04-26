@@ -11,23 +11,29 @@ function _utilitiesToStoreData() {
   const headers: string[] = sheet
     .getRange(1, 1, 1, sheet.getLastColumn())
     .getValues()[0];
-  const headersNames = Object.values(ANALYTICS.COLUMN.FIREBASE);
+  const headersNames = Object.entries(ANALYTICS.COLUMN.FIREBASE);
 
-  const headersNumber = headersNames.reduce((acc: HeaderNumber, headerName) => {
-    const headerNumber = headers.indexOf(headerName);
+  const headersNumber = headersNames.reduce(
+    (acc: HeaderNumber, [, headerName]) => {
+      const headerNumber = headers.indexOf(headerName);
 
-    if (headerNumber === -1) return acc;
+      if (headerNumber === -1) return acc;
 
-    return {...acc, [headerName]: headerNumber};
-  }, {});
+      return {...acc, [headerName]: headerNumber};
+    },
+    {}
+  );
 
   const createRow = (analyticsRaw: AnalyticsRaw) => {
     const row = [];
     for (const header in headersNumber)
       if (Object.prototype.hasOwnProperty.call(headersNumber, header)) {
-        const column = headersNumber[header];
+        const headerName = headersNames.find(([, name]) => name === header);
+        const property = headerName ? headerName[0] : null;
+        if (!property) continue;
 
-        row[column] = analyticsRaw[header];
+        const column = headersNumber[header];
+        row[column] = analyticsRaw[property];
       }
 
     return [...row];

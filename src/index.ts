@@ -15,6 +15,8 @@ import {
   disabledDueDevMode,
   serviceDisabled,
 } from './service/message.service';
+import {purchaseOrderService} from './service/db/purchase-order.service';
+import {storeData} from './service/analytics.service';
 
 /****************************************************************
  *
@@ -102,32 +104,4 @@ function updateOpenOrders() {
   }
 
   updateFupData();
-}
-
-function filterPurchaseVendors() {
-  filterPurchaseVendorData();
-}
-
-function filterRepairVendors() {
-  filterRepairVendorData();
-}
-
-function validateVendors() {
-  validateUsedVendors(true, true, 9);
-}
-
-function checkPurchases() {
-  checkWorker.checkAutomaticPurchases();
-}
-
-function uncheckPurchases() {
-  checkWorker.uncheckAutomaticPurchases();
-}
-
-function checkRepairs() {
-  checkWorker.checkAutomaticRepairs();
-}
-
-function uncheckRepairs() {
-  checkWorker.uncheckAutomaticRepairs();
 }
