@@ -6,3 +6,4 @@ export {TEMPLATE} from './template.config';
 export {FOLDER_ID} from './folder-id.config';
 export {FIREBASE} from './firebase.config';
 export {PURCHASE_DATA} from './purchase-data.config';
+export {ANALYTICS} from './analytics.config';
