@@ -1,4 +1,4 @@
-import {COMMON, FOLDER_ID, TEMPLATE, UI} from '../config';
+import {ANALYTICS, COMMON, FOLDER_ID, TEMPLATE, UI} from '../config';
 import {removeExtension} from './utility.service';
 import {GroupedVendors} from '../util/interface/grouped-vendors.interface';
 import {ColumnNumbers} from '../util/interface/column-numbers.interface';
@@ -7,6 +7,7 @@ import {VendorContact} from '../util/interface/vendor-contact.interface';
 import {_setBaseData} from '../util/service/drive.utility';
 import {DATA_ORIGIN} from '../util/enum/data-origin.enum';
 import {creatingSpreadsheet} from './message.service';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 type Folder = GoogleAppsScript.Drive.Folder;
 type File = GoogleAppsScript.Drive.File;
 type SchemaFile = GoogleAppsScript.Drive.Schema.File;
@@ -219,13 +220,14 @@ function createSheetFiles(
     );
 
     // For each vendor create a send email to him action to return
-    return (isPurchase = true) =>
+    return (analyticsData: PurchaseOrder[], isPurchase = true) =>
       sendEmail(
         vendorSheet,
         vendorData,
         columnNumbers,
         vendorContact,
         vendorSpreadsheet,
+        analyticsData,
         automatic,
         isPurchase
       );

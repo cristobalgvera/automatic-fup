@@ -23,6 +23,10 @@ function emailSending(logState: LOG_STATE) {
   return `EMAIL SENDING ${logState}`;
 }
 
+function storeDataSentLog(logState: LOG_STATE) {
+  return `STORING SENT DATA ${logState}`;
+}
+
 function updateDbSheetSendDateLog(logState: LOG_STATE) {
   return `UPDATE DB SHEET SEND DATE ${logState}`;
 }
@@ -180,7 +184,13 @@ function serviceDisabled(start?: number, end?: number) {
   }:00 o'clock to avoid over request Firebase with unused updates`;
 }
 
+function toStoreDataLog({news, toUpdate}: {news: number; toUpdate: number}) {
+  return `New information: ${news} | To update information: ${toUpdate}`;
+}
+
 export {
+  storeDataSentLog,
+  toStoreDataLog,
   retrievingContacts,
   folderCreation,
   sheetCreation,

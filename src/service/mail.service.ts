@@ -19,6 +19,7 @@ import {
   totalReadMessages,
   tryingToGetOpenOrdersFrom,
 } from './message.service';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Folder = GoogleAppsScript.Drive.Folder;
@@ -40,11 +41,17 @@ function sendEmail(
   columnNumbers: ColumnNumbers,
   vendorContact: VendorContact,
   vendorSpreadsheet: Spreadsheet,
+  analyticsData: PurchaseOrder[],
   automatic?: boolean,
   isPurchase = true
 ) {
   // Put collected data in an empty vendor file
-  writeInSheet(vendorSheet, vendorData, columnNumbers, isPurchase);
+  const analytics = writeInSheet(
+    vendorSheet,
+    vendorData,
+    columnNumbers,
+    isPurchase
+  );
 
   let id: string;
   let success: boolean;
@@ -65,6 +72,8 @@ function sendEmail(
       tries++;
     }
   } while (!success || tries === 3);
+
+  if (success) analyticsData.push(...analytics);
 
   return id;
 }

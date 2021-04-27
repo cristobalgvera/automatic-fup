@@ -16,7 +16,10 @@ import {
   updatingSendDate,
 } from './message.service';
 import {_getFupInitialData} from '../util/service/read.utility';
-import {_utilitiesToUpdateFupData} from '../util/service/write.utility';
+import {
+  _utilitiesToSendPurchaseOrders,
+  _utilitiesToUpdateFupData,
+} from '../util/service/write.utility';
 import {checkWorker} from './config.service';
 import {purchaseOrderService} from './db/purchase-order.service';
 import {storeData} from './analytics.service';
@@ -34,23 +37,21 @@ function writeInSheet(
     templatePartNumberColumn,
     templateLineColumn,
     templateQtdPendenteColumn,
-    roNumberColumn,
-    partNumberColumn,
-    lineColumn,
-    qtdPendenteColumn,
   } = columnNumbers;
 
-  const [roNumbers, partNumbers, lines, qtdPendentes] = vendorData.reduce(
-    (acc, data) => {
-      const roNumbers = acc[0].concat([[String(data[roNumberColumn])]]);
-      const partNumbers = acc[1].concat([[String(data[partNumberColumn])]]);
-      const lines = acc[2].concat([[String(data[lineColumn])]]);
-      const qtdPendentes = acc[3].concat([[String(data[qtdPendenteColumn])]]);
-
-      return [roNumbers, partNumbers, lines, qtdPendentes];
-    },
-    [[], [], [], []] as [string[][], string[][], string[][], string[][]]
-  );
+  const [
+    roNumbers,
+    partNumbers,
+    lines,
+    qtdPendentes,
+    analytics,
+  ] = _utilitiesToSendPurchaseOrders(columnNumbers, vendorData) as [
+    string[][],
+    string[][],
+    string[][],
+    string[][],
+    PurchaseOrder[]
+  ];
 
   vendorSheet
     .getRange(3, templatePurchaseOrderColumn, vendorData.length)
@@ -80,6 +81,7 @@ function writeInSheet(
   );
 
   SpreadsheetApp.flush();
+  return analytics;
 }
 
 function updateDbSheetSendDates(
@@ -217,7 +219,7 @@ function updateFupData() {
     console.warn(updatingOpenOrders(LOG_STATE.END, false));
   }
 
-  storeData([...updatedPurchases, ...updatedRepairs]);
+  storeData([...(updatedPurchases ?? []), ...(updatedRepairs ?? [])]);
 }
 
 function _updatePurchases(purchaseOrders: PurchaseOrder[]) {

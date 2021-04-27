@@ -13,10 +13,12 @@ export interface AnalyticsRaw {
   qtyShipped: number;
   awb: string;
   comments: string;
+  sendDate: Date;
   creationDate: Date;
   updateDate: Date;
   dataOrigin: DATA_ORIGIN;
   conflictive: boolean;
   vendorName: string;
   vendorEmail: string;
+  vendorStandard?: string;
 }

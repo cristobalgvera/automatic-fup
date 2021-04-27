@@ -24,6 +24,14 @@ function _utilitiesToStoreData() {
     {}
   );
 
+  const storedData: (
+    | string
+    | number
+    | Date
+  )[][] = sheet.getDataRange().getValues();
+
+  storedData.shift();
+
   const createRow = (analyticsRaw: AnalyticsRaw) => {
     const row = [];
     for (const header in headersNumber)
@@ -39,21 +47,24 @@ function _utilitiesToStoreData() {
     return [...row];
   };
 
-  const setRequiredFormat = ({
-    id,
-    purchaseOrder,
-    line,
-    partNumber,
-    qtyPending,
-    status,
-    esd,
-    shippedDate,
-    qtyShipped,
-    awb,
-    vendorName,
-    comments,
-    audit: {conflictive, isPurchase, creationDate, vendorEmail, updateDate},
-  }: PurchaseOrder): AnalyticsRaw => {
+  const setRequiredFormat = (
+    {
+      id,
+      purchaseOrder,
+      line,
+      partNumber,
+      qtyPending,
+      status,
+      esd,
+      shippedDate,
+      qtyShipped,
+      awb,
+      vendorName,
+      comments,
+      audit: {conflictive, isPurchase, creationDate, vendorEmail, updateDate},
+    }: PurchaseOrder,
+    setSendDate?: boolean
+  ): AnalyticsRaw => {
     return {
       id,
       purchaseOrder,
@@ -68,6 +79,7 @@ function _utilitiesToStoreData() {
       vendorName,
       comments,
       conflictive,
+      sendDate: setSendDate ? new Date() : undefined,
       creationDate,
       updateDate,
       vendorEmail,
@@ -75,7 +87,14 @@ function _utilitiesToStoreData() {
     };
   };
 
-  return {sheet, headersNumber, actions: {createRow, setRequiredFormat}};
+  return {
+    sheet,
+    data: {
+      storedData,
+      headersNumber,
+    },
+    actions: {createRow, setRequiredFormat},
+  };
 }
 
 export {_utilitiesToStoreData};

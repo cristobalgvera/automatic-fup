@@ -7,6 +7,7 @@ import {
   noDataWasFound,
   retrievingContacts,
   sheetCreation,
+  storeDataSentLog,
   updateDbSheetSendDateLog,
 } from './message.service';
 import {
@@ -19,6 +20,8 @@ import {
   extractPurchaseDataByVendorName,
 } from './read.service';
 import {updateDbSheetSendDates} from './write.service';
+import {PurchaseOrder} from '../util/schema/purchase-order.schema';
+import {storeData} from './analytics.service';
 
 function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn(retrievingContacts(LOG_STATE.START, isPurchase));
@@ -63,10 +66,16 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn(sheetCreation(LOG_STATE.END));
 
   console.warn(emailSending(LOG_STATE.START));
+  const analyticsData: PurchaseOrder[] = [];
+
   const mailedIds = sendEmails
-    .map(sendEmail => sendEmail(isPurchase))
+    .map(sendEmail => sendEmail(analyticsData, isPurchase))
     .filter(id => id);
   console.warn(emailSending(LOG_STATE.END));
+
+  console.warn(storeDataSentLog(LOG_STATE.START));
+  storeData(analyticsData, true);
+  console.warn(storeDataSentLog(LOG_STATE.END));
 
   console.warn(updateDbSheetSendDateLog(LOG_STATE.START));
   const checkedIds = vendorsContact.map(({id}) => id);

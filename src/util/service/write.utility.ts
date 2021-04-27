@@ -6,6 +6,7 @@ import {
   notFoundPurchaseOrderInFup,
   updatingPurchaseOrderInFup,
 } from '../../service/message.service';
+import {ColumnNumbers} from '../interface/column-numbers.interface';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function _utilitiesToUpdateFupData(
@@ -62,6 +63,56 @@ function _utilitiesToUpdateFupData(
   return {actions: {updateSheet}};
 }
 
+function _utilitiesToSendPurchaseOrders(
+  columnNumbers: ColumnNumbers,
+  vendorData: string[][]
+) {
+  const {
+    roNumberColumn,
+    partNumberColumn,
+    lineColumn,
+    qtdPendenteColumn,
+  } = columnNumbers;
+
+  return vendorData.reduce(
+    (acc, data) => {
+      const rawLine = data[lineColumn];
+      const rawQtdPendente = data[qtdPendenteColumn];
+
+      const roNumber = [String(data[roNumberColumn])];
+      const partNumber = [String(data[partNumberColumn])];
+      const line = rawLine ? [String(rawLine)] : [undefined];
+      const qtdPendente = rawQtdPendente
+        ? [String(data[qtdPendenteColumn])]
+        : [undefined];
+      const key = `${roNumber[0]}${line[0] ?? 1}`;
+
+      const roNumbers = acc[0].concat([roNumber]);
+      const partNumbers = acc[1].concat([partNumber]);
+      const lines = acc[2].concat([line]);
+      const qtdPendentes = acc[3].concat([qtdPendente]);
+
+      const analytics = acc[4].concat([
+        {
+          id: key,
+          purchaseOrder: roNumber[0],
+          line: +(line[0] ?? 1),
+          qtyPending: qtdPendente[0] ? +qtdPendente[0] : null,
+          partNumber: partNumber[0],
+          vendorName: undefined,
+          audit: {
+            isPurchase: line[0] ? true : false,
+            updatedInSheet: false,
+          },
+        },
+      ]);
+
+      return [roNumbers, partNumbers, lines, qtdPendentes, analytics];
+    },
+    [[], [], [], [], []]
+  );
+}
+
 function _setResponsible(
   status: PO_STATUS,
   isPurchase: boolean
@@ -107,4 +158,4 @@ function _setResponsible(
   }
 }
 
-export {_utilitiesToUpdateFupData};
+export {_utilitiesToUpdateFupData, _utilitiesToSendPurchaseOrders};
