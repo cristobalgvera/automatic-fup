@@ -57,6 +57,7 @@ function validateStatus(id: string) {
     case PO_STATUS.CORE_RETURN:
     case PO_STATUS.SCRAPPED:
     case PO_STATUS.SHIPPED:
+    case PO_STATUS.OTHER_CUSTOMER_HOLD:
       return true;
     case PO_STATUS.NOT_RECEIVED:
     default:

@@ -10,4 +10,5 @@ export enum PO_STATUS {
   CANCELLED = 'Cancelled',
   NOT_SHIPPED_YET = 'Not shipped yet',
   AWAITING_ISSUED_BUYER = 'Awaiting issued buyer',
+  OTHER_CUSTOMER_HOLD = 'Other customer hold',
 }

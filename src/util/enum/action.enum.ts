@@ -10,4 +10,5 @@ export enum ACTION {
   MANAGE_B_PLAN = 'Gestionar plan B',
   SEND_ON_ESD = 'Enviar en ESD',
   RESPOND_REQUESTED_ISSUE = 'Responder issue solicitado',
+  FUP = 'FUP',
 }

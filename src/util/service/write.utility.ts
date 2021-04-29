@@ -117,7 +117,7 @@ function _setResponsible(
   status: PO_STATUS,
   isPurchase: boolean
 ): [ACTION, RESPONSIBLE] {
-  if (isPurchase) {
+  if (isPurchase)
     switch (status) {
       case PO_STATUS.NOT_RECEIVED:
         return [ACTION.SEND_PO_TO_VENDOR, RESPONSIBLE.PROCUREMENT];
@@ -134,7 +134,7 @@ function _setResponsible(
       default:
         return [undefined, undefined];
     }
-  } else {
+  else
     switch (status) {
       case PO_STATUS.NOT_RECEIVED:
         return [ACTION.GET_POD, RESPONSIBLE.LOGISTIC];
@@ -146,6 +146,8 @@ function _setResponsible(
         return [ACTION.APPROVE_QUOTE, RESPONSIBLE.PROCUREMENT];
       case PO_STATUS.AWAITING_CIA_PAYMENT:
         return [ACTION.PROCESS_CIA, RESPONSIBLE.PROCUREMENT];
+      case PO_STATUS.OTHER_CUSTOMER_HOLD:
+        return [ACTION.FUP, RESPONSIBLE.PROCUREMENT];
       case PO_STATUS.UNDER_REPAIR_PROCESS:
         return [ACTION.FINISH_REPAIRS, RESPONSIBLE.VENDOR];
       case PO_STATUS.SHIPPED:
@@ -155,7 +157,6 @@ function _setResponsible(
       default:
         return [undefined, undefined];
     }
-  }
 }
 
 export {_utilitiesToUpdateFupData, _utilitiesToSendPurchaseOrders};
