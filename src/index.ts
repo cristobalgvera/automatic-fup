@@ -97,3 +97,13 @@ function updateOpenOrders() {
 
   updateFupData();
 }
+
+// To be automatic
+function BYPASScreateFileForEachPurchaseVendorAutomatic() {
+  createFileForEachPurchaseVendor(true);
+}
+
+// To be automatic
+function BYPASScreateFileForEachRepairVendorAutomatic() {
+  createFileForEachRepairVendor(true);
+}

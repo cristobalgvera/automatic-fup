@@ -1,37 +1,37 @@
+import {PO_STATUS} from '../util/enum/po-status.enum';
 import {RESPONSIBLE} from '../util/enum/responsible.enum';
 
 const REPAIR_DATA = {
-  ID: '1jub6SfL1l8e7oDa1L2GuklQHOBydqFZIbwWC9gNrCo4',
-  FUP: {
-    ID: '1XTw--ITO81CTzBbvJgocPgv27gngRXYF6TvccupAbeE',
-    SHEET: {
-      ACTUAL: 'Actual',
-    },
-    COLUMN: {
-      RO_NUMBER: 'RO Number',
-    },
-  },
+  ID: '1XTw--ITO81CTzBbvJgocPgv27gngRXYF6TvccupAbeE',
   SHEET: {
     ACTUAL: 'Actual',
   },
   COLUMN: {
-    RO_NUMBER: 'RO_Number',
-    PART_NUMBER: 'PART_NUMBER',
-    VENDOR_NAME: 'VENDOR_NAME',
-    VENDOR_CODE: 'VENDOR_CODE',
+    RO_NUMBER: 'RO Number',
+    PART_NUMBER: 'Part Number',
+    VENDOR_NAME: 'Vendor Name',
+    VENDOR_CODE: 'Vendor Code',
   },
   UTIL: {
     FILTER_COLUMNS: {
-      HITO_RADAR: 'Hito_Radar',
-      RESPONSIBLE: 'RESPONSIBLE',
+      STATUS: 'Status',
+      PO_STATUS: 'PO Status',
+      RESPONSIBLE: 'Responsable Acción',
       SYSTEM: 'Sistema',
+      BUYER_MANAGEMENT: 'Gestión',
     },
     FILTERS: {
-      HITO_RADAR: ['Vendor', 'Vendor Sin Quote'],
-      RESPONSIBLE: [RESPONSIBLE.VENDOR.toString()],
+      STATUS: ['Proveedor'],
+      RESPONSIBLE: [RESPONSIBLE.VENDOR].map(String),
       SYSTEM: ['SSC', 'BRA'],
+      PO_STATUS: [
+        PO_STATUS.NOT_RECEIVED,
+        PO_STATUS.AWAITING_QUOTE_APPROVAL,
+        PO_STATUS.AWAITING_CIA_PAYMENT,
+        PO_STATUS.OTHER_CUSTOMER_HOLD,
+      ].map(String),
     },
-    SORT_COLUMNS: {VENDOR_NAME: 'VENDOR_NAME', VENDOR_CODE: 'VENDOR_CODE'},
+    SORT_COLUMNS: {VENDOR_NAME: 'Vendor Name', VENDOR_CODE: 'Vendor Code'},
     VENDOR_DATA_COLUMNS: {
       PO_STATUS: 'PO Status',
       ESD: 'ESD',
@@ -40,7 +40,7 @@ const REPAIR_DATA = {
       AWB: 'AWB',
       COMMENTS: 'Comments',
       ACTION: 'Acción',
-      RESPONSIBLE: 'Responsable',
+      RESPONSIBLE: 'Responsable Acción',
     },
   },
 };

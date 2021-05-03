@@ -52,13 +52,7 @@ function extractRepairDataByVendorName(
     return {noData: true, vendorsContact: checkedVendorsContact};
 
   const {
-    filters: {
-      byHitoRadar,
-      bySendEmail,
-      byValidEmail,
-      byResponsible,
-      byValidZone,
-    },
+    filters: {byStatus, bySendEmail, byValidEmail, byResponsible, byValidZone},
     reducers: {onVendorId, onHasDataVendors},
   } = _utilitiesToExtractFupData(
     toFilterVendors,
@@ -76,7 +70,7 @@ function extractRepairDataByVendorName(
     .getValues()
     .filter(byValidZone)
     .filter(byResponsible)
-    .filter(byHitoRadar)
+    .filter(byStatus)
     .filter(byValidEmail)
     .filter(bySendEmail)
     .reduce(onVendorId, {});

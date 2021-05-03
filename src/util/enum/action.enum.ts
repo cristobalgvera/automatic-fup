@@ -4,6 +4,7 @@ export enum ACTION {
   SEND_QUOTE = 'Enviar cotización',
   APPROVE_QUOTE = 'Aprobar cotización',
   PROCESS_CIA = 'Procesar CIA',
+  SEND_VOUCHER = 'Enviar comprobante',
   FINISH_REPAIRS = 'Terminar reparaciones',
   FINISH_IMPORT = 'Terminar importación',
   SEND_PO_TO_VENDOR = 'Enviar PO al proveedor',

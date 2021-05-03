@@ -22,6 +22,7 @@ import {
 import {updateDbSheetSendDates} from './write.service';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 import {storeData} from './analytics.service';
+import {COMMON} from '../config';
 
 function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn(retrievingContacts(LOG_STATE.START, isPurchase));
@@ -74,7 +75,8 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   console.warn(emailSending(LOG_STATE.END));
 
   console.warn(storeDataSentLog(LOG_STATE.START));
-  storeData(analyticsData, true);
+  if (analyticsData.length && !COMMON.DEV_MODE())
+    storeData(analyticsData, true);
   console.warn(storeDataSentLog(LOG_STATE.END));
 
   console.warn(updateDbSheetSendDateLog(LOG_STATE.START));

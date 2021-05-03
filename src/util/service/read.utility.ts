@@ -143,10 +143,10 @@ function _utilitiesToExtractFupData(
         groupedVendors[vendor.id]?.find(([name, code]) => {
           const codeMatch =
             String(code).toLocaleLowerCase() ===
-            searchedCode.toLocaleLowerCase();
+            String(searchedCode).toLocaleLowerCase();
           const nameMatch =
             String(name).toLocaleLowerCase() ===
-            searchedName.toLocaleLowerCase();
+            String(searchedName).toLocaleLowerCase();
 
           return codeMatch || nameMatch;
         }) ?? false
@@ -169,10 +169,10 @@ function _utilitiesToExtractFupData(
         !!groupedVendors[vendor.id]?.find(([name, code]) => {
           const codeMatch =
             String(code).toLocaleLowerCase() ===
-            searchedCode.toLocaleLowerCase();
+            String(searchedCode).toLocaleLowerCase();
           const nameMatch =
             String(name).toLocaleLowerCase() ===
-            searchedName.toLocaleLowerCase();
+            String(searchedName).toLocaleLowerCase();
 
           return codeMatch || nameMatch;
         })
@@ -180,6 +180,7 @@ function _utilitiesToExtractFupData(
 
     return email ? validateEmail(email) : false;
   };
+
   /*
     Check if names match, if match, check vendorZone variable
     to know when to used it, if has to, compare it with the
@@ -194,9 +195,11 @@ function _utilitiesToExtractFupData(
       vendor =>
         vendor[1]?.some(([name, code, zone]) => {
           const codeMatch =
-            String(code).toLocaleLowerCase() === vendorCode.toLocaleLowerCase();
+            String(code).toLocaleLowerCase() ===
+            String(vendorCode).toLocaleLowerCase();
           const nameMatch =
-            String(name).toLocaleLowerCase() === vendorName.toLocaleLowerCase();
+            String(name).toLocaleLowerCase() ===
+            String(vendorName).toLocaleLowerCase();
           const zoneMatch =
             !vendorZone || zone === vendorZone.toLocaleUpperCase();
 
@@ -206,10 +209,10 @@ function _utilitiesToExtractFupData(
     return groupedVendor ? groupedVendor[0] : null;
   };
 
-  const byHitoRadar = (row: string[]) => {
-    if ('HITO_RADAR' in filters)
-      return filters.HITO_RADAR.includes(
-        row[filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR]]
+  const byStatus = (row: string[]) => {
+    if ('STATUS' in filters)
+      return filters.STATUS.includes(
+        row[filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.STATUS]]
       );
   };
 
@@ -224,9 +227,32 @@ function _utilitiesToExtractFupData(
 
   const byResponsible = (row: string[]) => {
     if ('RESPONSIBLE' in filters) {
-      const value =
-        row[filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE]];
-      return value ? filters.RESPONSIBLE.includes(value) : true;
+      const responsibleFilterColumn = isPurchase
+        ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE
+        : REPAIR_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE;
+
+      const responsible = row[filterColumnNumbers[responsibleFilterColumn]];
+
+      if (!responsible || filters.RESPONSIBLE.includes(responsible))
+        return true;
+
+      const buyerManagementFilterColumn = isPurchase
+        ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT
+        : REPAIR_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT;
+
+      const buyerManagement = !!row[
+        filterColumnNumbers[buyerManagementFilterColumn]
+      ]; // Boolean field
+
+      if (!buyerManagement) return false;
+
+      const poStatusFilterColumn = isPurchase
+        ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.PO_STATUS
+        : REPAIR_DATA.UTIL.FILTER_COLUMNS.PO_STATUS;
+
+      const poStatus = row[filterColumnNumbers[poStatusFilterColumn]];
+
+      return filters.PO_STATUS.includes(poStatus);
     }
   };
 
@@ -299,7 +325,7 @@ function _utilitiesToExtractFupData(
 
   return {
     filters: {
-      byHitoRadar,
+      byStatus,
       byAck,
       byFupStatusActual,
       byValidZone,
@@ -333,7 +359,7 @@ function _getUtilitiesToEvaluateEmails() {
       awb: row[headerNumbers.awb] || null,
       comments: row[headerNumbers.comments] || null,
       audit: {
-        vendorEmail: vendorEmail.toLocaleLowerCase() || null,
+        vendorEmail: String(vendorEmail).toLocaleLowerCase() || null,
         isPurchase: !!row[headerNumbers.line],
         updatedInSheet: false,
       },
@@ -480,27 +506,12 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
 
   switch (dataOrigin) {
     case DATA_ORIGIN.REPAIR:
-      filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR] ??=
-        headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR];
-      filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM] ??=
-        headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM];
-
-      sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME] =
-        headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
-      sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE] =
-        headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
+      setRepairFilterColumnNumbers(filterColumnNumbers, headerNumber);
+      setRepairSortColumnNumbers(sortColumnNumber, headerNumber);
       break;
     case DATA_ORIGIN.PURCHASE:
-      filterColumnNumbers[
-        PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
-      ] ??= headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL];
-      filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK] ??=
-        headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK];
-
-      sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME] =
-        headerNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
-      sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE] =
-        headerNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
+      setPurchaseFilterColumnNumbers(filterColumnNumbers, headerNumber);
+      setPurchaseSortColumnNumbers(sortColumnNumber, headerNumber);
       break;
   }
 
@@ -512,6 +523,58 @@ function _getFupInitialData(dataOrigin: DATA_ORIGIN) {
       headerNumber,
     },
   };
+}
+
+function setPurchaseSortColumnNumbers(
+  sortColumnNumber: SortColumns,
+  headerNumber: HeaderNumber
+) {
+  sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME] =
+    headerNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+  sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE] =
+    headerNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
+}
+
+function setRepairSortColumnNumbers(
+  sortColumnNumber: SortColumns,
+  headerNumber: HeaderNumber
+) {
+  sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME] =
+    headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
+  sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE] =
+    headerNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
+}
+
+function setRepairFilterColumnNumbers(
+  filterColumnNumbers: FilterColumns,
+  headerNumber: HeaderNumber
+) {
+  filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.STATUS] ??=
+    headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.STATUS];
+  filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM] ??=
+    headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.SYSTEM];
+  filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE] ??=
+    headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE];
+  filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.PO_STATUS] ??=
+    headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.PO_STATUS];
+  filterColumnNumbers[REPAIR_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT] ??=
+    headerNumber[REPAIR_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT];
+}
+
+function setPurchaseFilterColumnNumbers(
+  filterColumnNumbers: FilterColumns,
+  headerNumber: HeaderNumber
+) {
+  filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL] ??=
+    headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL];
+  filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK] ??=
+    headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK];
+  filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE] ??=
+    headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE];
+  filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.PO_STATUS] ??=
+    headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.PO_STATUS];
+  filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT] ??=
+    headerNumber[PURCHASE_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT];
 }
 
 function _alertVendorsToFilter(

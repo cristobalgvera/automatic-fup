@@ -1,3 +1,4 @@
+import {PO_STATUS} from '../util/enum/po-status.enum';
 import {RESPONSIBLE} from '../util/enum/responsible.enum';
 
 const PURCHASE_DATA = {
@@ -17,7 +18,9 @@ const PURCHASE_DATA = {
     FILTER_COLUMNS: {
       FUP_STATUS_ACTUAL: 'FUP_STATUS_ACTUAL',
       ACK: 'ACK',
-      RESPONSIBLE: 'RESPONSIBLE',
+      PO_STATUS: 'PO Status',
+      RESPONSIBLE: 'Responsable Acción',
+      BUYER_MANAGEMENT: 'Gestión',
     },
     FILTERS: {
       FUP_STATUS_ACTUAL: [
@@ -28,7 +31,12 @@ const PURCHASE_DATA = {
         'Partial Delivery',
       ],
       ACK: ['SI', 'NO'],
-      RESPONSIBLE: [RESPONSIBLE.VENDOR.toString()],
+      RESPONSIBLE: [RESPONSIBLE.VENDOR].map(String),
+      PO_STATUS: [
+        PO_STATUS.NOT_RECEIVED,
+        PO_STATUS.AWAITING_ISSUED_BUYER,
+        PO_STATUS.AWAITING_CIA_PAYMENT,
+      ].map(String),
     },
     SORT_COLUMNS: {VENDOR_NAME: 'VENDOR_NAME', VENDOR_CODE: 'VENDOR'},
     VENDOR_DATA_COLUMNS: {
@@ -39,7 +47,7 @@ const PURCHASE_DATA = {
       AWB: 'AWB',
       COMMENTS: 'Comments',
       ACTION: 'Acción',
-      RESPONSIBLE: 'Responsable',
+      RESPONSIBLE: 'Responsable Acción',
     },
   },
 };

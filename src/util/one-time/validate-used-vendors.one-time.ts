@@ -42,9 +42,7 @@ export function validateUsedVendors(
       ? PURCHASE_DATA.COLUMN.VENDOR_NAME
       : REPAIR_DATA.COLUMN.VENDOR_NAME
   );
-  const hitoRadarCol = headers.indexOf(
-    REPAIR_DATA.UTIL.FILTER_COLUMNS.HITO_RADAR
-  );
+  const hitoRadarCol = headers.indexOf(REPAIR_DATA.UTIL.FILTER_COLUMNS.STATUS);
   const ackCol = headers.indexOf(PURCHASE_DATA.UTIL.FILTER_COLUMNS.ACK);
   const fupStatusActualCol = headers.indexOf(
     PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
@@ -64,7 +62,7 @@ export function validateUsedVendors(
   } else {
     dataVendorData = dataData
       .filter(data =>
-        REPAIR_DATA.UTIL.FILTERS.HITO_RADAR.includes(data[hitoRadarCol])
+        REPAIR_DATA.UTIL.FILTERS.STATUS.includes(data[hitoRadarCol])
       )
       .map(data => data[byCode ? vendorCodeCol : vendorNameCol]);
   }

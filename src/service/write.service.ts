@@ -256,8 +256,8 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
 }
 
 function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
-  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.FUP.ID);
-  const sheet = spreadsheet.getSheetByName(REPAIR_DATA.FUP.SHEET.ACTUAL);
+  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
+  const sheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
 
   const {
     keyColumn,
@@ -271,7 +271,7 @@ function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
     .reduce(
       (acc, header, i) => {
         switch (header) {
-          case REPAIR_DATA.FUP.COLUMN.RO_NUMBER:
+          case REPAIR_DATA.COLUMN.RO_NUMBER:
             return {...acc, keyColumn: i + 1};
           case REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.PO_STATUS:
             return {...acc, firstColumnToEdit: i + 1};
