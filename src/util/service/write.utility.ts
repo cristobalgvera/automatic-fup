@@ -4,9 +4,17 @@ import {RESPONSIBLE} from '../enum/responsible.enum';
 import {PurchaseOrder} from '../schema/purchase-order.schema';
 import {
   notFoundPurchaseOrderInFup,
+  retrievingData,
+  updating,
   updatingPurchaseOrderInFup,
+  updatingPurchaseResponsible,
+  updatingRepairResponsible,
+  updatingResponsible,
 } from '../../service/message.service';
 import {ColumnNumbers} from '../interface/column-numbers.interface';
+import {ANALYTICS, PURCHASE_DATA, REPAIR_DATA} from '../../config';
+import {DATA_ORIGIN} from '../enum/data-origin.enum';
+import {_getFupInitialData} from './read.utility';
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 
 function _utilitiesToUpdateFupData(
@@ -159,4 +167,198 @@ function _setResponsible(
     }
 }
 
-export {_utilitiesToUpdateFupData, _utilitiesToSendPurchaseOrders};
+function _getAnalyticsData() {
+  const analyticsSpreadsheet = SpreadsheetApp.openById(ANALYTICS.ID);
+  const analyticsSheet = analyticsSpreadsheet.getSheetByName(
+    ANALYTICS.SHEET.CONSOLIDATED_PROCUREMENT
+  );
+
+  const keys: string[] = analyticsSheet
+    .getRange(2, 1, analyticsSheet.getLastRow())
+    .getValues()
+    .flat();
+
+  return keys;
+}
+
+function _defineResponsible() {
+  const keys = _getAnalyticsData();
+
+  _defineRepairResponsible(keys);
+  _definePurchaseResponsible(keys);
+}
+
+function _defineRepairResponsible(keys: string[]) {
+  console.log(updatingRepairResponsible());
+
+  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
+  const sheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data.splice(0, 1)[0];
+
+  const responsibleCol = headers.indexOf(
+    REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE
+  );
+  const poCol = headers.indexOf(REPAIR_DATA.COLUMN.RO_NUMBER);
+  const partNumberCol = headers.indexOf(REPAIR_DATA.COLUMN.PART_NUMBER);
+
+  const fupData = _defineProcurementOrLogisticResponsible(
+    {data, headers},
+    {responsibleCol, poCol, partNumberCol},
+    keys
+  );
+
+  sheet.getRange(1, responsibleCol + 1, sheet.getLastRow()).setValues(fupData);
+}
+
+function _definePurchaseResponsible(keys: string[]) {
+  console.log(updatingPurchaseResponsible());
+
+  const spreadsheet = SpreadsheetApp.openById(PURCHASE_DATA.ID);
+  const sheet = spreadsheet.getSheetByName(PURCHASE_DATA.SHEET.ACTUAL);
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data.splice(0, 1)[0];
+
+  const responsibleCol = headers.indexOf(
+    PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE
+  );
+  const poCol = headers.indexOf(PURCHASE_DATA.COLUMN.RO_NUMBER);
+  const partNumberCol = headers.indexOf(PURCHASE_DATA.COLUMN.PART_NUMBER);
+
+  const fupData = _defineProcurementOrLogisticResponsible(
+    {data, headers},
+    {responsibleCol, poCol, partNumberCol},
+    keys
+  );
+
+  sheet.getRange(1, responsibleCol + 1, sheet.getLastRow()).setValues(fupData);
+}
+
+function _defineProcurementOrLogisticResponsible(
+  {data, headers}: {data: string[][]; headers: string[]},
+  {responsibleCol, poCol, partNumberCol}: {[col: string]: number},
+  keys: string[]
+) {
+  const usableData = data.reduce((acc, row) => {
+    if (row[responsibleCol] === RESPONSIBLE.PROCUREMENT_LOGISTIC)
+      return acc.concat([[row[poCol], row[partNumberCol]]]);
+
+    return acc;
+  }, [] as [string, string][]);
+
+  const finalData = usableData.map(row => {
+    const [purchaseOrder, partNumber] = row;
+    const key = `${purchaseOrder}${partNumber}`;
+
+    return keys.includes(key)
+      ? row.concat(RESPONSIBLE.PROCUREMENT)
+      : row.concat(RESPONSIBLE.LOGISTIC);
+  });
+
+  const fupData = data.map(row => {
+    const updatedRow = finalData.find(([po]) => po === row[poCol]);
+    if (!updatedRow) return [row[responsibleCol]];
+
+    const [, , responsible] = updatedRow;
+    return [responsible];
+  });
+
+  console.log(updatingResponsible(finalData.length));
+  fupData.unshift([headers[responsibleCol]]);
+
+  return fupData;
+}
+
+function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
+  const {
+    expectedSheet,
+    utils: {headerNumber: headers},
+  } = _getFupInitialData(DATA_ORIGIN.PURCHASE);
+
+  console.log(retrievingData(true));
+  const rowNumberByKey: {[name: string]: number} = expectedSheet
+    .getRange(1, 1, expectedSheet.getLastRow())
+    .getValues()
+    .reduce((acc, [key], i) => ({...acc, [key]: i + 1}), {});
+
+  const firstColumnToEdit =
+    headers[PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.PO_STATUS] + 1;
+  const lastColumnToEdit =
+    headers[PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE] + 1;
+
+  const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
+
+  const {
+    actions: {updateSheet},
+  } = _utilitiesToUpdateFupData(
+    expectedSheet,
+    rowNumberByKey,
+    firstColumnToEdit,
+    totalColumns,
+    true
+  );
+
+  console.log(updating());
+  return purchaseOrders.map(updateSheet);
+}
+
+function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
+  const spreadsheet = SpreadsheetApp.openById(REPAIR_DATA.ID);
+  const sheet = spreadsheet.getSheetByName(REPAIR_DATA.SHEET.ACTUAL);
+
+  const {
+    keyColumn,
+    firstColumnToEdit,
+    lastColumnToEdit,
+  }: {
+    [column: string]: number;
+  } = sheet
+    .getRange(1, 1, 1, sheet.getLastColumn())
+    .getValues()[0]
+    .reduce(
+      (acc, header, i) => {
+        switch (header) {
+          case REPAIR_DATA.COLUMN.RO_NUMBER:
+            return {...acc, keyColumn: i + 1};
+          case REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.PO_STATUS:
+            return {...acc, firstColumnToEdit: i + 1};
+          case REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE:
+            return {...acc, lastColumnToEdit: i + 1};
+          default:
+            return acc;
+        }
+      },
+      {keyColumn: null, firstColumnToEdit: null, lastColumnToEdit: null}
+    );
+
+  const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
+
+  console.log(retrievingData(false));
+  const rowNumberByKey: {[name: string]: number} = sheet
+    .getRange(1, keyColumn, sheet.getLastRow())
+    .getValues()
+    .reduce((acc, [key], i) => ({...acc, [key]: i + 1}), {});
+
+  const {
+    actions: {updateSheet},
+  } = _utilitiesToUpdateFupData(
+    sheet,
+    rowNumberByKey,
+    firstColumnToEdit,
+    totalColumns,
+    false
+  );
+
+  console.log(updating());
+  return purchaseOrders.map(updateSheet);
+}
+
+export {
+  _utilitiesToUpdateFupData,
+  _utilitiesToSendPurchaseOrders,
+  _defineResponsible,
+  _updatePurchases,
+  _updateRepairs,
+};

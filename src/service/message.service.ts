@@ -190,7 +190,22 @@ function toStoreDataLog({news, toUpdate}: {news: number; toUpdate: number}) {
   return `New information: ${news} | To update information: ${toUpdate}`;
 }
 
+function updatingResponsible(toUpdate: number) {
+  return `Updating '${toUpdate}' responsible ambiguos states`;
+}
+
+function updatingRepairResponsible() {
+  return 'Updating repair responsible...';
+}
+
+function updatingPurchaseResponsible() {
+  return 'Updating purchase responsible...';
+}
+
 export {
+  updatingPurchaseResponsible,
+  updatingRepairResponsible,
+  updatingResponsible,
   storeDataSentLog,
   toStoreDataLog,
   retrievingContacts,

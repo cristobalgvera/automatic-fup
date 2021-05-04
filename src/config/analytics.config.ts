@@ -10,6 +10,7 @@ const ANALYTICS = {
   ID: '1mjewy9oQv3ctYh5g6tl8juCp-he22OHNHxLmjNnDlB8',
   SHEET: {
     RAW_FIREBASE: 'RAW Firebase',
+    CONSOLIDATED_PROCUREMENT: 'Consolidado Procurement',
   },
   COLUMN: {
     FIREBASE: <ColumnName>{
