@@ -42,22 +42,9 @@ function storeData(purchaseOrders: PurchaseOrder[], setSendDate?: boolean) {
 
   const finalData = [...storedData, ...toStoreData];
 
-  const formulaRange = sheet.getRange(
-    2,
-    headersNumber[ANALYTICS.COLUMN.FIREBASE.vendorStandard] + 1
-  );
-  const formula = formulaRange.getFormula();
-
   sheet
     .getRange(2, 1, finalData.length, finalData[0].length)
     .setValues(finalData);
-
-  const formulasRange = sheet.getRange(
-    2,
-    headersNumber[ANALYTICS.COLUMN.FIREBASE.vendorStandard] + 1,
-    finalData.length
-  );
-  formulaRange.setFormula(formula).copyTo(formulasRange);
 
   SpreadsheetApp.flush();
 }

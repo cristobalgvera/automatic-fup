@@ -17,6 +17,8 @@ import {
   retrievingInfoFrom,
 } from '../../service/message.service';
 import {NOT_FOUND} from '../enum/not-found.enum';
+import {RESPONSIBLE} from '../enum/responsible.enum';
+import {PO_STATUS} from '../enum/po-status.enum';
 type Spreadsheet = GoogleAppsScript.Spreadsheet.Spreadsheet;
 type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
 type FilterColumns = {[x: string]: number};
@@ -113,6 +115,15 @@ function _utilitiesToExtractFupData(
   headers: HeaderNumber,
   isPurchase = true
 ) {
+  const {
+    vendorNameSortColumnName,
+    vendorCodeSortColumnName,
+    roNumberHeaderName,
+    responsibleFilterColumn,
+    buyerManagementFilterColumn,
+    poStatusFilterColumn,
+  } = _getConditionalConstants(isPurchase);
+
   const toFilterGroupedVendors = Object.entries(
     toFilterVendors.reduce(
       (acc: GroupedVendors, {id}) => ({
@@ -124,12 +135,8 @@ function _utilitiesToExtractFupData(
   );
 
   const _getNameAndCodeColumns = (): [number, number] => {
-    const vendorNameColumn = isPurchase
-      ? sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME]
-      : sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME];
-    const vendorCodeColumn = isPurchase
-      ? sortColumnNumber[PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE]
-      : sortColumnNumber[REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE];
+    const vendorNameColumn = sortColumnNumber[vendorNameSortColumnName];
+    const vendorCodeColumn = sortColumnNumber[vendorCodeSortColumnName];
 
     return [vendorNameColumn, vendorCodeColumn];
   };
@@ -153,9 +160,7 @@ function _utilitiesToExtractFupData(
     );
 
   const shouldSendPurchaseOrderToVendor = (row: string[]) => {
-    const purchaseOrder = isPurchase
-      ? row[headers[PURCHASE_DATA.COLUMN.RO_NUMBER]]
-      : row[headers[REPAIR_DATA.COLUMN.RO_NUMBER]];
+    const purchaseOrder = row[headers[roNumberHeaderName]];
 
     const line = row[headers[PURCHASE_DATA.COLUMN.LINE]];
     const id = `${purchaseOrder}${line ?? 1}`;
@@ -227,31 +232,16 @@ function _utilitiesToExtractFupData(
 
   const byResponsible = (row: string[]) => {
     if ('RESPONSIBLE' in filters) {
-      const responsibleFilterColumn = isPurchase
-        ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE
-        : REPAIR_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE;
-
       const responsible = row[filterColumnNumbers[responsibleFilterColumn]];
-
       if (!responsible || filters.RESPONSIBLE.includes(responsible))
         return true;
-
-      const buyerManagementFilterColumn = isPurchase
-        ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT
-        : REPAIR_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT;
 
       const buyerManagement = !!row[
         filterColumnNumbers[buyerManagementFilterColumn]
       ]; // Boolean field
-
       if (!buyerManagement) return false;
 
-      const poStatusFilterColumn = isPurchase
-        ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.PO_STATUS
-        : REPAIR_DATA.UTIL.FILTER_COLUMNS.PO_STATUS;
-
       const poStatus = row[filterColumnNumbers[poStatusFilterColumn]];
-
       return filters.PO_STATUS.includes(poStatus);
     }
   };
@@ -264,13 +254,20 @@ function _utilitiesToExtractFupData(
   };
 
   const byFupStatusActual = (row: string[]) => {
+    const {FILTER_COLUMNS} = PURCHASE_DATA.UTIL;
+
+    const purchaseOrderShouldBeManaged =
+      row[filterColumnNumbers[FILTER_COLUMNS.RESPONSIBLE]] ===
+        RESPONSIBLE.PROCUREMENT &&
+      row[filterColumnNumbers[FILTER_COLUMNS.PO_STATUS]] !==
+        PO_STATUS.CANCELLED;
+
+    if (purchaseOrderShouldBeManaged)
+      return !!row[filterColumnNumbers[FILTER_COLUMNS.BUYER_MANAGEMENT]];
+
     if ('FUP_STATUS_ACTUAL' in filters) {
       return filters.FUP_STATUS_ACTUAL.includes(
-        row[
-          filterColumnNumbers[
-            PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
-          ]
-        ]
+        row[filterColumnNumbers[FILTER_COLUMNS.FUP_STATUS_ACTUAL]]
       );
     }
   };
@@ -337,6 +334,41 @@ function _utilitiesToExtractFupData(
       onVendorId,
       onHasDataVendors,
     },
+  };
+}
+
+function _getConditionalConstants(isPurchase: boolean) {
+  const vendorNameSortColumnName = isPurchase
+    ? PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME
+    : REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_NAME;
+
+  const vendorCodeSortColumnName = isPurchase
+    ? PURCHASE_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE
+    : REPAIR_DATA.UTIL.SORT_COLUMNS.VENDOR_CODE;
+
+  const roNumberHeaderName = isPurchase
+    ? PURCHASE_DATA.COLUMN.RO_NUMBER
+    : REPAIR_DATA.COLUMN.RO_NUMBER;
+
+  const responsibleFilterColumn = isPurchase
+    ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE
+    : REPAIR_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE;
+
+  const buyerManagementFilterColumn = isPurchase
+    ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT
+    : REPAIR_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT;
+
+  const poStatusFilterColumn = isPurchase
+    ? PURCHASE_DATA.UTIL.FILTER_COLUMNS.PO_STATUS
+    : REPAIR_DATA.UTIL.FILTER_COLUMNS.PO_STATUS;
+
+  return {
+    vendorNameSortColumnName,
+    vendorCodeSortColumnName,
+    roNumberHeaderName,
+    responsibleFilterColumn,
+    buyerManagementFilterColumn,
+    poStatusFilterColumn,
   };
 }
 

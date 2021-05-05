@@ -32,7 +32,6 @@ const ANALYTICS = {
       conflictive: 'Conflictive',
       vendorName: 'Vendor Name',
       vendorEmail: 'Vendor Email',
-      vendorStandard: 'Vendor Standard',
     },
   },
 };

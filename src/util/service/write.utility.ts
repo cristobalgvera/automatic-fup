@@ -64,6 +64,11 @@ function _utilitiesToUpdateFupData(
       .getRange(rowNumber, firstColumnToEdit, 1, totalColumns)
       .setValues(vendorData);
 
+    sheet.getRange(rowNumber, firstColumnToEdit + totalColumns).uncheck(); // Uncheck management cell
+    sheet
+      .getRange(rowNumber, firstColumnToEdit + totalColumns + 1)
+      .clearContent(); // Clear management date
+
     purchaseOrder.audit.updatedInSheet = true;
     return purchaseOrder;
   };

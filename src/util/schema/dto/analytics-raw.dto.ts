@@ -20,5 +20,4 @@ export interface AnalyticsRaw {
   conflictive: boolean;
   vendorName: string;
   vendorEmail: string;
-  vendorStandard?: string;
 }
