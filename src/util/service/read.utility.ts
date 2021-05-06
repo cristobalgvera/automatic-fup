@@ -168,6 +168,12 @@ function _utilitiesToExtractFupData(
     return !purchaseOrderService.validateStatus(id);
   };
 
+  const _purchaseOrderShouldBeManaged = (row: string[]) =>
+    row[filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.RESPONSIBLE]] ===
+      RESPONSIBLE.PROCUREMENT &&
+    row[filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.PO_STATUS]] !==
+      PO_STATUS.CANCELLED;
+
   const isValidEmail = (searchedName: string, searchedCode: string) => {
     const email = toFilterVendors.find(
       vendor =>
@@ -254,20 +260,18 @@ function _utilitiesToExtractFupData(
   };
 
   const byFupStatusActual = (row: string[]) => {
-    const {FILTER_COLUMNS} = PURCHASE_DATA.UTIL;
-
-    const purchaseOrderShouldBeManaged =
-      row[filterColumnNumbers[FILTER_COLUMNS.RESPONSIBLE]] ===
-        RESPONSIBLE.PROCUREMENT &&
-      row[filterColumnNumbers[FILTER_COLUMNS.PO_STATUS]] !==
-        PO_STATUS.CANCELLED;
-
-    if (purchaseOrderShouldBeManaged)
-      return !!row[filterColumnNumbers[FILTER_COLUMNS.BUYER_MANAGEMENT]];
+    if (_purchaseOrderShouldBeManaged(row))
+      return !!row[
+        filterColumnNumbers[PURCHASE_DATA.UTIL.FILTER_COLUMNS.BUYER_MANAGEMENT]
+      ];
 
     if ('FUP_STATUS_ACTUAL' in filters) {
       return filters.FUP_STATUS_ACTUAL.includes(
-        row[filterColumnNumbers[FILTER_COLUMNS.FUP_STATUS_ACTUAL]]
+        row[
+          filterColumnNumbers[
+            PURCHASE_DATA.UTIL.FILTER_COLUMNS.FUP_STATUS_ACTUAL
+          ]
+        ]
       );
     }
   };
