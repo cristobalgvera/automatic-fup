@@ -21,7 +21,8 @@ const REPAIR_DATA = {
       BUYER_MANAGEMENT: 'Gestión',
     },
     FILTERS: {
-      STATUS: ['Vendor', 'Vendor Sin Quote'],
+      // STATUS: ['Vendor', 'Vendor Sin Quote'],
+      STATUS: ['Proveedor'],
       RESPONSIBLE: [RESPONSIBLE.VENDOR].map(String),
       SYSTEM: ['SSC', 'BRA'],
       PO_STATUS: [
