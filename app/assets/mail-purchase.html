@@ -38,35 +38,69 @@
           Please consider these status to answer and include the required
           information in each of them:
         </p>
-        <ul class="list">
-          <li>
-            <strong>Not received:</strong> In case you have not been informed of
-            this order yet.
-          </li>
-          <li>
-            <strong>Canceled:</strong> In case this order is already canceled in
-            your system. Include cancellation description in the comments
-            section.
-          </li>
-          <li>
-            <strong>Not shipped yet:</strong> In case the material is in your
-            dependencies. Include the estimated delivery date (format:
-            dd/mm/yyyy).
-          </li>
-          <li>
-            <strong>Awaiting issued buyer:</strong> In case there is an issue
-            that has to be resolved by a LATAM buyer. Include the issue in the
-            comments section.
-          </li>
-          <li>
-            <strong>Awaiting CIA payment:</strong> In case there is a pending
-            CIA payment. Include the invoice number in the comments section.
-          </li>
-          <li>
-            <strong>Shipped:</strong> In case you have already sent this
-            material to LATAM. Include the AWB.
-          </li>
-        </ul>
+
+        <div class="table">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>P0 Status</th>
+                <th>Description</th>
+                <th>Details Needed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="nth-of-type-odd">
+                <td class="first-of-type">Not received</td>
+                <td class="nth-of-type-2">
+                  In case you have not been informed of this order yet
+                </td>
+                <td class="last-of-type"></td>
+              </tr>
+              <tr class="nth-of-type-even">
+                <td class="first-of-type">Canceled</td>
+                <td class="nth-of-type-2">
+                  In case this order is already canceled in your system. Include
+                  cancellation description in the comments section
+                </td>
+                <td class="last-of-type">
+                  Must provide cancellation description
+                </td>
+              </tr>
+              <tr class="nth-of-type-odd">
+                <td class="first-of-type">Not shipped yet</td>
+                <td class="nth-of-type-2">
+                  In case the material is in your dependencies. Include the
+                  estimated delivery date (format: dd/mm/yyyy)
+                </td>
+                <td class="last-of-type">Must provide ESD (dd/mm/yyyy)</td>
+              </tr>
+              <tr class="nth-of-type-even">
+                <td class="first-of-type">Awaiting issued buyer</td>
+                <td class="nth-of-type-2">
+                  In case there is an issue that has to be resolved by a LATAM
+                  buyer. Include the issue in the comments section
+                </td>
+                <td class="last-of-type">Must provide the issue</td>
+              </tr>
+              <tr class="nth-of-type-odd">
+                <td class="first-of-type">Awaiting CIA payment</td>
+                <td class="nth-of-type-2">
+                  In case there is a pending CIA payment. Include the invoice
+                  number in the comments section
+                </td>
+                <td class="last-of-type">Must provide Invoice Number</td>
+              </tr>
+              <tr class="nth-of-type-even">
+                <td class="first-of-type">Shipped</td>
+                <td class="nth-of-type-2">
+                  In case you have already sent this material to LATAM. Include
+                  the AWB
+                </td>
+                <td class="last-of-type">Must provide AWB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <p class="justify-text">
           We request for your reply to take no longer than 3 working days after
