@@ -27,8 +27,11 @@ function storeData(purchaseOrders: PurchaseOrder[], setSendDate?: boolean) {
 
     if (rowNumber === -1) toStoreData.push(data);
     else {
-      const toUpdateData = storedData[rowNumber];
-      data.splice(sendDateCol, 1, toUpdateData[sendDateCol]);
+      if (setSendDate) {
+        const toUpdateData = storedData[rowNumber];
+        data.splice(sendDateCol, 1, toUpdateData[sendDateCol]);
+      }
+
       storedData.splice(rowNumber, 1, [...data]);
     }
   }
