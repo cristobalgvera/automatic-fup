@@ -21,8 +21,8 @@ const DB = {
     AUTOMATICALLY_SEND_EMAIL: 'Automatically send email',
   },
   UTIL: {
-    VENDORS_TO_TAKE: 70,
-    MAX_VENDORS_TO_TAKE: 75,
+    VENDORS_TO_TAKE: 100,
+    MAX_VENDORS_TO_TAKE: 110,
     CONFIG: {
       COLUMN: {
         STATE: 'STATE',

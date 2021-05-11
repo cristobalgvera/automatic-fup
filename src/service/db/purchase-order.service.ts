@@ -86,7 +86,7 @@ function getToUpdatePurchaseOrders(
 
   if (!filtered.length) return [[], []];
 
-  filtered.splice(60); // For some reason Google is taking lot of time updating each purchase order
+  filtered.splice(90); // For some reason Google is taking lot of time updating each purchase order
 
   return filtered.reduce(
     (acc: [PurchaseOrder[], PurchaseOrder[]], purchaseOrder) =>

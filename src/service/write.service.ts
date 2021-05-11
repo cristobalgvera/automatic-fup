@@ -38,19 +38,14 @@ function writeInSheet(
     templateQtdPendenteColumn,
   } = columnNumbers;
 
-  const [
-    roNumbers,
-    partNumbers,
-    lines,
-    qtdPendentes,
-    analytics,
-  ] = _utilitiesToSendPurchaseOrders(columnNumbers, vendorData) as [
-    string[][],
-    string[][],
-    string[][],
-    string[][],
-    PurchaseOrder[]
-  ];
+  const [roNumbers, partNumbers, lines, qtdPendentes, analytics] =
+    _utilitiesToSendPurchaseOrders(columnNumbers, vendorData) as [
+      string[][],
+      string[][],
+      string[][],
+      string[][],
+      PurchaseOrder[]
+    ];
 
   vendorSheet
     .getRange(3, templatePurchaseOrderColumn, vendorData.length)

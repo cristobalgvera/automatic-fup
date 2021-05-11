@@ -27,7 +27,7 @@ function storeData(purchaseOrders: PurchaseOrder[], setSendDate?: boolean) {
 
     if (rowNumber === -1) toStoreData.push(data);
     else {
-      if (setSendDate) {
+      if (!setSendDate) {
         const toUpdateData = storedData[rowNumber];
         data.splice(sendDateCol, 1, toUpdateData[sendDateCol]);
       }

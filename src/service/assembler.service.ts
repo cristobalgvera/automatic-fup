@@ -41,12 +41,10 @@ function createVendorFiles(isPurchase: boolean, automatic?: boolean) {
   }
 
   console.warn(folderCreation(LOG_STATE.START));
-  const {
-    templateSpreadsheet,
-    registriesFolder,
-  } = getTemplateAndCreateFolderForRegistries(
-    isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
-  );
+  const {templateSpreadsheet, registriesFolder} =
+    getTemplateAndCreateFolderForRegistries(
+      isPurchase ? DATA_ORIGIN.PURCHASE : DATA_ORIGIN.REPAIR
+    );
   const columnNumbers = getColumnNumbers(
     templateSpreadsheet,
     headers,
