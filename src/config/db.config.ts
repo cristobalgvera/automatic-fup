@@ -19,6 +19,7 @@ const DB = {
     SEND_DATE: 'Send date',
     VENDOR_CODE: 'Code',
     AUTOMATICALLY_SEND_EMAIL: 'Automatically send email',
+    SEND_EMAIL: 'Send email',
   },
   UTIL: {
     VENDORS_TO_TAKE: 100,

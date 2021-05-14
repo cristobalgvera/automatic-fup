@@ -21,24 +21,6 @@ import {
  *
  *****************************************************************/
 
-function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu(UI.MENU.TITLE)
-    .addSubMenu(
-      ui
-        .createMenu(UI.MENU.SUBMENU_1.TITLE)
-        .addItem(UI.MENU.SUBMENU_1.ITEM.A, 'createFileForEachPurchaseVendor')
-        .addItem(UI.MENU.SUBMENU_1.ITEM.B, 'createFileForEachRepairVendor')
-    )
-    .addSubMenu(
-      ui
-        .createMenu(UI.MENU.SUBMENU_2.TITLE)
-        .addItem(UI.MENU.SUBMENU_2.ITEM.A, 'consolidatePurchases')
-        .addItem(UI.MENU.SUBMENU_2.ITEM.B, 'consolidateRepairs')
-    )
-    .addToUi();
-}
-
 // To be manual
 function consolidatePurchases() {
   consolidateOpenOrders();

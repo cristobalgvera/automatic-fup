@@ -146,10 +146,14 @@ function updateAutomaticallySendEmailColumn(
   const toCheckColumn =
     automaticallySendEmailColumn ??
     headers.indexOf(DB.COLUMN.AUTOMATICALLY_SEND_EMAIL);
+  const sendEmailColumn = headers.indexOf(DB.COLUMN.SEND_EMAIL);
+
+  const wasSend = (row: (string | boolean)[]) =>
+    !row[toCheckColumn] || (!row[sendEmailColumn] && row[toCheckColumn]);
 
   const needUpdate = data
     .filter(row => row[typeColumn] === dataOrigin)
-    .every(row => !row[toCheckColumn]);
+    .every(wasSend);
 
   if (!needUpdate) {
     sheet.getDataRange().setValues(data);
