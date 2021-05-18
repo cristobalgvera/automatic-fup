@@ -96,7 +96,7 @@ function getOpenOrdersFromVendors(after?: string) {
 
   // Date param must be formatted as YYYY/MM/DD, and day
   // number should be one day before of requested information
-  const query = `filename:${COMMON.UTIL.FILE_EXTENSION.XLSX} after:${after}`;
+  const query = `filename:${COMMON.UTIL.FILE_EXTENSION.XLSX}|${COMMON.UTIL.FILE_EXTENSION.XLS} after:${after}`;
   // const query = `from:(${email}) filename:${COMMON.UTIL.FILE_EXTENSION.XLSX} after:${after}`;
 
   const {
@@ -148,9 +148,8 @@ function getOpenOrdersFromVendors(after?: string) {
   const spreadsheetsByVendor = Object.entries(attachmentsByVendor).reduce(
     (acc, [vendorEmail, files]) => {
       const vendorFiles = files.map(file => {
-        const {purchasesFolder, repairsFolder} = _getPurchasesAndRepairsFolders(
-          folder
-        );
+        const {purchasesFolder, repairsFolder} =
+          _getPurchasesAndRepairsFolders(folder);
         const spreadsheet = SpreadsheetApp.openById(file.getId());
 
         if (_isPurchaseSpreadsheet(spreadsheet))

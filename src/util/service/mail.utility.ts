@@ -80,7 +80,8 @@ function _getUtilitiesToFilterEmails(folder: Folder) {
   include('');
 
   const byXlsxFiles = (attached: GmailAttachment) =>
-    attached.getName().endsWith(COMMON.UTIL.FILE_EXTENSION.XLSX);
+    attached.getName().endsWith(COMMON.UTIL.FILE_EXTENSION.XLSX) ||
+    attached.getName().endsWith(COMMON.UTIL.FILE_EXTENSION.XLS);
 
   const byIncludeAttachments = (message: GmailMessage) =>
     !!message.getAttachments({includeAttachments: true}).length;

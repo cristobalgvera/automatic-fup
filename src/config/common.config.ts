@@ -12,6 +12,7 @@ const COMMON = {
     LOCALE: 'es-CL',
     FILE_EXTENSION: {
       XLSX: 'xlsx',
+      XLS: 'xls',
     },
     WORKING_HOURS: {
       MIN: 8 + 4, // GMT -4

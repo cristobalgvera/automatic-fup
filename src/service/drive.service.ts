@@ -150,9 +150,10 @@ function createChildFolderFromFolderId(folderId: string, name: string) {
 
 function excelToSheet(excelFile: File, folder: Folder) {
   const blob = excelFile.getBlob();
+  const isXlsx = excelFile.getName().endsWith(COMMON.UTIL.FILE_EXTENSION.XLSX);
   const fileName = removeExtension(
     excelFile.getName(),
-    COMMON.UTIL.FILE_EXTENSION.XLSX
+    isXlsx ? COMMON.UTIL.FILE_EXTENSION.XLSX : COMMON.UTIL.FILE_EXTENSION.XLS
   );
 
   // Define a Sheet file to convert Excel file into
