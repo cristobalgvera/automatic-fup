@@ -10,11 +10,11 @@ export function exportRepairVendorData() {
     .getValues()
     .filter(
       row =>
-        normalizeStringEmailsList(row[9]) || normalizeStringEmailsList(row[10])
+        normalizeStringEmailsList(row[10]) || normalizeStringEmailsList(row[11])
     );
 
   const vendorsByEmail = rows.reduce(
-    (acc, [name, code, , , , , , , , sscContact, braContact, standard]) => {
+    (acc, [name, code, , , , , , , , , sscContact, braContact, standard]) => {
       const sscEmails = normalizeStringEmailsList(
         sscContact.toLocaleLowerCase()
       );
