@@ -206,20 +206,24 @@ function updateFupData() {
   if (purchases.length) {
     console.warn(updatingOpenOrders(LOG_STATE.START, true));
     updatedPurchases = _updatePurchases(purchases);
-    purchaseOrderService.setUpdatedPurchaseOrders(updatedPurchases);
     console.warn(updatingOpenOrders(LOG_STATE.END, true));
   }
 
   if (repairs.length) {
     console.warn(updatingOpenOrders(LOG_STATE.START, false));
     updatedRepairs = _updateRepairs(repairs);
-    purchaseOrderService.setUpdatedPurchaseOrders(updatedRepairs);
     console.warn(updatingOpenOrders(LOG_STATE.END, false));
   }
 
   _defineResponsible(); // Used to define ambiguous 'Procurement / Logística' responsible
 
   storeData([...(updatedPurchases ?? []), ...(updatedRepairs ?? [])]);
+
+  if (updatedPurchases?.length)
+    purchaseOrderService.setUpdatedPurchaseOrders(updatedPurchases);
+
+  if (updatedRepairs?.length)
+    purchaseOrderService.setUpdatedPurchaseOrders(updatedRepairs);
 }
 
 export {writeInSheet, updateFupData, updateDbSheetSendDates};
