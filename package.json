@@ -11,7 +11,7 @@
     "build-dev": "rollup --config --watch",
     "lint": "gts lint",
     "fix": "gts fix",
-    "deploy": "pnpm run build & clasp push",
+    "deploy": "npm run build & clasp push",
     "dev": "clasp push --watch"
   },
   "devDependencies": {
