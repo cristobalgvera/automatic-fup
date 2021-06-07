@@ -9,6 +9,8 @@ import {
   disabledDueDevMode,
   serviceDisabled,
 } from './service/message.service';
+import {exportPurchaseVendorData} from './util/one-time/export-purchase-vendor-data.one-time';
+import {uploadToAnalytics} from './util/one-time/upload-to-analytics.one-time';
 
 /****************************************************************
  *
@@ -88,4 +90,12 @@ function BYPASScreateFileForEachPurchaseVendorAutomatic() {
 // To be automatic
 function BYPASScreateFileForEachRepairVendorAutomatic() {
   createFileForEachRepairVendor(true);
+}
+
+function updatePurchaseVendors() {
+  exportPurchaseVendorData();
+}
+
+function uploadVendorsToAnalytics() {
+  uploadToAnalytics();
 }
