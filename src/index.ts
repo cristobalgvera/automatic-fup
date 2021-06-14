@@ -11,6 +11,7 @@ import {
 } from './service/message.service';
 import {exportPurchaseVendorData} from './util/one-time/export-purchase-vendor-data.one-time';
 import {uploadToAnalytics} from './util/one-time/upload-to-analytics.one-time';
+import {exportRepairVendorData} from './util/one-time/export-repair-vendor-data.one-time';
 
 /****************************************************************
  *
@@ -94,6 +95,10 @@ function BYPASScreateFileForEachRepairVendorAutomatic() {
 
 function updatePurchaseVendors() {
   exportPurchaseVendorData();
+}
+
+function updateRepairVendors() {
+  exportRepairVendorData();
 }
 
 function uploadVendorsToAnalytics() {
