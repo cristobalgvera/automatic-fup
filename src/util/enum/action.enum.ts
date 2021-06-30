@@ -12,4 +12,5 @@ export enum ACTION {
   SEND_ON_ESD = 'Enviar en ESD',
   RESPOND_REQUESTED_ISSUE = 'Responder issue solicitado',
   FUP = 'FUP',
+  RELEASE_QUAR_GL = 'Descartar o liberar QUAR/GL',
 }

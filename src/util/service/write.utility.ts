@@ -80,12 +80,8 @@ function _utilitiesToSendPurchaseOrders(
   columnNumbers: ColumnNumbers,
   vendorData: string[][]
 ) {
-  const {
-    roNumberColumn,
-    partNumberColumn,
-    lineColumn,
-    qtdPendenteColumn,
-  } = columnNumbers;
+  const {roNumberColumn, partNumberColumn, lineColumn, qtdPendenteColumn} =
+    columnNumbers;
 
   return vendorData.reduce(
     (acc, data) => {
@@ -202,6 +198,9 @@ function _defineRepairResponsible(keys: string[]) {
   const data = sheet.getDataRange().getValues();
   const headers = data.splice(0, 1)[0];
 
+  const actionCol = headers.indexOf(
+    REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.ACTION
+  );
   const responsibleCol = headers.indexOf(
     REPAIR_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE
   );
@@ -210,11 +209,13 @@ function _defineRepairResponsible(keys: string[]) {
 
   const fupData = _defineProcurementOrLogisticResponsible(
     {data, headers},
-    {responsibleCol, poCol, partNumberCol},
+    {responsibleCol, poCol, partNumberCol, actionCol},
     keys
   );
 
-  sheet.getRange(1, responsibleCol + 1, sheet.getLastRow()).setValues(fupData);
+  sheet
+    .getRange(1, actionCol + 1, sheet.getLastRow(), fupData[0].length) // Action and responsible columns must be adjacent, in that order
+    .setValues(fupData);
 }
 
 function _definePurchaseResponsible(keys: string[]) {
@@ -226,6 +227,9 @@ function _definePurchaseResponsible(keys: string[]) {
   const data = sheet.getDataRange().getValues();
   const headers = data.splice(0, 1)[0];
 
+  const actionCol = headers.indexOf(
+    PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.ACTION
+  );
   const responsibleCol = headers.indexOf(
     PURCHASE_DATA.UTIL.VENDOR_DATA_COLUMNS.RESPONSIBLE
   );
@@ -234,18 +238,22 @@ function _definePurchaseResponsible(keys: string[]) {
 
   const fupData = _defineProcurementOrLogisticResponsible(
     {data, headers},
-    {responsibleCol, poCol, partNumberCol},
+    {responsibleCol, poCol, partNumberCol, actionCol},
     keys
   );
 
-  sheet.getRange(1, responsibleCol + 1, sheet.getLastRow()).setValues(fupData);
+  const fixedFupData = fupData.map(([, responsible]) => [responsible]); // Wasn't defined in purchases FUP yet
+
+  sheet
+    .getRange(1, responsibleCol + 1, sheet.getLastRow(), fixedFupData[0].length)
+    .setValues(fixedFupData);
 }
 
 function _defineProcurementOrLogisticResponsible(
   {data, headers}: {data: string[][]; headers: string[]},
-  {responsibleCol, poCol, partNumberCol}: {[col: string]: number},
+  {responsibleCol, poCol, partNumberCol, actionCol}: {[col: string]: number},
   keys: string[]
-) {
+): string[][] {
   const usableData = data.reduce((acc, row) => {
     if (row[responsibleCol] === RESPONSIBLE.PROCUREMENT_LOGISTIC)
       return acc.concat([[row[poCol], row[partNumberCol]]]);
@@ -258,20 +266,20 @@ function _defineProcurementOrLogisticResponsible(
     const key = `${purchaseOrder}${partNumber}`;
 
     return keys.includes(key)
-      ? row.concat(RESPONSIBLE.PROCUREMENT)
-      : row.concat(RESPONSIBLE.LOGISTIC);
+      ? row.concat([ACTION.RELEASE_QUAR_GL, RESPONSIBLE.PROCUREMENT])
+      : row.concat([ACTION.FINISH_IMPORT, RESPONSIBLE.LOGISTIC]);
   });
 
   const fupData = data.map(row => {
     const updatedRow = finalData.find(([po]) => po === row[poCol]);
-    if (!updatedRow) return [row[responsibleCol]];
+    if (!updatedRow) return [row[actionCol], row[responsibleCol]];
 
-    const [, , responsible] = updatedRow;
-    return [responsible];
+    const [, , action, responsible] = updatedRow;
+    return [action, responsible];
   });
 
   console.log(updatingResponsible(finalData.length));
-  fupData.unshift([headers[responsibleCol]]);
+  fupData.unshift([headers[actionCol], headers[responsibleCol]]);
 
   return fupData;
 }
