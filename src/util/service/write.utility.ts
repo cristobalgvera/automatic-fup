@@ -38,7 +38,7 @@ function _utilitiesToUpdateFupData(
     const rowNumber = rowNumberByKey[isPurchase ? id : order];
     if (!rowNumber) {
       console.error(
-        notFoundPurchaseOrderInFup(purchaseOrder, index, isPurchase)
+        notFoundPurchaseOrderInFup(purchaseOrder, index + 1, isPurchase)
       );
       const conflictive: PurchaseOrder = {...purchaseOrder};
       conflictive.audit.conflictive = true;
@@ -59,7 +59,7 @@ function _utilitiesToUpdateFupData(
       ],
     ];
     console.log(
-      updatingPurchaseOrderInFup(rowNumber, purchaseOrder, index, isPurchase)
+      updatingPurchaseOrderInFup(rowNumber, purchaseOrder, index + 1, isPurchase)
     );
 
     sheet
