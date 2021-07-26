@@ -18,6 +18,7 @@ const COMMON = {
       MIN: 8 + 4, // GMT -4
       MAX: 19 + 4, // GMT -4
     },
+    OPEN_ORDERS_TO_UPDATE_EACH_TIME: 60,
   },
   EMAIL: {
     LATAM_SENDERS: [

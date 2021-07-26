@@ -61,8 +61,10 @@ function updatingSendDate() {
   return 'Updating send date...';
 }
 
-function retrievingData(isPurchase: boolean) {
-  return `Retrieving ${isPurchase ? 'purchases' : 'repairs'} data`;
+function retrievingData(toUpdateInTotal: number, isPurchase: boolean) {
+  return `Retrieving ${toUpdateInTotal} open ${
+    isPurchase ? 'purchase' : 'repair'
+  } orders data`;
 }
 
 function updatingOpenOrders(logState: LOG_STATE, isPurchase: boolean) {
@@ -124,6 +126,7 @@ function deletingNoDataEntry(name: string) {
 function updatingPurchaseOrderInFup(
   rowNumber: number,
   purchaseOrder: PurchaseOrder,
+  index: number,
   isPurchase: boolean
 ) {
   const {
@@ -134,7 +137,9 @@ function updatingPurchaseOrderInFup(
     audit: {vendorEmail},
   } = purchaseOrder;
 
-  return `Updating '${id} (${order}-${line ?? 1})', row '${rowNumber}' in ${
+  return `${index} - Updating '${id} (${order}-${
+    line ?? 1
+  })', row '${rowNumber}' in ${
     isPurchase ? 'purchases' : 'repairs'
   } FUP data -> Contact: ${vendorName} <${String(
     vendorEmail
@@ -143,6 +148,7 @@ function updatingPurchaseOrderInFup(
 
 function notFoundPurchaseOrderInFup(
   purchaseOrder: PurchaseOrder,
+  index: number,
   isPurchase: boolean
 ) {
   const {
@@ -153,7 +159,7 @@ function notFoundPurchaseOrderInFup(
     audit: {vendorEmail, creationDate, createdBy},
   } = purchaseOrder;
 
-  return `Not found PO: '${id} (${order}-${line ?? 1})' in ${
+  return `${index} - Not found PO: '${id} (${order}-${line ?? 1})' in ${
     isPurchase ? 'purchases' : 'repairs'
   } FUP data -> Contact: '${vendorName} <${vendorEmail}>' | Send to: '${createdBy}', registered on '${creationDate}'`;
 }

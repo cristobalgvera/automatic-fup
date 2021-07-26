@@ -1,3 +1,4 @@
+import {COMMON} from '../../config';
 import {_purchaseOrderRepository} from '../../db/purchase-order.repository';
 import {PO_STATUS} from '../../util/enum/po-status.enum';
 import {PurchaseOrder} from '../../util/schema/purchase-order.schema';
@@ -86,7 +87,7 @@ function getToUpdatePurchaseOrders(
 
   if (!filtered.length) return [[], []];
 
-  filtered.splice(90); // For some reason Google is taking lot of time updating each purchase order
+  filtered.splice(COMMON.UTIL.OPEN_ORDERS_TO_UPDATE_EACH_TIME); // For some reason Google is taking lot of time updating each purchase order
 
   return filtered.reduce(
     (acc: [PurchaseOrder[], PurchaseOrder[]], purchaseOrder) =>

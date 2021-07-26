@@ -24,7 +24,7 @@ function _utilitiesToUpdateFupData(
   totalColumns: number,
   isPurchase: boolean
 ) {
-  const updateSheet = (purchaseOrder: PurchaseOrder) => {
+  const updateSheet = (purchaseOrder: PurchaseOrder, index: number) => {
     const {
       id,
       status,
@@ -37,7 +37,9 @@ function _utilitiesToUpdateFupData(
     } = purchaseOrder;
     const rowNumber = rowNumberByKey[isPurchase ? id : order];
     if (!rowNumber) {
-      console.error(notFoundPurchaseOrderInFup(purchaseOrder, isPurchase));
+      console.error(
+        notFoundPurchaseOrderInFup(purchaseOrder, index, isPurchase)
+      );
       const conflictive: PurchaseOrder = {...purchaseOrder};
       conflictive.audit.conflictive = true;
       return conflictive;
@@ -57,7 +59,7 @@ function _utilitiesToUpdateFupData(
       ],
     ];
     console.log(
-      updatingPurchaseOrderInFup(rowNumber, purchaseOrder, isPurchase)
+      updatingPurchaseOrderInFup(rowNumber, purchaseOrder, index, isPurchase)
     );
 
     sheet
@@ -290,7 +292,7 @@ function _updatePurchases(purchaseOrders: PurchaseOrder[]) {
     utils: {headerNumber: headers},
   } = _getFupInitialData(DATA_ORIGIN.PURCHASE);
 
-  console.log(retrievingData(true));
+  console.log(retrievingData(purchaseOrders.length, true));
   const rowNumberByKey: {[name: string]: number} = expectedSheet
     .getRange(1, 1, expectedSheet.getLastRow())
     .getValues()
@@ -348,7 +350,7 @@ function _updateRepairs(purchaseOrders: PurchaseOrder[]) {
 
   const totalColumns = lastColumnToEdit - firstColumnToEdit + 1;
 
-  console.log(retrievingData(false));
+  console.log(retrievingData(purchaseOrders.length, false));
   const rowNumberByKey: {[name: string]: number} = sheet
     .getRange(1, keyColumn, sheet.getLastRow())
     .getValues()
