@@ -81,15 +81,15 @@ function getToUpdatePurchaseOrders(
   const conflictivePurchaseOrdersWasFound =
     purchaseOrders.length > filteredPurchaseOrders.length;
 
-  if (conflictivePurchaseOrdersWasFound)
+  if (conflictivePurchaseOrdersWasFound) {
     console.warn(
       conflictiveOpenOrdersHasBeenFound(
         purchaseOrders.length - filteredPurchaseOrders.length
       )
     );
 
-  if (conflictivePurchaseOrdersWasFound)
     _manageConflictivePurchaseOrders(purchaseOrders);
+  }
 
   if (!filteredPurchaseOrders.length) return [[], []];
 
