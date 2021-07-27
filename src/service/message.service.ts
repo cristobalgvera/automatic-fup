@@ -168,8 +168,8 @@ function noOpenOrdersToBeUpdated() {
   return 'NO NEW OPEN ORDERS DETAILS TO BE UPDATED FOUND IN DATABASE';
 }
 
-function conflictiveOpenOrdersHaveBeenFound(conflictiveOpenOrders: number) {
-  return `Database storage should be cleaned. There are ${conflictiveOpenOrders} conflictive open orders to check`;
+function conflictiveOpenOrdersHasBeenFound(conflictiveOpenOrders: number) {
+  return `Database storage will be cleaned. There are ${conflictiveOpenOrders} conflictive open orders to check as updated in sheet`;
 }
 
 function automaticSendDisabled() {
@@ -245,6 +245,6 @@ export {
   serviceDisabled,
   totalReadMessages,
   howManyVendorsChecked,
-  conflictiveOpenOrdersHaveBeenFound,
+  conflictiveOpenOrdersHasBeenFound,
   noOpenOrdersToBeUpdated,
 };

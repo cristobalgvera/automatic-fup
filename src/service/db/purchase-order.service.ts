@@ -2,7 +2,7 @@ import {COMMON} from '../../config';
 import {_purchaseOrderRepository} from '../../db/purchase-order.repository';
 import {PO_STATUS} from '../../util/enum/po-status.enum';
 import {PurchaseOrder} from '../../util/schema/purchase-order.schema';
-import {conflictiveOpenOrdersHaveBeenFound} from '../message.service';
+import {conflictiveOpenOrdersHasBeenFound} from '../message.service';
 
 function exists(id: string) {
   return _purchaseOrderRepository.exists(id);
@@ -74,22 +74,28 @@ function getToUpdatePurchaseOrders(
     equalTo: false,
   });
 
-  const filtered = purchaseOrders.filter(
+  const filteredPurchaseOrders = purchaseOrders.filter(
     ({audit: {conflictive}}) => !conflictive || !filterConflictive
   );
 
-  if (purchaseOrders.length > filtered.length)
+  const conflictivePurchaseOrdersWasFound =
+    purchaseOrders.length > filteredPurchaseOrders.length;
+
+  if (conflictivePurchaseOrdersWasFound)
     console.warn(
-      conflictiveOpenOrdersHaveBeenFound(
-        purchaseOrders.length - filtered.length
+      conflictiveOpenOrdersHasBeenFound(
+        purchaseOrders.length - filteredPurchaseOrders.length
       )
     );
 
-  if (!filtered.length) return [[], []];
+  if (conflictivePurchaseOrdersWasFound)
+    _manageConflictivePurchaseOrders(purchaseOrders);
 
-  filtered.splice(COMMON.UTIL.OPEN_ORDERS_TO_UPDATE_EACH_TIME); // For some reason Google is taking lot of time updating each purchase order
+  if (!filteredPurchaseOrders.length) return [[], []];
 
-  return filtered.reduce(
+  filteredPurchaseOrders.splice(COMMON.UTIL.OPEN_ORDERS_TO_UPDATE_EACH_TIME); // For some reason Google Sheets API takes a lot of time updating each purchase order
+
+  return filteredPurchaseOrders.reduce(
     (acc: [PurchaseOrder[], PurchaseOrder[]], purchaseOrder) =>
       purchaseOrder.audit.isPurchase
         ? [[...acc[0], purchaseOrder], [...acc[1]]]
@@ -102,6 +108,23 @@ function setUpdatedPurchaseOrders(purchaseOrders: PurchaseOrder[]) {
   return _purchaseOrderRepository.useCarefully.updateAllBypassingAudit(
     purchaseOrders
   );
+}
+
+function _manageConflictivePurchaseOrders(purchaseOrders: PurchaseOrder[]) {
+  const conflictivePurchaseOrders = purchaseOrders.filter(
+    ({audit: {conflictive}}) => conflictive
+  );
+
+  if (!conflictivePurchaseOrders.length) return;
+
+  const conflictivePurchaseOrdersToUpdate = conflictivePurchaseOrders.map(
+    purchaseOrder => {
+      purchaseOrder.audit!.updatedInSheet = true;
+      return purchaseOrder;
+    }
+  );
+
+  updateAll(conflictivePurchaseOrdersToUpdate);
 }
 
 const purchaseOrderService = {
