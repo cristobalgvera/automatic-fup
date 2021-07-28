@@ -1,3 +1,10 @@
+/*
+Automatic FUP
+https://github.com/cristobalgvera/automatic-fup
+ 
+Cristóbal Gajardo Vera
+*/
+
 const DB = {
   ID: '1k_YcNsVhS5I_01fICPNNieHWCzdxhyQdJTQSyaEvSiw',
   SHEET: {

@@ -13,62 +13,50 @@ import {exportPurchaseVendorData} from './util/one-time/export-purchase-vendor-d
 import {uploadToAnalytics} from './util/one-time/upload-to-analytics.one-time';
 import {exportRepairVendorData} from './util/one-time/export-repair-vendor-data.one-time';
 
-/****************************************************************
- *
- *                   ***********************
- *                   **   AUTOMATIC FUP   **
- *                   ***********************
- *
- *             Designed by Cristóbal Gajardo Vera
- *        https://github.com/cristobalgvera/automatic-fup
- *
- *****************************************************************/
+/*
+Automatic FUP
+https://github.com/cristobalgvera/automatic-fup
+ 
+Cristóbal Gajardo Vera
+*/
 
-// To be manual
 function consolidatePurchases() {
   consolidateOpenOrders();
-}
+} // To be manual
 
-// To be manual
 function consolidateRepairs() {
   consolidateOpenOrders(false);
-}
+} // To be manual
 
-// To be manual
 function createFileForEachPurchaseVendor(automatic?: boolean) {
   if (notifyDevMode(automatic)) createVendorFiles(true, automatic);
-}
+} // To be manual
 
-// To be manual
 function createFileForEachRepairVendor(automatic?: boolean) {
   if (notifyDevMode(automatic)) createVendorFiles(false, automatic);
-}
+} // To be manual
 
-// To be automatic
 function createFileForEachPurchaseVendorAutomatic() {
   if (COMMON.CONFIGURATION()[DB.UTIL.CONFIG.FEATURE.AUTOMATIC_PURCHASES])
     createFileForEachPurchaseVendor(true);
   else console.warn(automaticSendDisabled());
-}
+} // To be automatic
 
-// To be automatic
 function createFileForEachRepairVendorAutomatic() {
   if (COMMON.CONFIGURATION()[DB.UTIL.CONFIG.FEATURE.AUTOMATIC_REPAIRS])
     createFileForEachRepairVendor(true);
   else console.warn(automaticSendDisabled());
-}
+} // To be automatic
 
-// To be automatic
 function getOpenOrders() {
   if (!COMMON.DEV_MODE()) getOpenOrdersFromVendors();
   else console.warn(disabledDueDevMode());
-}
+} // To be automatic
 
 function getOpenOrdersDevMode() {
   getOpenOrdersFromVendors();
 }
 
-// To be automatic
 function updateOpenOrders() {
   if (COMMON.DEV_MODE()) {
     console.warn(disabledDueDevMode());
@@ -81,17 +69,15 @@ function updateOpenOrders() {
   }
 
   updateFupData();
-}
+} // To be automatic
 
-// To be automatic
 function BYPASScreateFileForEachPurchaseVendorAutomatic() {
   createFileForEachPurchaseVendor(true);
-}
+} // To be automatic
 
-// To be automatic
 function BYPASScreateFileForEachRepairVendorAutomatic() {
   createFileForEachRepairVendor(true);
-}
+} // To be automatic
 
 function updatePurchaseVendors() {
   exportPurchaseVendorData();
