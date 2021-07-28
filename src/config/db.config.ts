@@ -1,7 +1,7 @@
 /*
 Automatic FUP
 https://github.com/cristobalgvera/automatic-fup
- 
+
 Cristóbal Gajardo Vera
 */
 

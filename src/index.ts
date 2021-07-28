@@ -1,22 +1,20 @@
-import {consolidateOpenOrders} from './service/drive.service';
-import {COMMON, DB, UI} from './config';
-import {getOpenOrdersFromVendors} from './service/mail.service';
-import {updateFupData} from './service/write.service';
+import {COMMON, DB} from './config';
 import {createVendorFiles} from './service/assembler.service';
-import {notifyDevMode, validWorkingHours} from './service/utility.service';
+import {consolidateOpenOrders} from './service/drive.service';
+import {getOpenOrdersFromVendors} from './service/mail.service';
 import {
   automaticSendDisabled,
   disabledDueDevMode,
   serviceDisabled,
 } from './service/message.service';
-import {exportPurchaseVendorData} from './util/one-time/export-purchase-vendor-data.one-time';
-import {uploadToAnalytics} from './util/one-time/upload-to-analytics.one-time';
-import {exportRepairVendorData} from './util/one-time/export-repair-vendor-data.one-time';
+import {notifyDevMode, validWorkingHours} from './service/utility.service';
+import {updateFupData} from './service/write.service';
+import {updateVendorData} from './util/one-time';
 
 /*
 Automatic FUP
 https://github.com/cristobalgvera/automatic-fup
- 
+
 Cristóbal Gajardo Vera
 */
 
@@ -79,14 +77,6 @@ function BYPASScreateFileForEachRepairVendorAutomatic() {
   createFileForEachRepairVendor(true);
 } // To be automatic
 
-function updatePurchaseVendors() {
-  exportPurchaseVendorData();
-}
-
-function updateRepairVendors() {
-  exportRepairVendorData();
-}
-
-function uploadVendorsToAnalytics() {
-  uploadToAnalytics();
+function test() {
+  updateVendorData();
 }

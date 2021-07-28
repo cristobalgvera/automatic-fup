@@ -1,6 +1,9 @@
 import {COMMON, UI} from '../config';
 import {PurchaseOrder} from '../util/schema/purchase-order.schema';
 
+const emailRegex =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
 function today() {
   return new Date().toLocaleDateString(COMMON.UTIL.LOCALE);
 }
@@ -54,8 +57,7 @@ function addSuffix(name: string, suffix: string, addSpace = true) {
 }
 
 function validateEmail(email: string) {
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(email.toLowerCase());
+  return emailRegex.test(email.toLowerCase());
 }
 
 function obtainEmail(sender: string) {
@@ -77,14 +79,10 @@ function keysToCamelCase(obj: {}) {
 
 function normalizeStringEmailsList(stringEmailList: string) {
   type Separator = {emails: string[]; unknowns: string[]};
-  const re = /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
 
   const spaceSplit = stringEmailList.split(/[<>()/[\]\\,;:\s"]/);
   const groupByRegExp = spaceSplit
-    .map(word => {
-      const groupArray = re.exec(word);
-      return groupArray ? groupArray[0] : null;
-    })
+    .map(word => emailRegex.exec(word)?.[0])
     .filter(val => val);
   // const filterAt = spaceSplit.filter(word => word.includes('@'));
   const {emails, unknowns} = groupByRegExp.reduce(
