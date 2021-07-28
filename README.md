@@ -2,7 +2,7 @@ _Based on ***[this](https://github.com/cristobalgvera/ez-clasp)*** template_
 
 # 💻 TL;DR:
 
-_\* Only will works with LATAM Google credentials_
+_\* Only will works with LATAM's Google credentials_
 
 ```bash
 git clone https://github.com/cristobalgvera/automatic-fup.git
@@ -12,7 +12,7 @@ npm i
 # If you didn't activate your Google dev stuff yet,
 # read template repository and follow the instructions
 
-clasp login # Log into your LATAM Google account
+clasp login # Log into your LATAM's Google account
 ```
 
 To deploy code to the cloud
