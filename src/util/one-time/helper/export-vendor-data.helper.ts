@@ -1,50 +1,13 @@
-import {DB} from '../../config';
-import {changeVendorId} from './change-vendor-id.one-time';
+import {DB} from '../../../config';
 import {
-  exportPurchaseVendorData,
-  updatePurchaseVendors,
-} from './export-purchase-vendor-data.one-time';
-import {
-  exportRepairVendorData,
-  updateRepairVendors,
-} from './export-repair-vendor-data.one-time';
+  IdStringArray,
+  IdStringBooleanArray,
+} from '../worker/export-vendor-data.worker';
 
-export type IdStringArray = {[id: string]: string[]};
-export type IdStringBooleanArray = {[id: string]: (string | boolean)[]};
+type Sheet = GoogleAppsScript.Spreadsheet.Sheet;
+type Config = {clearContentFirst: boolean};
 
-export function filterPurchaseVendorData() {
-  exportPurchaseVendorData();
-  changeVendorId('C - ', 'COMPRAS');
-}
-
-export function filterRepairVendorData() {
-  exportRepairVendorData();
-  changeVendorId('R - ', 'REPARACIONES SSC');
-  changeVendorId('R - ', 'REPARACIONES BRA');
-}
-
-export function updateVendorData() {
-  const {
-    vendorContacts: repairVendorContacts,
-    linkedVendorNames: repairLinkedVendorNames,
-  } = updateRepairVendors();
-  const {
-    vendorContacts: purchaseVendorContacts,
-    linkedVendorNames: purchaseLinkedVendorNames,
-  } = updatePurchaseVendors();
-
-  const {updatedVendorContacts, updatedLinkedVendorNames} = _persistVendorData({
-    vendorContacts: {...repairVendorContacts, ...purchaseVendorContacts},
-    linkedVendorNames: [
-      ...repairLinkedVendorNames,
-      ...purchaseLinkedVendorNames,
-    ],
-  });
-
-  console.log({updatedVendorContacts, updatedLinkedVendorNames});
-}
-
-function _persistVendorData({
+export function _persistVendorData({
   vendorContacts,
   linkedVendorNames,
 }: {
@@ -94,4 +57,14 @@ function _persistVendorData({
     .concat(linkedVendorNames);
 
   return {updatedVendorContacts, updatedLinkedVendorNames};
+}
+
+export function _updateEntireData(
+  sheet: Sheet,
+  data: unknown[][],
+  config?: Config
+) {
+  if (config.clearContentFirst) sheet.getDataRange().clearContent();
+
+  sheet.getRange(1, 1, data.length, data[0].length).setValues(data);
 }

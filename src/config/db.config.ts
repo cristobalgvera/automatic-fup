@@ -14,6 +14,8 @@ const DB = {
     VENDOR_ZONE: 'Vendor Zone',
     DEV: 'DEV',
     CONFIG: 'Config',
+    VENDOR_UPDATE: '[Update] Vendor',
+    LINKED_VENDOR_NAME_UPDATE: '[Update] Linked Vendor Name',
   },
   COLUMN: {
     VENDOR_ID: 'VendorId',

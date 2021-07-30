@@ -1,4 +1,7 @@
-import {IdStringArray, IdStringBooleanArray} from '.';
+import {
+  IdStringArray,
+  IdStringBooleanArray,
+} from './worker/export-vendor-data.worker';
 import {DB} from '../../config';
 import {normalizeStringEmailsList} from '../../service/utility.service';
 

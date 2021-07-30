@@ -208,7 +208,19 @@ function updatingPurchaseResponsible() {
   return 'Updating purchase responsible...';
 }
 
+function gettingVendorsData(isPurchase?: boolean) {
+  return `Obteniendo información de nuevos registros de proveedores en ${
+    isPurchase ? 'compras' : 'reparaciones'
+  }`;
+}
+
+function mergingVendorsData() {
+  return 'Juntando información de actual de proveedores con nueva información obtenida';
+}
+
 export {
+  mergingVendorsData,
+  gettingVendorsData,
   updatingPurchaseResponsible,
   updatingRepairResponsible,
   updatingResponsible,

@@ -9,6 +9,10 @@ import {
 } from './service/message.service';
 import {notifyDevMode, validWorkingHours} from './service/utility.service';
 import {updateFupData} from './service/write.service';
+import {
+  replaceVendorData,
+  updateVendorData,
+} from './util/one-time/worker/export-vendor-data.worker';
 
 /*
 Automatic FUP
@@ -17,13 +21,18 @@ https://github.com/cristobalgvera/automatic-fup
 Cristóbal Gajardo Vera
 */
 
-function consolidatePurchases() {
-  consolidateOpenOrders();
-} // To be manual
+function onOpen() {
+  const ui = SpreadsheetApp.getUi();
 
-function consolidateRepairs() {
-  consolidateOpenOrders(false);
-} // To be manual
+  ui.createMenu('Acciones')
+    .addSubMenu(
+      ui
+        .createMenu('Información de contacto')
+        .addItem('Actualizar', 'updateVendorAndLinkedVendorData')
+        .addItem('Reemplazar', 'replaceVendorAndLinkedVendorData')
+    )
+    .addToUi();
+}
 
 function createFileForEachPurchaseVendor(automatic?: boolean) {
   if (notifyDevMode(automatic)) createVendorFiles(true, automatic);
@@ -50,10 +59,6 @@ function getOpenOrders() {
   else console.warn(disabledDueDevMode());
 } // To be automatic
 
-function getOpenOrdersDevMode() {
-  getOpenOrdersFromVendors();
-}
-
 function updateOpenOrders() {
   if (COMMON.DEV_MODE()) {
     console.warn(disabledDueDevMode());
@@ -68,10 +73,10 @@ function updateOpenOrders() {
   updateFupData();
 } // To be automatic
 
-function BYPASScreateFileForEachPurchaseVendorAutomatic() {
-  createFileForEachPurchaseVendor(true);
-} // To be automatic
+function updateVendorAndLinkedVendorData() {
+  updateVendorData();
+} // To be manual
 
-function BYPASScreateFileForEachRepairVendorAutomatic() {
-  createFileForEachRepairVendor(true);
-} // To be automatic
+function replaceVendorAndLinkedVendorData() {
+  replaceVendorData();
+} // To be manual
