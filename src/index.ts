@@ -9,7 +9,6 @@ import {
 } from './service/message.service';
 import {notifyDevMode, validWorkingHours} from './service/utility.service';
 import {updateFupData} from './service/write.service';
-import {updateVendorData} from './util/one-time';
 
 /*
 Automatic FUP
@@ -76,7 +75,3 @@ function BYPASScreateFileForEachPurchaseVendorAutomatic() {
 function BYPASScreateFileForEachRepairVendorAutomatic() {
   createFileForEachRepairVendor(true);
 } // To be automatic
-
-function test() {
-  updateVendorData();
-}
